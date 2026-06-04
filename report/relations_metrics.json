@@ -1,0 +1,61 @@
+{
+  "area": "relations",
+  "artifact": "outputs\\measure_relations.csv",
+  "artifact_status": "available",
+  "config_name": "evaluation",
+  "corpus": "fixture",
+  "latest_run_summary": {
+    "accepted_count": 22769,
+    "candidate_count": 22769,
+    "confidence_bands": {
+      "0.00-0.69": 15191,
+      "0.70-0.84": 6864,
+      "0.85-1.00": 714
+    },
+    "generation_method_distribution": {
+      "domains": 21053,
+      "embedding_similarity": 21056,
+      "lexical_containment": 1705,
+      "lexical_variant": 8,
+      "qualifier_patterns": 1705,
+      "title_family": 11
+    },
+    "llm_adjudication_enabled": false,
+    "rejection_distribution": {},
+    "relation_type_distribution": {
+      "broader_than": 1705,
+      "related_to": 21053,
+      "variant_of": 11
+    },
+    "run_id": "run_bc54c855edc0db4b8914"
+  },
+  "manual_review": {
+    "completed_count": 100,
+    "false_positive_taxonomy": {
+      "classification_leakage": 8,
+      "domain_only_similarity": 8,
+      "incomplete_or_generic_term": 1,
+      "lexical_overlap_only": 1,
+      "shared_breakdown_only": 1,
+      "shared_breakdown_or_geography": 1,
+      "shared_geography_only": 2
+    },
+    "precision_at_10": 1.0,
+    "precision_at_25": 0.96,
+    "precision_at_50": 0.9,
+    "review_sample": "outputs\\relations\\run_bc54c855edc0db4b8914\\manual_relation_review_sample.csv",
+    "sample_count": 100,
+    "status": "available",
+    "typed_accuracy": 0.8205128205128205
+  },
+  "relation_count": 22769,
+  "relation_type_distribution": {
+    "broader_than": 1705,
+    "related_to": 21053,
+    "variant_of": 11
+  },
+  "validation": {
+    "failures": [],
+    "passed": true
+  }
+}

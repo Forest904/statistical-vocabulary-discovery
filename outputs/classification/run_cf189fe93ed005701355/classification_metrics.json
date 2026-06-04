@@ -1,0 +1,16 @@
+{
+  "agreement": {
+    "message": "Blind relabel categories are not complete.",
+    "status": "pending"
+  },
+  "area": "classification",
+  "config_name": "core",
+  "corpus": "core",
+  "gold_labels": "data\\gold\\vocabulary_gold_labels.csv",
+  "gold_relabel": "data\\gold\\vocabulary_gold_relabel.csv",
+  "gold_sample": "data\\gold\\vocabulary_gold_sample.csv",
+  "gold_status": "pending",
+  "message": "Classification predictions exist, but gold labels are pending.",
+  "metrics_status": "pending_gold_labels",
+  "variant": "local-hybrid"
+}

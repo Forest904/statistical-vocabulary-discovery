@@ -1,0 +1,25 @@
+{
+  "accepted_count": 22769,
+  "candidate_count": 22769,
+  "confidence_bands": {
+    "0.00-0.69": 15191,
+    "0.70-0.84": 6864,
+    "0.85-1.00": 714
+  },
+  "generation_method_distribution": {
+    "domains": 21053,
+    "embedding_similarity": 21056,
+    "lexical_containment": 1705,
+    "lexical_variant": 8,
+    "qualifier_patterns": 1705,
+    "title_family": 11
+  },
+  "llm_adjudication_enabled": false,
+  "rejection_distribution": {},
+  "relation_type_distribution": {
+    "broader_than": 1705,
+    "related_to": 21053,
+    "variant_of": 11
+  },
+  "run_id": "run_bc54c855edc0db4b8914"
+}
