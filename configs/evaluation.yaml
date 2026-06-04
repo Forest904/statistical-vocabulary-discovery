@@ -36,3 +36,13 @@ classification:
   pearl_revision: 0d29fb4a61ec2a11b60e8b078664389eb915286b
   embedding_batch_size: 16
   abstention_threshold: 0.55
+clustering:
+  hdbscan_min_cluster_size: 2
+  hdbscan_min_samples: 1
+  hdbscan_metric: euclidean
+  agglomerative_distance_threshold: 0.35
+  agglomerative_linkage: average
+  domain_similarity_threshold: 0.35
+  domain_similarity_margin: 0.03
+  representative_count: 2
+  manual_review_sample_size: 12

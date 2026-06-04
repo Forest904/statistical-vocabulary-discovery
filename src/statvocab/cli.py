@@ -14,6 +14,8 @@ from statvocab import __version__
 from statvocab.artifact_validation import validate_artifacts as run_artifact_validation
 from statvocab.classification import run_classification
 from statvocab.classification_evaluate import evaluate_classification
+from statvocab.cluster_measures import run_measure_clustering
+from statvocab.clustering_evaluate import evaluate_clustering
 from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
@@ -179,10 +181,21 @@ def classify(
 
 @app.command("cluster-measures")
 def cluster_measures(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Cluster measures into domains. Reserved for Milestone 4."""
+    """Cluster final measures into controlled statistical domains."""
 
-    _ = config
-    _not_ready("cluster-measures", "Milestone 4")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_measure_clustering(loaded, resources=resources)
+    console.print(
+        {
+            "run_id": diagnostics["run_id"],
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "measure_count": diagnostics["measure_count"],
+            "coverage": diagnostics.get("coverage", 0.0),
+            "cluster_count": diagnostics.get("cluster_count", 0),
+        }
+    )
 
 
 @app.command()
@@ -230,6 +243,18 @@ def evaluate(
                 "metrics": str(metrics_path),
                 "gold_status": payload["gold_status"],
                 "metrics_status": payload.get("metrics_status", "pending_predictions"),
+            }
+        )
+        return
+    if area == "clustering":
+        metrics_path, payload = evaluate_clustering(loaded)
+        console.print(
+            {
+                "area": "clustering",
+                "metrics": str(metrics_path),
+                "artifact_status": payload["artifact_status"],
+                "coverage": payload["coverage"],
+                "validation_passed": payload["validation"]["passed"],
             }
         )
         return

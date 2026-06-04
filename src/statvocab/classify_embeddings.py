@@ -21,7 +21,11 @@ def _sentence_transformer_class() -> Any:
     return module.SentenceTransformer
 
 
-def generate_term_embeddings(config: AppConfig, feature_rows: list[dict[str, Any]]) -> Path:
+def generate_term_embeddings(
+    config: AppConfig,
+    feature_rows: list[dict[str, Any]],
+    output_path: Path | None = None,
+) -> Path:
     """Generate and cache PEARL-small embeddings for all feature rows."""
 
     sentence_transformer = _sentence_transformer_class()
@@ -49,4 +53,5 @@ def generate_term_embeddings(config: AppConfig, feature_rows: list[dict[str, Any
         }
         for row, embedding in zip(feature_rows, embeddings, strict=True)
     ]
-    return write_parquet_rows(rows, config.paths.processed_dir / "term_embeddings.parquet")
+    path = output_path or config.paths.processed_dir / "term_embeddings.parquet"
+    return write_parquet_rows(rows, path)

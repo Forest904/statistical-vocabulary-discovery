@@ -62,6 +62,7 @@ class ParseStatus(StrEnum):
 ID_PREFIXES: frozenset[str] = frozenset(
     {
         "cfg",
+        "cluster",
         "evidence",
         "geo",
         "occ",

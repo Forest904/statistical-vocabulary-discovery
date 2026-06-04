@@ -78,6 +78,22 @@ class ClassificationConfig(BaseModel):
     abstention_threshold: float = Field(default=0.55, ge=0.0, le=1.0)
 
 
+class ClusteringConfig(BaseModel):
+    """Milestone 4 measure-domain clustering defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    hdbscan_min_cluster_size: int = Field(default=5, gt=1)
+    hdbscan_min_samples: int = Field(default=2, gt=0)
+    hdbscan_metric: str = "euclidean"
+    agglomerative_distance_threshold: float = Field(default=0.35, gt=0.0)
+    agglomerative_linkage: str = "average"
+    domain_similarity_threshold: float = Field(default=0.35, ge=0.0, le=1.0)
+    domain_similarity_margin: float = Field(default=0.03, ge=0.0, le=1.0)
+    representative_count: int = Field(default=5, gt=0)
+    manual_review_sample_size: int = Field(default=100, gt=0)
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -90,6 +106,7 @@ class AppConfig(BaseModel):
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
     extraction: ExtractionConfig = Field(default_factory=ExtractionConfig)
     classification: ClassificationConfig = Field(default_factory=ClassificationConfig)
+    clustering: ClusteringConfig = Field(default_factory=ClusteringConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:
