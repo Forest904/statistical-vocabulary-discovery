@@ -4,6 +4,7 @@ from statvocab.config import ExtractionConfig
 from statvocab.geo_extract import (
     build_geography_matcher,
     infer_nuts_level,
+    is_geography_metadata_column,
     load_eurostat_geo_entries,
 )
 
@@ -42,6 +43,34 @@ def test_nuts_exact_and_normalized_matching(tmp_path: Path) -> None:
     assert name is not None
     assert name.code == "IT"
     assert name.match_method == "normalized_name"
+
+
+def test_country_common_name_alias_and_geography_column_detection(tmp_path: Path) -> None:
+    nuts_path = tmp_path / "NUTS_AT_2024.csv"
+    nuts_path.write_text(
+        "CNTR_CODE,NUTS_ID,NAME_LATN,NUTS_NAME,MOUNT_TYPE,URBN_TYPE,COAST_TYPE\n"
+        "DE,DE,Deutschland,Deutschland,,,\n",
+        encoding="utf-8",
+    )
+    matcher = build_geography_matcher(
+        ExtractionConfig(nuts_2024_path=nuts_path),
+        variant="nuts",
+    )
+
+    match = matcher.match(
+        "Germany",
+        table_id="t",
+        source_area="metadata_value",
+        location="row[2].col[4]",
+        metadata_column="Geopolitical entity (reporting)\\Time",
+    )
+
+    assert match is not None
+    assert match.code == "DE"
+    assert is_geography_metadata_column("geo\\TIME_PERIOD")
+    assert is_geography_metadata_column("Geopolitical entity (reporting)\\Time")
+    assert not is_geography_metadata_column("Media")
+    assert not is_geography_metadata_column("Sex\\Time")
 
 
 def test_enhanced_geo_codelist_matches_aggregates(tmp_path: Path) -> None:

@@ -61,3 +61,49 @@ def test_title_range_prevents_duplicate_standalone_years() -> None:
 
     assert [item.normalized_value for item in title_times] == ["2019-2021"]
     assert title_times[0].granularity == "range"
+
+
+def test_french_quarter_headers_normalize_to_standard_quarters() -> None:
+    config = ExtractionConfig()
+
+    first = parse_time_value(
+        "Janvier-Mars 1995",
+        table_id="t",
+        source_area="header_time",
+        location="header[0]",
+        config=config,
+    )
+    second = parse_time_value(
+        "Avril-Juin 2010",
+        table_id="t",
+        source_area="header_time",
+        location="header[1]",
+        config=config,
+    )
+    typo_third = parse_time_value(
+        "Jullet-Septembre 2024",
+        table_id="t",
+        source_area="header_time",
+        location="header[2]",
+        config=config,
+    )
+    fourth = parse_time_value(
+        "Octobre-Décembre 2025",
+        table_id="t",
+        source_area="header_time",
+        location="header[3]",
+        config=config,
+    )
+
+    assert first is not None
+    assert (first.normalized_value, first.start_date, first.end_date) == (
+        "1995-Q1",
+        "1995-01-01",
+        "1995-03-31",
+    )
+    assert second is not None
+    assert second.normalized_value == "2010-Q2"
+    assert typo_third is not None
+    assert typo_third.normalized_value == "2024-Q3"
+    assert fourth is not None
+    assert fourth.normalized_value == "2025-Q4"

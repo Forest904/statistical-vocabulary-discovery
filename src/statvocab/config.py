@@ -42,6 +42,7 @@ class EvaluationConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     fixture_corpus: Path = Path("data/fixtures/eurostat_star_edge_cases")
+    extraction_gold_dir: Path = Path("data/gold")
     random_seed: int = 42
     extraction_review_tables: int = Field(default=50, gt=0)
     vocabulary_gold_terms: int = Field(default=500, gt=0)

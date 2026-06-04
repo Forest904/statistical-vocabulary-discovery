@@ -13,7 +13,11 @@ import pyarrow.parquet as pq
 
 from statvocab.config import AppConfig
 from statvocab.contracts import ResourceRecord, stable_id
-from statvocab.geo_extract import GeographyMatch, build_geography_matcher
+from statvocab.geo_extract import (
+    GeographyMatch,
+    build_geography_matcher,
+    is_geography_metadata_column,
+)
 from statvocab.ingest import _read_csv_rows
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
 from statvocab.normalize import is_numeric_like, normalize_display, normalize_matching_key
@@ -417,44 +421,45 @@ def run_extraction(
             metadata_column = cast(str | None, string_row.get("metadata_column"))
             row_index = cast(int | None, string_row.get("row_index"))
             column_index = cast(int | None, string_row.get("column_index"))
-            nuts_match = nuts_matcher.match(
-                str(string_row["raw_term"]),
-                table_id=table_id,
-                source_area=source_area,
-                location=location,
-                metadata_column=metadata_column,
-                row_index=row_index,
-                column_index=column_index,
-            )
-            enhanced_match = enhanced_matcher.match(
-                str(string_row["raw_term"]),
-                table_id=table_id,
-                source_area=source_area,
-                location=location,
-                metadata_column=metadata_column,
-                row_index=row_index,
-                column_index=column_index,
-            )
-            for match in (nuts_match, enhanced_match):
-                if match is not None:
-                    geography_rows.append(_geo_to_row(match, artifact_run_id))
-            active_match = active_matcher.match(
-                str(string_row["raw_term"]),
-                table_id=table_id,
-                source_area=source_area,
-                location=location,
-                metadata_column=metadata_column,
-                row_index=row_index,
-                column_index=column_index,
-            )
-            if active_match is not None:
-                active_geo_keys.add(
-                    (
-                        str(string_row["table_id"]),
-                        str(string_row["source_area"]),
-                        str(string_row["location"]),
-                    )
+            if is_geography_metadata_column(metadata_column):
+                nuts_match = nuts_matcher.match(
+                    str(string_row["raw_term"]),
+                    table_id=table_id,
+                    source_area=source_area,
+                    location=location,
+                    metadata_column=metadata_column,
+                    row_index=row_index,
+                    column_index=column_index,
                 )
+                enhanced_match = enhanced_matcher.match(
+                    str(string_row["raw_term"]),
+                    table_id=table_id,
+                    source_area=source_area,
+                    location=location,
+                    metadata_column=metadata_column,
+                    row_index=row_index,
+                    column_index=column_index,
+                )
+                for match in (nuts_match, enhanced_match):
+                    if match is not None:
+                        geography_rows.append(_geo_to_row(match, artifact_run_id))
+                active_match = active_matcher.match(
+                    str(string_row["raw_term"]),
+                    table_id=table_id,
+                    source_area=source_area,
+                    location=location,
+                    metadata_column=metadata_column,
+                    row_index=row_index,
+                    column_index=column_index,
+                )
+                if active_match is not None:
+                    active_geo_keys.add(
+                        (
+                            str(string_row["table_id"]),
+                            str(string_row["source_area"]),
+                            str(string_row["location"]),
+                        )
+                    )
 
         title_geo_matches = active_matcher.find_in_title(title or "", table_id=table_id)
         geography_rows.extend(_geo_to_row(match, artifact_run_id) for match in title_geo_matches)

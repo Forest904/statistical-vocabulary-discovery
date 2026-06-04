@@ -96,13 +96,20 @@ def _review_sample(config: AppConfig) -> list[dict[str, Any]]:
 def _gold_path(config: AppConfig) -> Path:
     if config.corpus.name == "fixture" and config.corpus.fixture_path is not None:
         return config.corpus.fixture_path / "extraction_gold.csv"
-    return config.paths.processed_dir / "extraction_gold_labels.csv"
+    return config.evaluation.extraction_gold_dir / "extraction_gold_labels.csv"
+
+
+def _completed_gold_template_path(config: AppConfig, generated_template_path: Path) -> Path:
+    if config.corpus.name == "fixture":
+        return generated_template_path
+    tracked_template_path = config.evaluation.extraction_gold_dir / "extraction_gold_template.csv"
+    return tracked_template_path if tracked_template_path.exists() else generated_template_path
 
 
 def _read_gold(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
-    with path.open("r", encoding="utf-8", newline="") as file:
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
 
@@ -184,12 +191,13 @@ def run_extraction_evaluation(config: AppConfig) -> tuple[Path, Path, dict[str, 
     )
 
     gold_path = _gold_path(config)
+    completed_template_path = _completed_gold_template_path(config, template_path)
     gold_rows = _read_gold(gold_path)
     payload: dict[str, Any] = {
         "config_name": config.config_name,
         "corpus": config.corpus.name,
         "review_sample": str(review_path),
-        "gold_template": str(template_path),
+        "gold_template": str(completed_template_path),
         "gold_labels": str(gold_path),
         "gold_status": "available" if gold_rows else "pending",
     }

@@ -1,17 +1,19 @@
-# Assignment Steps 1-5: Extraction Draft
+# Assignment Steps 1-5: Milestone 2 Extraction
 
-This draft documents Milestone 2 outputs produced by:
+This report documents the completed Milestone 2 extraction pipeline for the
+core 2,000-table Eurostat STAR corpus. The current artifacts are produced by:
 
 ```bash
 statvocab extract --config configs/core.yaml
-statvocab evaluate --config configs/evaluation.yaml --area extraction
+statvocab evaluate --config configs/core.yaml --area extraction
 ```
 
 ## 1. Time Interval Extraction
 
 The extractor reads Milestone 1 `tables.parquet`, uses detected time-header
-columns, and also scans linked titles. It recognizes years, integer-like years
-such as `2024.0`, quarters, months, ISO dates, explicit year ranges, and
+columns, and scans linked titles. It recognizes years, integer-like years such
+as `2024.0`, standard quarters, French quarter labels found in the core corpus
+such as `Janvier-Mars 1995`, months, ISO dates, explicit year ranges, and
 `until YYYY` title phrases. Each occurrence is normalized to a typed interval
 with start date, end date, granularity, raw expression, source area, source
 location or title span, rule ID, confidence, and deterministic `time_id`.
@@ -72,7 +74,7 @@ Outputs:
 Every global term has at least one occurrence, and role conflicts are preserved
 in JSON summaries rather than overwritten.
 
-## Evaluation Draft
+## Evaluation And Gold Review
 
 `statvocab evaluate --area extraction` writes:
 
@@ -80,7 +82,28 @@ in JSON summaries rather than overwritten.
 - `data/processed/extraction_gold_template.csv`
 - `report/extraction_metrics.json`
 
-The tracked fixture corpus includes `extraction_gold.csv` for automated
-regression tests. The 50-table core review remains a human annotation workflow:
-the template is exported first, and metrics are computed when labels are
-completed.
+The completed 50-table human review is tracked separately from generated
+processed artifacts:
+
+- `data/gold/extraction_review_sample.csv`
+- `data/gold/extraction_gold_template.csv`
+- `data/gold/extraction_gold_labels.csv`
+
+The tracked fixture corpus still includes `extraction_gold.csv` for automated
+regression tests. For core/full evaluation, `extraction_gold_labels.csv` in
+`data/gold/` is the reviewed ground truth used for metrics.
+
+Current core review metrics:
+
+| Area | TP | FP | FN | TN | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Time | 128 | 0 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| String | 170 | 0 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| Geography | 97 | 0 | 0 | 22 | 1.000 | 1.000 | 1.000 |
+| Title | 50 | 0 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+
+The review sample is intentionally scoped rather than exhaustive. Remaining
+limitations are deterministic rather than silent: unsupported time expressions
+outside the implemented rules are left unparsed, geography matching remains
+exact dictionary matching, and title processing does not paraphrase or infer
+concepts beyond cleaned title evidence.

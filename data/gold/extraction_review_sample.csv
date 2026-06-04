@@ -1,0 +1,51 @@
+table_id,title,parse_status,warning_count,row_count,time_column_count,metadata_column_count
+aei_hri,Harmonised risk indicator 1 for pesticides by categorisation of active substances,parsed,0,64,12,4
+aei_pestsal_rsk,Pesticide sales by categorisation of active substances,parsed,0,180,11,4
+apri_lprc_h,Agricultural land prices by region - historical data (until 2009),parsed,0,84,25,4
+apri_lrnt_h,Agricultural land renting prices for one year by region - historical data (until 2009),parsed,0,96,25,4
+apri_pi95_vwia,Weights of purchase prices of the means of agricultural production - survey 1995,parsed,0,723,1,4
+apri_pi95_vwpa,Weights of producer prices of agricultural products - survey 1995,parsed,0,835,1,4
+apro_ec_egghen,Production of eggs for consumption and number of laying hens (2013-2024),parsed,0,154,11,5
+apro_ec_lshen,Laying hens population - annual data (1960-2012),parsed,0,29,53,4
+apro_mk_fatprot,Fat contents and protein contents (cow's milk) - annual data,parsed,0,93,64,4
+apro_mt_lsequi,Livestock - Equidae - annual data (1960-1997),parsed,0,57,38,4
+apro_mt_ppighq,Production forecasts for pigs - quarterly data,parsed,0,37,122,5
+avia_ec_emp_arp,Persons employed in main airports by sex,parsed,0,292,19,3
+avia_ec_emp_ent,Persons employed in aviation and airport enterprises by sex (2001-2013),parsed,0,64,13,4
+avia_ec_enterp,Aviation and airport enterprises (2001-2013),parsed,0,28,13,3
+avia_eq_arc_age,Commercial aircraft fleet by age of aircraft and country of operator,parsed,0,216,24,3
+avia_eq_arc_agereg,Commercial aircraft fleet by age of aircraft and country of registration,parsed,0,204,24,4
+avia_if_arp,Commercial airports by type,parsed,0,184,21,3
+avia_tpgo,Freight and mail air transport over national territory (including territorial sea) - million tonne-km,parsed,0,124,15,4
+avia_tppa,Passenger air transport over national territory (including territorial sea) - million passenger-km,parsed,0,124,15,4
+bop_its_str,International trade in services - market integration indicators - historical data (1992-2013),parsed,0,76,22,4
+bs_bs10_00,Turnover by client specialisation and employment size class (2000),parsed,0,96,1,5
+bs_bs11_00,Turnover by client specialisation and product specialisation (2000),parsed,0,48,1,5
+bs_bs13_04,Turnover by type of media for advertising services (2004),parsed,0,96,1,5
+bs_bs14_04,Income from intellectual property rights for computer services (2004),parsed,0,13,1,4
+bs_bs16_04,Purchases of advertising space or time for resale (2004),parsed,0,14,1,4
+bs_bs1_00,Turnover by product specialisation for div. 72 (2000),parsed,0,24,2,4
+bs_bs2_00,Turnover by product specialisation and employment size class for group 72.2 (2000),parsed,0,117,2,5
+bs_bs4_06,Turnover by residence of client and economic activity (2006),parsed,0,240,1,5
+bs_bs5_00,Turnover by type of client and NACE Rev.1 at 3-digit level (2000),parsed,0,206,2,5
+bs_bs5_04,Number of enterprises carrying out cross border trade by employment size class (2004),parsed,0,135,1,5
+bs_bs6_00,Turnover by type of client and employment size class (2000),parsed,0,152,2,5
+bs_bs6_04,Number of enterprises carrying out cross border trade by type of cross border trade and employment size class (2004),parsed,0,270,1,5
+bs_bs7_00,Turnover by nationality of client and NACE Rev.1 at 3-digit level (2000),parsed,0,159,2,5
+bs_bs7_04,Number of enterprises carrying out cross border trade by reasons for cross border trade and employment size class (2004),parsed,0,270,1,5
+bs_bs8_00,Turnover by nationality of client and employment size class (2000),parsed,0,117,2,5
+bs_bs9_00,Turnover by client specialisation and NACE Rev.1 at 3-digit level (2000),parsed,0,103,1,5
+cei_cie011,Persons employed in circular economy sectors,parsed,0,58,19,4
+cei_cie012,Private investment and gross added value related to circular economy sectors,parsed,0,120,17,4
+cei_cie020,Patents related to recycling and secondary raw materials,parsed,0,65,21,4
+cei_gsr011,Greenhouse gases emissions from production activities,parsed,0,33,24,5
+cei_gsr020,EU self-sufficiency for raw materials,parsed,0,36,9,5
+cei_gsr030,Material import dependency,parsed,0,36,24,4
+cei_pc020,Material footprint,parsed,0,30,24,5
+cei_pc030,Resource productivity,parsed,0,104,24,3
+cei_pc031,Generation of municipal waste per capita,parsed,0,38,23,4
+cei_pc032,Generation of waste excluding major mineral wastes per GDP unit,parsed,0,38,10,3
+cei_pc034,Waste generation per capita,parsed,0,39,10,6
+cei_pc035,Food waste,parsed,0,30,3,6
+cei_pc040,Generation of packaging waste per capita,parsed,0,31,23,5
+cei_pc050,Generation of plastic packaging waste per capita,parsed,0,31,23,5

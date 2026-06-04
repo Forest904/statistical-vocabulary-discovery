@@ -37,6 +37,11 @@ QUARTER_RE = re.compile(
     r"Q(?P<quarter_b>[1-4])[- ]?(?P<year_b>\d{4}))$",
     re.IGNORECASE,
 )
+FRENCH_QUARTER_RE = re.compile(
+    r"^(?P<label>Janvier-Mars|Avril-Juin|Juillet-Septembre|Jullet-Septembre|"
+    r"Octobre-Décembre)\s+(?P<year>\d{4})$",
+    re.IGNORECASE,
+)
 MONTH_CODE_RE = re.compile(r"^(?P<year>\d{4})[- ]?M(?P<month>0?[1-9]|1[0-2])$", re.IGNORECASE)
 ISO_MONTH_RE = re.compile(r"^(?P<year>\d{4})-(?P<month>0[1-9]|1[0-2])$")
 ISO_DAY_RE = re.compile(r"^(?P<year>\d{4})-(?P<month>0[1-9]|1[0-2])-(?P<day>0[1-9]|[12]\d|3[01])$")
@@ -77,6 +82,13 @@ TITLE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 MONTH_NAMES = {
     name.casefold(): index for index, name in enumerate(calendar.month_name) if name
+}
+FRENCH_QUARTER_LABELS = {
+    "janvier-mars": 1,
+    "avril-juin": 2,
+    "juillet-septembre": 3,
+    "jullet-septembre": 3,
+    "octobre-décembre": 4,
 }
 
 
@@ -236,6 +248,27 @@ def parse_time_value(
             source_span_start=source_span_start,
             source_span_end=source_span_end,
             extractor_rule=f"{extractor_rule_prefix}_quarter",
+        )
+
+    match = FRENCH_QUARTER_RE.match(raw)
+    if match:
+        year = int(match.group("year"))
+        quarter = FRENCH_QUARTER_LABELS[match.group("label").casefold()]
+        if not _year_allowed(year, config):
+            return None
+        normalized, start, end, granularity = _quarter_interval(year, quarter)
+        return _build_occurrence(
+            table_id=table_id,
+            raw_value=raw_value,
+            normalized_value=normalized,
+            start_date=start,
+            end_date=end,
+            granularity=granularity,
+            source_area=source_area,
+            location=location,
+            source_span_start=source_span_start,
+            source_span_end=source_span_end,
+            extractor_rule=f"{extractor_rule_prefix}_french_quarter",
         )
 
     match = YEAR_RE.match(raw)

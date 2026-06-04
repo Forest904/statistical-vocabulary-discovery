@@ -65,6 +65,22 @@ FIXTURE_GEO_ENTRIES: tuple[GeographyEntry, ...] = (
         ("EU27_2020",),
     ),
 )
+COMMON_COUNTRY_ALIASES: dict[str, tuple[str, ...]] = {
+    "DE": ("Germany",),
+}
+
+
+def is_geography_metadata_column(column_name: str | None) -> bool:
+    """Return whether a metadata column is intended to carry geography values."""
+
+    if not column_name:
+        return False
+    normalized = normalize_matching_key(column_name)
+    return (
+        normalized == "geo"
+        or normalized.startswith("geo\\")
+        or "geopolitical entity" in normalized
+    )
 
 
 def infer_nuts_level(nuts_id: str) -> str:
@@ -99,7 +115,20 @@ def load_nuts_entries(
             name = name_latn or nuts_name or code
             if not code or not name:
                 continue
-            aliases = tuple(sorted({alias for alias in (code, name_latn, nuts_name) if alias}))
+            aliases = tuple(
+                sorted(
+                    {
+                        alias
+                        for alias in (
+                            code,
+                            name_latn,
+                            nuts_name,
+                            *COMMON_COUNTRY_ALIASES.get(code, ()),
+                        )
+                        if alias
+                    }
+                )
+            )
             entries.append(
                 GeographyEntry(
                     code=code,

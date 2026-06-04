@@ -99,7 +99,12 @@ def test_extraction_evaluation_uses_fixture_gold_labels(tmp_path: Path) -> None:
 def test_extraction_evaluation_without_gold_labels_is_pending(tmp_path: Path) -> None:
     config = _fixture_config(tmp_path)
     config = config.model_copy(
-        update={"corpus": config.corpus.model_copy(update={"name": "core"})}
+        update={
+            "corpus": config.corpus.model_copy(update={"name": "core"}),
+            "evaluation": config.evaluation.model_copy(
+                update={"extraction_gold_dir": tmp_path / "gold"}
+            ),
+        }
     )
     fixture_corpus = load_config("configs/evaluation.yaml").corpus
     run_ingestion(config.model_copy(update={"corpus": fixture_corpus}))
@@ -109,3 +114,28 @@ def test_extraction_evaluation_without_gold_labels_is_pending(tmp_path: Path) ->
     assert metrics_path.exists()
     assert payload["gold_status"] == "pending"
     assert "annotation template" in payload["message"]
+
+
+def test_core_extraction_evaluation_uses_tracked_gold_dir(tmp_path: Path) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config)
+    gold_dir = tmp_path / "gold"
+    gold_dir.mkdir()
+    (gold_dir / "extraction_gold_labels.csv").write_text(
+        "table_id,area,expected_value,expected_present,notes\n"
+        "fixture_regular,time,2019,true,fixture-style core gold label\n",
+        encoding="utf-8",
+    )
+    core_config = config.model_copy(
+        update={
+            "corpus": config.corpus.model_copy(update={"name": "core"}),
+            "evaluation": config.evaluation.model_copy(update={"extraction_gold_dir": gold_dir}),
+        }
+    )
+
+    _review_path, _metrics_path, payload = run_extraction_evaluation(core_config)
+
+    assert payload["gold_labels"] == str(gold_dir / "extraction_gold_labels.csv")
+    assert payload["gold_status"] == "available"
+    assert payload["metrics"]["time"]["tp"] == 1
