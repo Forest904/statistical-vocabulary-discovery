@@ -11,6 +11,8 @@ requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "Repository owner" }]
 dependencies = [
+  "httpx>=0.28,<0.29",
+  "pyarrow>=19.0,<22",
   "pydantic>=2.12,<3",
   "pydantic-settings>=2.8,<3",
   "pyyaml>=6.0.2,<7",
@@ -66,3 +68,6 @@ strict = true
 warn_unreachable = true
 show_error_codes = true
 
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.parquet"]
+ignore_missing_imports = true

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated, cast
 
@@ -11,7 +12,11 @@ from typer.models import OptionInfo
 
 from statvocab import __version__
 from statvocab.config import load_config
+from statvocab.contracts import ResourceRecord
+from statvocab.ingest import run_ingestion
 from statvocab.logging import configure_logging
+from statvocab.manifests import complete_manifest, create_manifest, write_manifest
+from statvocab.resources import acquire_resources, count_csv_files, write_resource_manifest
 
 app = typer.Typer(
     help="Grounded vocabulary discovery for Eurostat-style statistical tables.",
@@ -61,18 +66,62 @@ def _not_ready(command: str, milestone: str) -> None:
 
 @app.command()
 def acquire(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Acquire and verify source resources. Reserved for Milestone 1."""
+    """Acquire and verify source resources."""
 
-    _ = config
-    _not_ready("acquire", "Milestone 1")
+    loaded = load_config(config)
+    manifest = create_manifest(loaded, "acquire")
+    records = acquire_resources(loaded)
+    resource_manifest_path = write_resource_manifest(
+        records,
+        loaded.paths.processed_dir / "resource_manifest.json",
+    )
+    completed = complete_manifest(
+        manifest,
+        resources=tuple(record.resource_id for record in records),
+        artifacts=(str(resource_manifest_path),),
+    )
+    run_manifest_path = write_manifest(
+        completed,
+        loaded.paths.outputs_dir / "manifests" / f"{manifest.run_id}_acquire.json",
+    )
+    archive_name = loaded.corpus.archive_name or ""
+    extracted_count = count_csv_files(loaded.paths.raw_dir / archive_name.removesuffix(".tgz"))
+    console.print(
+        {
+            "resource_manifest": str(resource_manifest_path),
+            "run_manifest": str(run_manifest_path),
+            "resources": {record.name: record.validation_status.value for record in records},
+            "extracted_table_count": extracted_count,
+        }
+    )
 
 
 @app.command()
 def ingest(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Ingest source tables. Reserved for Milestone 1."""
+    """Ingest source tables into the Milestone 1 table inventory."""
 
-    _ = config
-    _not_ready("ingest", "Milestone 1")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    tables_path, diagnostics_path, manifest_path, diagnostics = run_ingestion(
+        loaded,
+        resources=resources,
+    )
+    console.print(
+        {
+            "tables": str(tables_path),
+            "diagnostics": str(diagnostics_path),
+            "run_manifest": str(manifest_path),
+            "inventoried_table_count": diagnostics["inventoried_table_count"],
+            "status_counts": diagnostics["status_counts"],
+        }
+    )
+
+
+def _load_resource_records(path: Path) -> tuple[ResourceRecord, ...]:
+    if not path.exists():
+        return ()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return tuple(ResourceRecord.model_validate(item) for item in payload)
 
 
 @app.command()

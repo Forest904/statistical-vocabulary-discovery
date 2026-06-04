@@ -225,6 +225,7 @@ data/processed/
 data/downloads/
 data/indexes/
 outputs/runs/
+outputs/manifests/
 outputs/**/*.parquet
 outputs/**/*.jsonl
 outputs/**/*.sqlite
