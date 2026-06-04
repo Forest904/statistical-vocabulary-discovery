@@ -95,10 +95,7 @@ ipython_config.py
 # Pipfile.lock
 
 # UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-# uv.lock
+#   StatVocab commits uv.lock for reproducible Python 3.12 environments.
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
@@ -216,3 +213,47 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# StatVocab local planning files
+ai/
+AGENT.md
+
+# StatVocab data and generated artifacts
+data/raw/
+data/external/
+data/processed/
+data/downloads/
+data/indexes/
+outputs/runs/
+outputs/**/*.parquet
+outputs/**/*.jsonl
+outputs/**/*.sqlite
+outputs/**/*.faiss
+outputs/**/*.pkl
+outputs/**/*.joblib
+!outputs/.gitkeep
+
+# Model and API caches
+.cache/
+model_cache/
+models/
+huggingface/
+.huggingface/
+llm_cache/
+
+# Secrets
+.env.*
+!.env.example
+*.secret
+secrets/
+api/.env
+web/.env
+
+# Frontend dependencies and builds
+node_modules/
+web/node_modules/
+web/dist/
+web/build/
+web/.vite/
+web/.next/
+web/coverage/

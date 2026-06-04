@@ -1,0 +1,22 @@
+config_name: core
+random_seed: 42
+corpus:
+  name: core
+  archive_name: eurostat_2000_tables.tgz
+  expected_table_count: 2000
+  expected_md5: 97bda36fec3c7c7ed042ee64ab16bf2c
+paths:
+  data_dir: data
+  raw_dir: data/raw
+  external_dir: data/external
+  processed_dir: data/processed
+  outputs_dir: outputs
+  reports_dir: report
+  prompts_dir: prompts
+  cache_dir: .cache/statvocab
+evaluation:
+  fixture_corpus: data/fixtures/eurostat_star_edge_cases
+  random_seed: 42
+  extraction_review_tables: 50
+  vocabulary_gold_terms: 500
+

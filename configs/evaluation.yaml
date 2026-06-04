@@ -1,0 +1,21 @@
+config_name: evaluation
+random_seed: 42
+corpus:
+  name: fixture
+  expected_table_count: 4
+  fixture_path: data/fixtures/eurostat_star_edge_cases
+paths:
+  data_dir: data
+  raw_dir: data/raw
+  external_dir: data/external
+  processed_dir: data/processed
+  outputs_dir: outputs
+  reports_dir: report
+  prompts_dir: prompts
+  cache_dir: .cache/statvocab
+evaluation:
+  fixture_corpus: data/fixtures/eurostat_star_edge_cases
+  random_seed: 42
+  extraction_review_tables: 4
+  vocabulary_gold_terms: 12
+

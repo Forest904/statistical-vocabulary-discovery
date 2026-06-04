@@ -1,0 +1,5 @@
+unit,geo,programme_level,value
+Percent,ES,Primary education,98.1
+Percent,Spain,Secondary education,87.3
+Percent,ZZ,Malformed row without enough columns
+
