@@ -46,3 +46,11 @@ clustering:
   domain_similarity_margin: 0.03
   representative_count: 2
   manual_review_sample_size: 12
+relations:
+  embedding_similarity_threshold: 0.78
+  related_similarity_threshold: 0.72
+  containment_min_extra_tokens: 1
+  max_candidates_per_measure: 25
+  manual_review_sample_size: 12
+  llm_adjudication_enabled: false
+  llm_confidence_threshold: 0.65

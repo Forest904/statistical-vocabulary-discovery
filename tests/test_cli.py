@@ -64,3 +64,51 @@ def test_clustering_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "clustering" in result.output
+
+
+def test_relations_cli_invokes_runner(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_run(config, *, resources=()):
+        _ = config, resources
+        return (
+            {"measure_relations": Path("outputs/measure_relations.csv")},
+            Path("outputs/manifests/run_relations.json"),
+            {"run_id": "run_test", "candidate_count": 2, "accepted_count": 1},
+        )
+
+    monkeypatch.setattr(cli, "run_measure_relations", fake_run)
+
+    result = CliRunner().invoke(app, ["relations", "--config", "configs/evaluation.yaml"])
+
+    assert result.exit_code == 0
+    assert "run_test" in result.output
+
+
+def test_relations_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_evaluate(config):
+        _ = config
+        return (
+            Path("report/relations_metrics.json"),
+            {
+                "artifact_status": "available",
+                "relation_count": 1,
+                "validation": {"passed": True},
+            },
+        )
+
+    monkeypatch.setattr(cli, "evaluate_relations", fake_evaluate)
+
+    result = CliRunner().invoke(
+        app,
+        ["evaluate", "--area", "relations", "--config", "configs/evaluation.yaml"],
+    )
+
+    assert result.exit_code == 0
+    assert "relations" in result.output

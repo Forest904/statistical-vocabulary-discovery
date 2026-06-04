@@ -94,6 +94,20 @@ class ClusteringConfig(BaseModel):
     manual_review_sample_size: int = Field(default=100, gt=0)
 
 
+class RelationsConfig(BaseModel):
+    """Milestone 5 measure-to-measure relationship defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    embedding_similarity_threshold: float = Field(default=0.78, ge=0.0, le=1.0)
+    related_similarity_threshold: float = Field(default=0.72, ge=0.0, le=1.0)
+    containment_min_extra_tokens: int = Field(default=1, gt=0)
+    max_candidates_per_measure: int = Field(default=25, gt=0)
+    manual_review_sample_size: int = Field(default=100, gt=0)
+    llm_adjudication_enabled: bool = False
+    llm_confidence_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -107,6 +121,7 @@ class AppConfig(BaseModel):
     extraction: ExtractionConfig = Field(default_factory=ExtractionConfig)
     classification: ClassificationConfig = Field(default_factory=ClassificationConfig)
     clustering: ClusteringConfig = Field(default_factory=ClusteringConfig)
+    relations: RelationsConfig = Field(default_factory=RelationsConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:

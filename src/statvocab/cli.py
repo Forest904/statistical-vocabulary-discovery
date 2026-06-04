@@ -22,6 +22,8 @@ from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.ingest import run_ingestion
 from statvocab.logging import configure_logging
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
+from statvocab.relations import run_measure_relations
+from statvocab.relations_evaluate import evaluate_relations
 from statvocab.resources import acquire_resources, count_csv_files, write_resource_manifest
 from statvocab.vocabulary import run_extraction
 
@@ -200,10 +202,20 @@ def cluster_measures(config: Annotated[Path, _config_option()] = Path("configs/c
 
 @app.command()
 def relations(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Generate measure relationship candidates. Reserved for Milestone 5."""
+    """Generate grounded measure relationship candidates."""
 
-    _ = config
-    _not_ready("relations", "Milestone 5")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_measure_relations(loaded, resources=resources)
+    console.print(
+        {
+            "run_id": diagnostics["run_id"],
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "candidate_count": diagnostics["candidate_count"],
+            "accepted_count": diagnostics["accepted_count"],
+        }
+    )
 
 
 @app.command("build-search-index")
@@ -254,6 +266,18 @@ def evaluate(
                 "metrics": str(metrics_path),
                 "artifact_status": payload["artifact_status"],
                 "coverage": payload["coverage"],
+                "validation_passed": payload["validation"]["passed"],
+            }
+        )
+        return
+    if area == "relations":
+        metrics_path, payload = evaluate_relations(loaded)
+        console.print(
+            {
+                "area": "relations",
+                "metrics": str(metrics_path),
+                "artifact_status": payload["artifact_status"],
+                "relation_count": payload["relation_count"],
                 "validation_passed": payload["validation"]["passed"],
             }
         )
