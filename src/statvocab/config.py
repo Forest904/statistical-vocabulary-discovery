@@ -62,6 +62,22 @@ class ExtractionConfig(BaseModel):
     eurostat_geo_codelist_version: str = "GEO 14.0"
 
 
+class ClassificationConfig(BaseModel):
+    """Milestone 3 semantic classification defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gold_sample_size: int = Field(default=500, gt=0)
+    blind_relabel_fraction: float = Field(default=0.10, ge=0.0, le=1.0)
+    train_dev_fraction: float = Field(default=0.60, gt=0.0, lt=1.0)
+    validation_fraction: float = Field(default=0.20, gt=0.0, lt=1.0)
+    final_test_fraction: float = Field(default=0.20, gt=0.0, lt=1.0)
+    pearl_model: str = "Lihuchen/pearl_small"
+    pearl_revision: str = "0d29fb4a61ec2a11b60e8b078664389eb915286b"
+    embedding_batch_size: int = Field(default=64, gt=0)
+    abstention_threshold: float = Field(default=0.55, ge=0.0, le=1.0)
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -73,6 +89,7 @@ class AppConfig(BaseModel):
     paths: PathsConfig = Field(default_factory=PathsConfig)
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
     extraction: ExtractionConfig = Field(default_factory=ExtractionConfig)
+    classification: ClassificationConfig = Field(default_factory=ClassificationConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:

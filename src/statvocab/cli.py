@@ -11,6 +11,9 @@ from rich.console import Console
 from typer.models import OptionInfo
 
 from statvocab import __version__
+from statvocab.artifact_validation import validate_artifacts as run_artifact_validation
+from statvocab.classification import run_classification
+from statvocab.classification_evaluate import evaluate_classification
 from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
@@ -153,10 +156,25 @@ def classify(
     ] = "local-hybrid",
     config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
 ) -> None:
-    """Partition vocabulary into semantic categories. Reserved for Milestone 3."""
+    """Partition vocabulary into semantic categories."""
 
-    _ = (config, variant)
-    _not_ready("classify", "Milestone 3")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_classification(
+        loaded,
+        variant=variant,
+        resources=resources,
+    )
+    console.print(
+        {
+            "variant": variant,
+            "run_id": diagnostics["run_id"],
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "category_counts": diagnostics["category_counts"],
+            "metrics_status": diagnostics["metrics_status"],
+        }
+    )
 
 
 @app.command("cluster-measures")
@@ -204,6 +222,17 @@ def evaluate(
             }
         )
         return
+    if area == "classification":
+        metrics_path, payload = evaluate_classification(loaded)
+        console.print(
+            {
+                "area": "classification",
+                "metrics": str(metrics_path),
+                "gold_status": payload["gold_status"],
+                "metrics_status": payload.get("metrics_status", "pending_predictions"),
+            }
+        )
+        return
     _not_ready("evaluate", "Milestones 3-6 for areas other than extraction")
 
 
@@ -218,8 +247,10 @@ def run_all(config: Annotated[Path, _config_option()] = Path("configs/core.yaml"
 @app.command("validate-artifacts")
 def validate_artifacts(
     run_id: Annotated[str, typer.Option("--run-id", help="Run ID to validate.")],
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
 ) -> None:
-    """Validate generated artifacts. Reserved for later milestones."""
+    """Validate generated artifacts."""
 
-    _ = run_id
-    _not_ready("validate-artifacts", "Milestone 3 and later")
+    loaded = load_config(config)
+    payload = run_artifact_validation(loaded, run_id=run_id)
+    console.print(payload)

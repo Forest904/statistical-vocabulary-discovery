@@ -27,3 +27,13 @@ extraction:
   nuts_2024_path: data/external/NUTS_AT_2024.csv
   eurostat_geo_codelist_path: data/external/eurostat_geo_codelist.xml
   eurostat_geo_codelist_version: GEO 14.0
+classification:
+  gold_sample_size: 500
+  blind_relabel_fraction: 0.10
+  train_dev_fraction: 0.60
+  validation_fraction: 0.20
+  final_test_fraction: 0.20
+  pearl_model: Lihuchen/pearl_small
+  pearl_revision: 0d29fb4a61ec2a11b60e8b078664389eb915286b
+  embedding_batch_size: 64
+  abstention_threshold: 0.55

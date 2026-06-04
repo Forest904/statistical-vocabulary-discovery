@@ -160,6 +160,38 @@ class VocabularyTerm(ContractModel):
         return value
 
 
+class ClassificationPrediction(ContractModel):
+    """One semantic category prediction for one global vocabulary term."""
+
+    term_id: str
+    canonical_term: str = Field(..., min_length=1)
+    category: VocabularyCategory
+    confidence: float = Field(ge=0.0, le=1.0)
+    variant: str = Field(..., min_length=1)
+    protected: bool = False
+    evidence: str = Field(..., min_length=1)
+    occurrence_ids: tuple[str, ...] = Field(default_factory=tuple)
+    run_id: str = Field(..., min_length=1)
+
+    @field_validator("occurrence_ids")
+    @classmethod
+    def prediction_occurrence_ids_are_unique(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("occurrence_ids must be unique")
+        return value
+
+
+class ClassificationLabel(ContractModel):
+    """Gold semantic category label for one vocabulary term."""
+
+    term_id: str
+    canonical_term: str = Field(..., min_length=1)
+    split: Literal["train_dev", "validation", "final_test"]
+    category: VocabularyCategory | None = None
+    annotator_id: str = ""
+    notes: str = ""
+
+
 class MeasureRelation(ContractModel):
     """Grounded candidate semantic relation between two measure terms."""
 

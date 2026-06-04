@@ -48,7 +48,7 @@ statistical-vocabulary-discovery/
     dimension_names.csv
     dimension_values.csv
     units.csv
-    other.csv
+    other_ambiguous.csv
     measure_clusters.csv
     measure_relations.csv
   prompts/
@@ -94,7 +94,8 @@ The command-line interface is under active development. Planned commands:
 statvocab extract --input data/raw --output data/processed/vocabulary.parquet
 
 # Classify vocabulary terms
-statvocab classify --input data/processed/vocabulary.parquet --output outputs/
+statvocab classify --config configs/core.yaml --variant rule-only
+statvocab classify --config configs/core.yaml --variant local-hybrid
 
 # Cluster extracted measures
 statvocab cluster-measures --input outputs/measures.csv --output outputs/measure_clusters.csv
@@ -103,7 +104,8 @@ statvocab cluster-measures --input outputs/measures.csv --output outputs/measure
 statvocab relations --input outputs/measures.csv --output outputs/measure_relations.csv
 
 # Run evaluation
-statvocab evaluate --gold data/processed/gold_labels.csv --pred outputs/
+statvocab evaluate --config configs/evaluation.yaml --area classification
+statvocab validate-artifacts --run-id <run_id>
 ```
 
 ## Outputs
@@ -115,6 +117,7 @@ outputs/measures.csv
 outputs/dimension_names.csv
 outputs/dimension_values.csv
 outputs/units.csv
+outputs/other_ambiguous.csv
 ```
 
 Additional experimental outputs:
