@@ -1,0 +1,13 @@
+table_id,area,expected_value,expected_present,notes
+fixture_regular,time,2019-2021,true,title range
+fixture_quoted,time,2020,true,header/title year
+fixture_conflict,time,2018,true,header/title year
+fixture_regular,string,Male,true,metadata value
+fixture_quoted,string,"Food, beverages and tobacco",true,quoted metadata value
+fixture_no_time,string,programme_level,true,metadata column name
+fixture_regular,geography,FR,true,NUTS/country code
+fixture_no_time,geography,Spain,true,country name
+fixture_conflict,geography,Italy,true,title geography
+fixture_regular,title,"Employment by sex, age and NUTS 2 region",true,cleaned full title
+fixture_quoted,title,"Road freight by commodity group, ""dangerous goods"", and country in",true,cleaned full title
+fixture_conflict,title,Population and population density by urban-rural typology,true,cleaned full title

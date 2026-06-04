@@ -13,10 +13,12 @@ from typer.models import OptionInfo
 from statvocab import __version__
 from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
+from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.ingest import run_ingestion
 from statvocab.logging import configure_logging
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
 from statvocab.resources import acquire_resources, count_csv_files, write_resource_manifest
+from statvocab.vocabulary import run_extraction
 
 app = typer.Typer(
     help="Grounded vocabulary discovery for Eurostat-style statistical tables.",
@@ -126,10 +128,21 @@ def _load_resource_records(path: Path) -> tuple[ResourceRecord, ...]:
 
 @app.command()
 def extract(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Extract time, geography, and vocabulary artifacts. Reserved for Milestone 2."""
+    """Extract time, geography, title terms, and global vocabulary artifacts."""
 
-    _ = config
-    _not_ready("extract", "Milestone 2")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_extraction(loaded, resources=resources)
+    console.print(
+        {
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "table_count": diagnostics["table_count"],
+            "vocabulary_count": diagnostics["vocabulary_count"],
+            "term_occurrence_count": diagnostics["term_occurrence_count"],
+            "geography_variant_for_vocabulary": diagnostics["geography_variant_for_vocabulary"],
+        }
+    )
 
 
 @app.command()
@@ -177,10 +190,21 @@ def evaluate(
     area: Annotated[str | None, typer.Option("--area", help="Evaluation area to run.")] = None,
     config: Annotated[Path, _config_option()] = Path("configs/evaluation.yaml"),
 ) -> None:
-    """Run quality evaluations. Reserved for later milestones."""
+    """Run quality evaluations."""
 
-    _ = (config, area)
-    _not_ready("evaluate", "Milestones 2-6")
+    loaded = load_config(config)
+    if area == "extraction":
+        review_path, metrics_path, payload = run_extraction_evaluation(loaded)
+        console.print(
+            {
+                "area": "extraction",
+                "review_sample": str(review_path),
+                "metrics": str(metrics_path),
+                "gold_status": payload["gold_status"],
+            }
+        )
+        return
+    _not_ready("evaluate", "Milestones 3-6 for areas other than extraction")
 
 
 @app.command("run-all")

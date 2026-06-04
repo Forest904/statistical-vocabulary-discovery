@@ -47,6 +47,20 @@ class EvaluationConfig(BaseModel):
     vocabulary_gold_terms: int = Field(default=500, gt=0)
 
 
+class ExtractionConfig(BaseModel):
+    """Milestone 2 extraction defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    geography_variant: Literal["nuts", "enhanced"] = "enhanced"
+    review_sample_size: int = Field(default=50, gt=0)
+    min_year: int = 1900
+    max_year: int = 2100
+    nuts_2024_path: Path = Path("data/external/NUTS_AT_2024.csv")
+    eurostat_geo_codelist_path: Path = Path("data/external/eurostat_geo_codelist.xml")
+    eurostat_geo_codelist_version: str = "GEO 14.0"
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -57,6 +71,7 @@ class AppConfig(BaseModel):
     corpus: CorpusConfig
     paths: PathsConfig = Field(default_factory=PathsConfig)
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
+    extraction: ExtractionConfig = Field(default_factory=ExtractionConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:
@@ -70,4 +85,3 @@ def load_config(path: str | Path) -> AppConfig:
     with config_path.open("r", encoding="utf-8") as file:
         raw: dict[str, Any] = yaml.safe_load(file) or {}
     return AppConfig.model_validate(raw)
-

@@ -19,4 +19,11 @@ evaluation:
   random_seed: 42
   extraction_review_tables: 50
   vocabulary_gold_terms: 500
-
+extraction:
+  geography_variant: enhanced
+  review_sample_size: 50
+  min_year: 1900
+  max_year: 2100
+  nuts_2024_path: data/external/NUTS_AT_2024.csv
+  eurostat_geo_codelist_path: data/external/eurostat_geo_codelist.xml
+  eurostat_geo_codelist_version: GEO 14.0

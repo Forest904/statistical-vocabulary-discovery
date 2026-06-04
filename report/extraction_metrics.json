@@ -1,0 +1,47 @@
+{
+  "config_name": "evaluation",
+  "corpus": "fixture",
+  "gold_labels": "data\\fixtures\\eurostat_star_edge_cases\\extraction_gold.csv",
+  "gold_status": "available",
+  "gold_template": "data\\processed\\extraction_gold_template.csv",
+  "metrics": {
+    "failure_examples": [],
+    "geography": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 3
+    },
+    "string": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 3
+    },
+    "time": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 3
+    },
+    "title": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 3
+    }
+  },
+  "review_sample": "data\\processed\\extraction_review_sample.csv"
+}

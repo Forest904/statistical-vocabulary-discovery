@@ -63,14 +63,46 @@ ID_PREFIXES: frozenset[str] = frozenset(
     {
         "cfg",
         "evidence",
+        "geo",
         "occ",
         "relation",
         "resource",
         "run",
+        "string",
         "table",
         "term",
+        "time",
     }
 )
+
+
+class TimeGranularity(StrEnum):
+    """Supported normalized time granularities."""
+
+    YEAR = "year"
+    QUARTER = "quarter"
+    MONTH = "month"
+    DAY = "day"
+    RANGE = "range"
+    OTHER_PERIOD = "other_period"
+
+
+class ExtractionSourceArea(StrEnum):
+    """Source surface used by Milestone 2 extraction artifacts."""
+
+    HEADER_TIME = "header_time"
+    TITLE = "title"
+    HEADER_NAME = "header_name"
+    METADATA_VALUE = "metadata_value"
+    TITLE_FULL = "title_full"
+    TITLE_CLAUSE = "title_clause"
+
+
+class GeographyVariant(StrEnum):
+    """Geography dictionary variants produced by Milestone 2."""
+
+    NUTS = "nuts"
+    ENHANCED = "enhanced"
 
 
 def stable_id(prefix: str, *parts: object, digest_size: int = 10) -> str:

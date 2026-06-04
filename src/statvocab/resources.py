@@ -88,6 +88,17 @@ def core_resource_specs(config: AppConfig) -> tuple[ResourceSpec, ...]:
             version="NUTS 2024",
         ),
         ResourceSpec(
+            name="eurostat_geo_codelist_sdmx3",
+            url=(
+                "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/"
+                "structure/codelist/ESTAT/GEO/14.0?compress=false"
+            ),
+            local_path=external_dir / "eurostat_geo_codelist.xml",
+            license="Eurostat reuse notice",
+            version="GEO 14.0",
+            required=False,
+        ),
+        ResourceSpec(
             name="star_original_questions",
             url=(
                 "https://raw.githubusercontent.com/AntoineGauquier/"
