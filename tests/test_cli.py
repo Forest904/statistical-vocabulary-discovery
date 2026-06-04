@@ -112,3 +112,56 @@ def test_relations_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "relations" in result.output
+
+
+def test_build_search_index_cli_invokes_runner(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_run(config, *, resources=()):
+        _ = config, resources
+        return (
+            {"lexical_index": Path("outputs/search/run_test/lexical.sqlite")},
+            Path("outputs/manifests/run_search.json"),
+            {
+                "run_id": "run_test",
+                "document_count": 4,
+                "embedding_dimension": 768,
+                "total_index_size_bytes": 123,
+            },
+        )
+
+    monkeypatch.setattr(cli, "run_search_index_build", fake_run)
+
+    result = CliRunner().invoke(app, ["build-search-index", "--config", "configs/evaluation.yaml"])
+
+    assert result.exit_code == 0
+    assert "run_test" in result.output
+
+
+def test_retrieval_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_evaluate(config):
+        _ = config
+        return (
+            Path("report/retrieval_metrics.json"),
+            {
+                "tuning": {"selected_preset": "prd_default"},
+                "index": {"run_id": "run_index"},
+            },
+        )
+
+    monkeypatch.setattr(cli, "evaluate_retrieval", fake_evaluate)
+
+    result = CliRunner().invoke(
+        app,
+        ["evaluate", "--area", "retrieval", "--config", "configs/evaluation.yaml"],
+    )
+
+    assert result.exit_code == 0
+    assert "retrieval" in result.output
+    assert "prd_default" in result.output

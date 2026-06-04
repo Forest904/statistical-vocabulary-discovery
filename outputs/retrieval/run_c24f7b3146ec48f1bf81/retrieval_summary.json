@@ -1,0 +1,219 @@
+{
+  "area": "retrieval",
+  "config_name": "evaluation",
+  "corpus": "fixture",
+  "index": {
+    "build_seconds": 49.51535480000166,
+    "corpus": "core",
+    "document_count": 2000,
+    "embedding_dimension": 384,
+    "files": {
+      "lexical_index": {
+        "md5": "11f5606fd352cf8673cb1680e8ba243b",
+        "path": "outputs\\search\\run_3a9d8e3932a528f6330e\\lexical.sqlite",
+        "size_bytes": 4034560
+      },
+      "search_documents": {
+        "md5": "87591f9f29716d3b5a1a897ca50993a1",
+        "path": "data\\processed\\search_documents.parquet",
+        "size_bytes": 43039112
+      },
+      "semantic_index": {
+        "md5": "8e4472b9efdf731acae7b5ecabaeb3f4",
+        "path": "outputs\\search\\run_3a9d8e3932a528f6330e\\semantic.faiss",
+        "size_bytes": 3072045
+      },
+      "semantic_metadata": {
+        "md5": "3d406316dbb6062043b8a17c788002d6",
+        "path": "outputs\\search\\run_3a9d8e3932a528f6330e\\semantic_metadata.parquet",
+        "size_bytes": 139401
+      }
+    },
+    "pearl_model": "Lihuchen/pearl_small",
+    "pearl_revision": "0d29fb4a61ec2a11b60e8b078664389eb915286b",
+    "rss_bytes": 2001035264,
+    "run_id": "run_3a9d8e3932a528f6330e",
+    "total_index_size_bytes": 50285118
+  },
+  "predictions": "outputs\\retrieval\\run_c24f7b3146ec48f1bf81\\retrieval_predictions.csv",
+  "question_count": 200,
+  "question_row_split_counts": {
+    "development": 120,
+    "final_test": 40,
+    "validation": 40
+  },
+  "run_id": "run_c24f7b3146ec48f1bf81",
+  "systems": {
+    "all_vocabulary_bm25": {
+      "original": {
+        "HitRate@1": 0.65,
+        "HitRate@10": 0.95,
+        "HitRate@5": 0.95,
+        "MRR": 0.9333333333333333,
+        "Relevance@1": 0.775,
+        "Relevance@5": 0.975,
+        "p50_latency_ms": 208.80059999763034,
+        "p95_latency_ms": 391.51940000010654,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.25,
+        "HitRate@10": 0.6,
+        "HitRate@5": 0.6,
+        "MRR": 0.658531746031746,
+        "Relevance@1": 0.4,
+        "Relevance@5": 0.7,
+        "p50_latency_ms": 207.07899999979418,
+        "p95_latency_ms": 396.88179999939166,
+        "question_count": 20
+      }
+    },
+    "fused": {
+      "original": {
+        "HitRate@1": 0.65,
+        "HitRate@10": 0.95,
+        "HitRate@5": 0.9,
+        "MRR": 1.0,
+        "Relevance@1": 0.875,
+        "Relevance@5": 0.95,
+        "p50_latency_ms": 441.01039999804925,
+        "p95_latency_ms": 624.1955000004964,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.9,
+        "HitRate@5": 0.8,
+        "MRR": 0.8833333333333334,
+        "Relevance@1": 0.7,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 425.7653000022401,
+        "p95_latency_ms": 646.7938999994658,
+        "question_count": 20
+      }
+    },
+    "pearl_semantic": {
+      "original": {
+        "HitRate@1": 0.6,
+        "HitRate@10": 0.85,
+        "HitRate@5": 0.85,
+        "MRR": 0.875,
+        "Relevance@1": 0.75,
+        "Relevance@5": 0.875,
+        "p50_latency_ms": 266.9453999988036,
+        "p95_latency_ms": 435.32820000109496,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.5,
+        "HitRate@10": 0.9,
+        "HitRate@5": 0.8,
+        "MRR": 0.85625,
+        "Relevance@1": 0.675,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 286.1110000012559,
+        "p95_latency_ms": 441.47979999979725,
+        "question_count": 20
+      }
+    },
+    "title_bm25": {
+      "original": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.75,
+        "HitRate@5": 0.7,
+        "MRR": 0.8724999999999999,
+        "Relevance@1": 0.65,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 198.56390000495594,
+        "p95_latency_ms": 391.4558999967994,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.2,
+        "HitRate@10": 0.4,
+        "HitRate@5": 0.35,
+        "MRR": 0.5633333333333334,
+        "Relevance@1": 0.325,
+        "Relevance@5": 0.525,
+        "p50_latency_ms": 201.82260000001406,
+        "p95_latency_ms": 395.9571999948821,
+        "question_count": 20
+      }
+    }
+  },
+  "tuning": {
+    "presets": {
+      "geography_time_heavy": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.8,
+        "HitRate@5": 0.7,
+        "MRR": 0.7916666666666667,
+        "Relevance@1": 0.6,
+        "Relevance@5": 0.825,
+        "p50_latency_ms": 450.07900000200607,
+        "p95_latency_ms": 653.0453999948804,
+        "question_count": 20
+      },
+      "lexical_heavy": {
+        "HitRate@1": 0.4,
+        "HitRate@10": 0.6,
+        "HitRate@5": 0.5,
+        "MRR": 0.69375,
+        "Relevance@1": 0.5,
+        "Relevance@5": 0.675,
+        "p50_latency_ms": 436.1972999977297,
+        "p95_latency_ms": 659.1029999981401,
+        "question_count": 20
+      },
+      "prd_default": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.75,
+        "HitRate@5": 0.7,
+        "MRR": 0.775,
+        "Relevance@1": 0.55,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 439.9407000018982,
+        "p95_latency_ms": 708.6393000063254,
+        "question_count": 20
+      },
+      "semantic_heavy": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.75,
+        "HitRate@5": 0.6,
+        "MRR": 0.775,
+        "Relevance@1": 0.575,
+        "Relevance@5": 0.8,
+        "p50_latency_ms": 453.0732999992324,
+        "p95_latency_ms": 682.3825000028592,
+        "question_count": 20
+      },
+      "structured_heavy": {
+        "HitRate@1": 0.45,
+        "HitRate@10": 0.65,
+        "HitRate@5": 0.65,
+        "MRR": 0.8041666666666666,
+        "Relevance@1": 0.6,
+        "Relevance@5": 0.8,
+        "p50_latency_ms": 416.2559999967925,
+        "p95_latency_ms": 661.287099996116,
+        "question_count": 20
+      }
+    },
+    "question_set": "reformulated",
+    "selected_preset": "geography_time_heavy",
+    "selected_weights": {
+      "dimension_weight": 0.1,
+      "geography_weight": 0.25,
+      "lexical_weight": 0.2,
+      "measure_weight": 0.1,
+      "semantic_weight": 0.25,
+      "time_weight": 0.1
+    },
+    "split": "validation"
+  },
+  "unique_question_id_split_counts": {
+    "development": 60,
+    "final_test": 20,
+    "validation": 20
+  }
+}

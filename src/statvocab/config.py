@@ -108,6 +108,27 @@ class RelationsConfig(BaseModel):
     llm_confidence_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
 
 
+class SearchConfig(BaseModel):
+    """Milestone 6 search index and retrieval defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lexical_top_k: int = Field(default=100, gt=0)
+    semantic_top_k: int = Field(default=100, gt=0)
+    default_limit: int = Field(default=20, gt=0)
+    semantic_weight: float = Field(default=0.35, ge=0.0, le=1.0)
+    lexical_weight: float = Field(default=0.25, ge=0.0, le=1.0)
+    measure_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+    dimension_weight: float = Field(default=0.10, ge=0.0, le=1.0)
+    geography_weight: float = Field(default=0.10, ge=0.0, le=1.0)
+    time_weight: float = Field(default=0.05, ge=0.0, le=1.0)
+    min_fused_score: float = Field(default=0.10, ge=0.0, le=1.0)
+    development_fraction: float = Field(default=0.60, gt=0.0, lt=1.0)
+    validation_fraction: float = Field(default=0.20, gt=0.0, lt=1.0)
+    final_test_fraction: float = Field(default=0.20, gt=0.0, lt=1.0)
+    embedding_batch_size: int = Field(default=64, gt=0)
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -122,6 +143,7 @@ class AppConfig(BaseModel):
     classification: ClassificationConfig = Field(default_factory=ClassificationConfig)
     clustering: ClusteringConfig = Field(default_factory=ClusteringConfig)
     relations: RelationsConfig = Field(default_factory=RelationsConfig)
+    search: SearchConfig = Field(default_factory=SearchConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:

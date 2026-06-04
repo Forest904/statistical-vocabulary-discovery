@@ -25,6 +25,8 @@ from statvocab.manifests import complete_manifest, create_manifest, write_manife
 from statvocab.relations import run_measure_relations
 from statvocab.relations_evaluate import evaluate_relations
 from statvocab.resources import acquire_resources, count_csv_files, write_resource_manifest
+from statvocab.retrieval_evaluate import evaluate_retrieval
+from statvocab.search import build_search_index as run_search_index_build
 from statvocab.vocabulary import run_extraction
 
 app = typer.Typer(
@@ -222,10 +224,21 @@ def relations(config: Annotated[Path, _config_option()] = Path("configs/core.yam
 def build_search_index(
     config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
 ) -> None:
-    """Build lexical and semantic search indexes. Reserved for Milestone 6."""
+    """Build lexical and semantic search indexes."""
 
-    _ = config
-    _not_ready("build-search-index", "Milestone 6")
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_search_index_build(loaded, resources=resources)
+    console.print(
+        {
+            "run_id": diagnostics["run_id"],
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "document_count": diagnostics["document_count"],
+            "embedding_dimension": diagnostics["embedding_dimension"],
+            "total_index_size_bytes": diagnostics["total_index_size_bytes"],
+        }
+    )
 
 
 @app.command()
@@ -279,6 +292,17 @@ def evaluate(
                 "artifact_status": payload["artifact_status"],
                 "relation_count": payload["relation_count"],
                 "validation_passed": payload["validation"]["passed"],
+            }
+        )
+        return
+    if area == "retrieval":
+        metrics_path, payload = evaluate_retrieval(loaded)
+        console.print(
+            {
+                "area": "retrieval",
+                "metrics": str(metrics_path),
+                "selected_preset": payload["tuning"]["selected_preset"],
+                "index_run_id": payload.get("index", {}).get("run_id", ""),
             }
         )
         return

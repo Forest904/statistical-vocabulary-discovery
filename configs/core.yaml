@@ -55,3 +55,18 @@ relations:
   manual_review_sample_size: 100
   llm_adjudication_enabled: false
   llm_confidence_threshold: 0.65
+search:
+  lexical_top_k: 100
+  semantic_top_k: 100
+  default_limit: 20
+  semantic_weight: 0.35
+  lexical_weight: 0.25
+  measure_weight: 0.15
+  dimension_weight: 0.10
+  geography_weight: 0.10
+  time_weight: 0.05
+  min_fused_score: 0.10
+  development_fraction: 0.60
+  validation_fraction: 0.20
+  final_test_fraction: 0.20
+  embedding_batch_size: 64
