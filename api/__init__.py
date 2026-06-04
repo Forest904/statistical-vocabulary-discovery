@@ -1,0 +1,1 @@
+"""StatVocab FastAPI backend package."""
