@@ -30,13 +30,14 @@ class Pagination(BaseModel):
 
 
 SearchSystem = Literal["fused", "title_bm25", "all_vocabulary_bm25", "pearl_semantic"]
+RelationTypeValue = Literal["broader_than", "narrower_than", "variant_of", "related_to"]
 
 
 class SearchRequest(BaseModel):
     """Search request body."""
 
     query: str = Field(min_length=1)
-    page: int = Field(default=1, ge=1)
+    page: int = Field(default=1, ge=1, le=1000)
     page_size: int = Field(default=20, ge=1, le=100)
     system: SearchSystem = "fused"
 

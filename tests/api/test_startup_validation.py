@@ -5,14 +5,24 @@ from pathlib import Path
 
 import pytest
 
-from api.app.state import ApiStartupError, validate_search_artifacts
+from api.app.state import (
+    ApiStartupError,
+    validate_loaded_artifacts,
+    validate_required_artifact_paths,
+    validate_search_artifacts,
+)
 from statvocab.config import AppConfig, load_config
 from statvocab.resources import file_md5
 
 
 def _config(tmp_path: Path) -> AppConfig:
     base = load_config("configs/core.yaml")
-    paths = base.paths.model_copy(update={"outputs_dir": tmp_path / "outputs"})
+    paths = base.paths.model_copy(
+        update={
+            "outputs_dir": tmp_path / "outputs",
+            "processed_dir": tmp_path / "processed",
+        }
+    )
     return base.model_copy(update={"paths": paths})
 
 
@@ -129,3 +139,57 @@ def test_valid_index_artifacts_return_manifest_context(tmp_path: Path) -> None:
 
     assert payload["manifest"]["run_id"] == "run_test"
     assert payload["summary"]["run_id"] == "run_test"
+
+
+def test_missing_required_output_artifact_fails_startup(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    config.paths.processed_dir.mkdir(parents=True, exist_ok=True)
+    for filename in ("tables.parquet", "vocabulary.parquet", "table_vocabulary.parquet"):
+        _write_file(config.paths.processed_dir / filename, "placeholder")
+
+    with pytest.raises(ApiStartupError) as exc_info:
+        validate_required_artifact_paths(config)
+
+    assert exc_info.value.code == "missing_artifact"
+    assert "measures.csv" in str(exc_info.value)
+
+
+def test_loaded_artifacts_reject_table_document_mismatch() -> None:
+    with pytest.raises(ApiStartupError) as exc_info:
+        validate_loaded_artifacts(
+            tables={"table_1": {}},
+            search_documents={},
+            terms={},
+            term_outputs={},
+            table_terms={},
+            clusters=[{"cluster_id": "cluster_1"}],
+            cluster_by_term={},
+            relations=[],
+        )
+
+    assert exc_info.value.code == "artifact_mismatch"
+    assert exc_info.value.details["missing_count"] == 1
+
+
+def test_loaded_artifacts_reject_invalid_relation_references() -> None:
+    with pytest.raises(ApiStartupError) as exc_info:
+        validate_loaded_artifacts(
+            tables={"table_1": {}},
+            search_documents={"table_1": {}},
+            terms={"term_1": {}},
+            term_outputs={"term_1": {}},
+            table_terms={},
+            clusters=[{"cluster_id": "cluster_1"}],
+            cluster_by_term={},
+            relations=[
+                {
+                    "relation_id": "relation_1",
+                    "source_term_id": "term_1",
+                    "target_term_id": "missing",
+                    "relation_type": "related_to",
+                }
+            ],
+        )
+
+    assert exc_info.value.code == "artifact_mismatch"
+    assert exc_info.value.details["invalid_count"] == 1

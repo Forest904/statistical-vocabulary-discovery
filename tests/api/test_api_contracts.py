@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from fastapi.testclient import TestClient
@@ -125,6 +127,16 @@ def test_openapi_documents_milestone_7_endpoints() -> None:
     assert "/api/health" in paths
 
 
+def test_checked_in_openapi_matches_live_schema() -> None:
+    client = _client()
+    expected_path = Path("api/openapi.json")
+
+    assert expected_path.exists()
+    assert json.loads(expected_path.read_text(encoding="utf-8")) == client.get(
+        "/openapi.json"
+    ).json()
+
+
 def test_search_returns_notice_and_pagination() -> None:
     client = _client()
 
@@ -186,6 +198,24 @@ def test_validation_errors_use_stable_error_shape() -> None:
     client = _client()
 
     response = client.post("/api/search", json={"query": "", "page": 0})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+def test_invalid_relation_type_uses_stable_validation_error() -> None:
+    client = _client()
+
+    response = client.get("/api/relations?relation_type=not_a_relation")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+def test_unbounded_search_pages_are_rejected() -> None:
+    client = _client()
+
+    response = client.post("/api/search", json={"query": "employment", "page": 1001})
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"

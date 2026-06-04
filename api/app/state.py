@@ -15,9 +15,21 @@ from api.app.settings import ApiSettings
 from statvocab.classification import CSV_BY_CATEGORY
 from statvocab.classification_features import read_parquet_rows
 from statvocab.config import AppConfig, load_config
+from statvocab.contracts import RelationType
 from statvocab.resources import file_md5
 from statvocab.search.engine import SearchEngine
 from statvocab.search.explain import NOTICE
+
+REQUIRED_PROCESSED_PARQUET = (
+    "tables.parquet",
+    "vocabulary.parquet",
+    "table_vocabulary.parquet",
+)
+REQUIRED_OUTPUT_CSV = (
+    *tuple(CSV_BY_CATEGORY.values()),
+    "measure_clusters.csv",
+    "measure_relations.csv",
+)
 
 
 class ApiStartupError(RuntimeError):
@@ -35,6 +47,41 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
     _raise_csv_field_limit()
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
+
+
+def _read_required_csv(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        raise ApiStartupError(
+            "missing_artifact",
+            f"Missing required CSV artifact: {path}",
+            {"path": str(path)},
+        )
+    rows = _read_csv(path)
+    if not rows:
+        raise ApiStartupError(
+            "empty_artifact",
+            f"Required CSV artifact is empty: {path}",
+            {"path": str(path)},
+        )
+    return rows
+
+
+def _read_required_parquet(path: Path) -> list[dict[str, Any]]:
+    try:
+        rows = read_parquet_rows(path)
+    except FileNotFoundError as exc:
+        raise ApiStartupError(
+            "missing_artifact",
+            str(exc),
+            {"path": str(path)},
+        ) from exc
+    if not rows:
+        raise ApiStartupError(
+            "empty_artifact",
+            f"Required Parquet artifact is empty: {path}",
+            {"path": str(path)},
+        )
+    return rows
 
 
 def _raise_csv_field_limit() -> None:
@@ -175,6 +222,121 @@ def validate_search_artifacts(config: AppConfig) -> dict[str, Any]:
         "summary": summary,
         "paths": {key: str(path) for key, path in resolved.items()},
     }
+
+
+def validate_required_artifact_paths(config: AppConfig) -> None:
+    """Fail early when Milestone 7's read-only artifact surface is incomplete."""
+
+    for filename in REQUIRED_PROCESSED_PARQUET:
+        path = config.paths.processed_dir / filename
+        if not path.exists():
+            raise ApiStartupError(
+                "missing_artifact",
+                f"Missing required Parquet artifact: {path}",
+                {"path": str(path)},
+            )
+    for filename in REQUIRED_OUTPUT_CSV:
+        path = config.paths.outputs_dir / filename
+        if not path.exists():
+            raise ApiStartupError(
+                "missing_artifact",
+                f"Missing required CSV artifact: {path}",
+                {"path": str(path)},
+            )
+
+
+def validate_loaded_artifacts(
+    *,
+    tables: dict[str, dict[str, Any]],
+    search_documents: dict[str, dict[str, Any]],
+    terms: dict[str, dict[str, Any]],
+    term_outputs: dict[str, dict[str, Any]],
+    table_terms: dict[str, list[dict[str, Any]]],
+    clusters: list[dict[str, Any]],
+    cluster_by_term: dict[str, dict[str, Any]],
+    relations: list[dict[str, Any]],
+) -> None:
+    """Validate cross-artifact references after all rows are loaded."""
+
+    table_ids = set(tables)
+    document_ids = set(search_documents)
+    term_ids = set(terms)
+    output_term_ids = set(term_outputs)
+
+    missing_documents = sorted(table_ids - document_ids)
+    extra_documents = sorted(document_ids - table_ids)
+    if missing_documents or extra_documents:
+        raise ApiStartupError(
+            "artifact_mismatch",
+            "Search documents and table inventory do not reference the same table IDs.",
+            {
+                "missing_search_documents": missing_documents[:20],
+                "extra_search_documents": extra_documents[:20],
+                "missing_count": len(missing_documents),
+                "extra_count": len(extra_documents),
+            },
+        )
+
+    uncategorized_terms = sorted(term_ids - output_term_ids)
+    unknown_output_terms = sorted(output_term_ids - term_ids)
+    if uncategorized_terms or unknown_output_terms:
+        raise ApiStartupError(
+            "artifact_mismatch",
+            "Final category CSVs do not match the vocabulary artifact.",
+            {
+                "uncategorized_terms": uncategorized_terms[:20],
+                "unknown_output_terms": unknown_output_terms[:20],
+                "uncategorized_count": len(uncategorized_terms),
+                "unknown_output_count": len(unknown_output_terms),
+            },
+        )
+
+    unknown_table_terms = sorted(
+        table_id
+        for table_id in table_terms
+        if table_id not in table_ids
+    )
+    if unknown_table_terms:
+        raise ApiStartupError(
+            "artifact_mismatch",
+            "Table vocabulary references unknown table IDs.",
+            {
+                "unknown_table_ids": unknown_table_terms[:20],
+                "unknown_count": len(unknown_table_terms),
+            },
+        )
+
+    unknown_cluster_terms = sorted(set(cluster_by_term) - term_ids)
+    if unknown_cluster_terms:
+        raise ApiStartupError(
+            "artifact_mismatch",
+            "Measure clusters reference unknown term IDs.",
+            {
+                "unknown_term_ids": unknown_cluster_terms[:20],
+                "unknown_count": len(unknown_cluster_terms),
+            },
+        )
+    if not clusters:
+        raise ApiStartupError(
+            "empty_artifact",
+            "No measure clusters were loaded from measure_clusters.csv.",
+            {"path": "measure_clusters.csv"},
+        )
+
+    allowed_relation_types = {relation_type.value for relation_type in RelationType}
+    invalid_relations = [
+        relation
+        for relation in relations
+        if relation.get("relation_type") not in allowed_relation_types
+        or relation.get("source_term_id") not in term_ids
+        or relation.get("target_term_id") not in term_ids
+    ]
+    if invalid_relations:
+        raise ApiStartupError(
+            "artifact_mismatch",
+            "Measure relations contain invalid types or unknown term references.",
+            {"invalid_relations": invalid_relations[:20], "invalid_count": len(invalid_relations)},
+        )
 
 
 @dataclass(frozen=True)
@@ -357,14 +519,14 @@ def _bool_or_none(value: object) -> bool | None:
 
 
 def _load_terms(config: AppConfig) -> dict[str, dict[str, Any]]:
-    rows = read_parquet_rows(config.paths.processed_dir / "vocabulary.parquet")
+    rows = _read_required_parquet(config.paths.processed_dir / "vocabulary.parquet")
     return {str(row["term_id"]): row for row in rows}
 
 
 def _load_term_outputs(config: AppConfig) -> dict[str, dict[str, Any]]:
     outputs: dict[str, dict[str, Any]] = {}
     for category, filename in CSV_BY_CATEGORY.items():
-        for row in _read_csv(config.paths.outputs_dir / filename):
+        for row in _read_required_csv(config.paths.outputs_dir / filename):
             term_id = row.get("term_id", "")
             if term_id:
                 row["category"] = row.get("category") or category.value
@@ -377,7 +539,7 @@ def _load_table_terms(
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, list[dict[str, Any]]]]:
     by_table: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_term: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in read_parquet_rows(config.paths.processed_dir / "table_vocabulary.parquet"):
+    for row in _read_required_parquet(config.paths.processed_dir / "table_vocabulary.parquet"):
         table_id = str(row["table_id"])
         term_id = str(row["term_id"])
         item = {
@@ -396,7 +558,7 @@ def _load_table_terms(
 
 
 def _load_clusters(config: AppConfig) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
-    rows = _read_csv(config.paths.outputs_dir / "measure_clusters.csv")
+    rows = _read_required_csv(config.paths.outputs_dir / "measure_clusters.csv")
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         grouped[row.get("cluster_id", "")].append(row)
@@ -447,7 +609,7 @@ def _load_relations(
 ) -> tuple[list[dict[str, Any]], dict[str, list[dict[str, Any]]]]:
     rows = []
     by_term: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in _read_csv(config.paths.outputs_dir / "measure_relations.csv"):
+    for row in _read_required_csv(config.paths.outputs_dir / "measure_relations.csv"):
         item = {
             "relation_id": row.get("relation_id", ""),
             "source_term_id": row.get("source_term_id", ""),
@@ -512,9 +674,10 @@ def load_api_state(settings: ApiSettings) -> ApiState:
     """Load and validate the API artifact set."""
 
     config = load_config(settings.config_path)
+    validate_required_artifact_paths(config)
     search_validation = validate_search_artifacts(config)
     search_engine = SearchEngine(config)
-    table_rows = read_parquet_rows(config.paths.processed_dir / "tables.parquet")
+    table_rows = _read_required_parquet(config.paths.processed_dir / "tables.parquet")
     tables = {str(row["table_id"]): row for row in table_rows}
     documents = search_engine.documents
     terms = _load_terms(config)
@@ -522,6 +685,16 @@ def load_api_state(settings: ApiSettings) -> ApiState:
     table_terms, term_tables = _load_table_terms(config)
     clusters, cluster_by_term = _load_clusters(config)
     relations, relations_by_term = _load_relations(config)
+    validate_loaded_artifacts(
+        tables=tables,
+        search_documents=documents,
+        terms=terms,
+        term_outputs=term_outputs,
+        table_terms=table_terms,
+        clusters=clusters,
+        cluster_by_term=cluster_by_term,
+        relations=relations,
+    )
     evaluation = _load_evaluation(config)
     warnings = [
         f"{area} evaluation summary is missing"

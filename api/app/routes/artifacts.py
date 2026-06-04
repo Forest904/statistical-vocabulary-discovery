@@ -11,6 +11,7 @@ from api.app.schemas import (
     ClusterListResponse,
     EvaluationResponse,
     RelationListResponse,
+    RelationTypeValue,
     TableDetailResponse,
     TermDetailResponse,
 )
@@ -18,7 +19,7 @@ from api.app.state import ApiState
 
 router = APIRouter(prefix="/api", tags=["artifacts"])
 StateDependency = Annotated[ApiState, Depends(get_state)]
-PageQuery = Annotated[int, Query(ge=1)]
+PageQuery = Annotated[int, Query(ge=1, le=1000)]
 PageSizeQuery = Annotated[int, Query(ge=1, le=100)]
 
 
@@ -73,7 +74,7 @@ def relations(
     page: PageQuery = 1,
     page_size: PageSizeQuery = 20,
     term_id: str | None = None,
-    relation_type: str | None = None,
+    relation_type: RelationTypeValue | None = None,
 ) -> dict[str, object]:
     """Return paginated measure relations."""
 
