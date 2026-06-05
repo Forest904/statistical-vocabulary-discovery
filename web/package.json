@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.0",
+    "@types/cytoscape": "^3.21.9",
+    "cytoscape": "^3.34.0",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

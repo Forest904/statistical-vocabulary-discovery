@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Share2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryBadge, ConfidenceBadge } from "../components/Badges";
@@ -40,6 +41,13 @@ export function TermDetailPage() {
         <div className="chip-list">
           <CategoryBadge category={data.category} />
           <ConfidenceBadge value={data.confidence} />
+          <Link
+            className="simple-chip"
+            to={`/graph?focus_type=term&focus_id=${encodeURIComponent(data.term_id)}`}
+          >
+            <Share2 aria-hidden="true" size={14} />
+            Open in graph
+          </Link>
         </div>
       </div>
 

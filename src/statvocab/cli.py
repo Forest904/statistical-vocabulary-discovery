@@ -21,6 +21,7 @@ from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.full_corpus import run_full_corpus
 from statvocab.ingest import run_ingestion
+from statvocab.knowledge_graph import run_knowledge_graph
 from statvocab.logging import configure_logging
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
 from statvocab.relations import run_measure_relations
@@ -217,6 +218,28 @@ def relations(config: Annotated[Path, _config_option()] = Path("configs/core.yam
             "run_manifest": str(manifest_path),
             "candidate_count": diagnostics["candidate_count"],
             "accepted_count": diagnostics["accepted_count"],
+        }
+    )
+
+
+@app.command("build-knowledge-graph")
+def build_knowledge_graph(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Build materialized knowledge graph nodes and edges."""
+
+    loaded = load_config(config)
+    resources = _load_resource_records(loaded.paths.processed_dir / "resource_manifest.json")
+    artifacts, manifest_path, diagnostics = run_knowledge_graph(loaded, resources=resources)
+    console.print(
+        {
+            "run_id": diagnostics["run_id"],
+            "artifacts": {name: str(path) for name, path in artifacts.items()},
+            "run_manifest": str(manifest_path),
+            "node_count": diagnostics["node_count"],
+            "edge_count": diagnostics["edge_count"],
+            "node_type_counts": diagnostics["node_type_counts"],
+            "edge_type_counts": diagnostics["edge_type_counts"],
         }
     )
 

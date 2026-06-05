@@ -359,6 +359,126 @@ select {
   color: #51417d;
 }
 
+.graph-page {
+  display: grid;
+  gap: 14px;
+}
+
+.graph-heading {
+  max-width: 960px;
+}
+
+.graph-toolbar {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) minmax(220px, 1fr) 100px minmax(160px, 220px) repeat(3, auto);
+  gap: 10px;
+  align-items: end;
+}
+
+.graph-toolbar label,
+.graph-edge-controls label {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.graph-toolbar label {
+  display: grid;
+  gap: 6px;
+}
+
+.graph-focus-input {
+  min-width: 220px;
+}
+
+.graph-edge-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.toggle-chip input {
+  width: auto;
+  min-height: auto;
+}
+
+.graph-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 14px;
+  align-items: stretch;
+  min-height: 620px;
+}
+
+.graph-canvas-wrap {
+  position: relative;
+  min-height: 620px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(87, 108, 101, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(87, 108, 101, 0.08) 1px, transparent 1px),
+    #fbfcfb;
+  background-size: 28px 28px;
+}
+
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+}
+
+.graph-hover {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: grid;
+  gap: 2px;
+  max-width: min(360px, calc(100% - 28px));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 26px rgba(27, 43, 37, 0.12);
+  pointer-events: none;
+}
+
+.graph-hover strong {
+  overflow-wrap: anywhere;
+}
+
+.graph-hover span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.graph-panel {
+  min-height: 620px;
+  max-height: 720px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.graph-panel .json-table {
+  margin-top: 14px;
+}
+
 .category-other_ambiguous {
   border-color: #e0b8b3;
   background: #fff1ef;
@@ -721,8 +841,16 @@ pre {
   .filter-form,
   .results-layout,
   .two-column,
-  .term-row {
+  .term-row,
+  .graph-toolbar,
+  .graph-workspace {
     grid-template-columns: 1fr;
+  }
+
+  .graph-canvas-wrap,
+  .graph-canvas,
+  .graph-panel {
+    min-height: 460px;
   }
 
   .score-pills,

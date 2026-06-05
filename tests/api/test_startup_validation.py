@@ -193,3 +193,29 @@ def test_loaded_artifacts_reject_invalid_relation_references() -> None:
 
     assert exc_info.value.code == "artifact_mismatch"
     assert exc_info.value.details["invalid_count"] == 1
+
+
+def test_loaded_artifacts_reject_invalid_graph_references() -> None:
+    with pytest.raises(ApiStartupError) as exc_info:
+        validate_loaded_artifacts(
+            tables={"table_1": {}},
+            search_documents={"table_1": {}},
+            terms={"term_1": {}},
+            term_outputs={"term_1": {}},
+            table_terms={},
+            clusters=[{"cluster_id": "cluster_1"}],
+            cluster_by_term={},
+            relations=[],
+            graph_nodes={"table_1": {"node_id": "table_1"}},
+            graph_edges=[
+                {
+                    "edge_id": "graph_1",
+                    "source_id": "table_1",
+                    "target_id": "missing",
+                    "edge_type": "table_contains_term",
+                }
+            ],
+        )
+
+    assert exc_info.value.code == "artifact_mismatch"
+    assert exc_info.value.details["invalid_count"] == 1

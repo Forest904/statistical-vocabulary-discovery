@@ -64,6 +64,7 @@ ID_PREFIXES: frozenset[str] = frozenset(
         "cfg",
         "cluster",
         "evidence",
+        "graph",
         "geo",
         "occ",
         "relation",

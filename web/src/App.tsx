@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/Layout";
 import { DomainsPage } from "./pages/DomainsPage";
+import { GraphPage } from "./pages/GraphPage";
 import { MethodsPage } from "./pages/MethodsPage";
 import { RelationsPage } from "./pages/RelationsPage";
 import { SearchPage } from "./pages/SearchPage";
@@ -19,6 +20,7 @@ export function App() {
         <Route path="/terms/:termId" element={<TermDetailPage />} />
         <Route path="/domains" element={<DomainsPage />} />
         <Route path="/relations" element={<RelationsPage />} />
+        <Route path="/graph" element={<GraphPage />} />
         <Route path="/methods" element={<MethodsPage />} />
       </Routes>
     </Layout>

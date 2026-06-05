@@ -194,6 +194,7 @@ async function mockApi(page: Page) {
             terms_loaded: true,
             clusters_loaded: true,
             relations_loaded: true,
+            knowledge_graph_loaded: true,
             evaluation_loaded: true
           },
           artifact_counts: {
@@ -201,7 +202,9 @@ async function mockApi(page: Page) {
             search_documents: 2000,
             terms: 100,
             clusters: 10,
-            relations: 25
+            relations: 25,
+            graph_nodes: 6,
+            graph_edges: 6
           },
           warnings: []
         }
@@ -224,6 +227,155 @@ async function mockApi(page: Page) {
               data: { macro_f1: 0.82 }
             }
           }
+        }
+      });
+      return;
+    }
+
+    if (path === "/api/graph/summary") {
+      await route.fulfill({
+        json: {
+          run_id: "run_graph",
+          node_count: 7,
+          edge_count: 6,
+          node_type_counts: { table: 2, term: 2, category: 1, cluster: 1, domain: 1 },
+          edge_type_counts: {
+            table_contains_term: 1,
+            term_classified_as: 1,
+            measure_member_of_cluster: 1,
+            cluster_belongs_to_domain: 1,
+            related_to: 1,
+            table_related_to_table: 1
+          }
+        }
+      });
+      return;
+    }
+
+    if (path === "/api/graph") {
+      await route.fulfill({
+        json: {
+          focus: {
+            focus_type: url.searchParams.get("focus_type") || "term",
+            focus_id: url.searchParams.get("focus_id") || "term_1"
+          },
+          depth: Number(url.searchParams.get("depth") || 1),
+          min_weight: Number(url.searchParams.get("min_weight") || 0),
+          edge_types: [],
+          nodes: [
+            {
+              node_id: "term_1",
+              node_type: "term",
+              label: "Employment",
+              properties: { category: "measure", confidence: 0.91, domain: "labour market" }
+            },
+            {
+              node_id: "term_2",
+              node_type: "term",
+              label: "Employment rate",
+              properties: { category: "measure", confidence: 0.88, domain: "labour market" }
+            },
+            {
+              node_id: "table_1",
+              node_type: "table",
+              label: "Employment by sex, age and citizenship",
+              properties: { title: "Employment by sex, age and citizenship" }
+            },
+            {
+              node_id: "table_2",
+              node_type: "table",
+              label: "Employment rate by sex",
+              properties: { title: "Employment rate by sex" }
+            },
+            {
+              node_id: "category:measure",
+              node_type: "category",
+              label: "measure",
+              properties: { category: "measure" }
+            },
+            {
+              node_id: "cluster_1",
+              node_type: "cluster",
+              label: "labour market",
+              properties: { domain: "labour market", size: 2 }
+            },
+            {
+              node_id: "domain_labour",
+              node_type: "domain",
+              label: "labour market",
+              properties: { domain: "labour market" }
+            }
+          ],
+          edges: [
+            {
+              edge_id: "graph_table_term",
+              source_id: "table_1",
+              target_id: "term_1",
+              edge_type: "table_contains_term",
+              weight: 1,
+              directed: true,
+              derived: false,
+              evidence_ids: ["occ_1"],
+              properties: { source_areas: ["title"] }
+            },
+            {
+              edge_id: "graph_category",
+              source_id: "term_1",
+              target_id: "category:measure",
+              edge_type: "term_classified_as",
+              weight: 0.91,
+              directed: true,
+              derived: false,
+              evidence_ids: ["occ_1"],
+              properties: { variant: "test" }
+            },
+            {
+              edge_id: "graph_cluster",
+              source_id: "term_1",
+              target_id: "cluster_1",
+              edge_type: "measure_member_of_cluster",
+              weight: 0.95,
+              directed: true,
+              derived: false,
+              evidence_ids: [],
+              properties: { domain: "labour market" }
+            },
+            {
+              edge_id: "graph_domain",
+              source_id: "cluster_1",
+              target_id: "domain_labour",
+              edge_type: "cluster_belongs_to_domain",
+              weight: 1,
+              directed: true,
+              derived: false,
+              evidence_ids: [],
+              properties: { domain: "labour market" }
+            },
+            {
+              edge_id: "relation_1",
+              source_id: "term_1",
+              target_id: "term_2",
+              edge_type: "related_to",
+              weight: 0.88,
+              directed: true,
+              derived: false,
+              evidence_ids: ["occ_1"],
+              properties: { confidence: 0.88, generation_methods: ["test"] }
+            },
+            {
+              edge_id: "graph_table_table",
+              source_id: "table_1",
+              target_id: "table_2",
+              edge_type: "table_related_to_table",
+              weight: 0.44,
+              directed: false,
+              derived: true,
+              evidence_ids: [],
+              properties: { components: { shared_measure_count: 1 } }
+            }
+          ],
+          limits: { max_nodes: 250, max_edges: 600 },
+          total_available: { nodes: 7, edges: 6 }
         }
       });
       return;
@@ -297,6 +449,16 @@ test("domains and relations render browsable evidence", async ({ page }) => {
   await page.getByRole("tab", { name: "Related to" }).click();
   await expect(page.getByText("Employment rate")).toBeVisible();
   await expect(page.getByText("embedding_similarity", { exact: true })).toBeVisible();
+});
+
+test("knowledge graph page renders canvas and accepts focused navigation", async ({ page }) => {
+  await page.goto("/terms/term_1");
+  await page.getByRole("link", { name: "Open in graph" }).click();
+
+  await expect(page.getByRole("heading", { name: "Explore bounded semantic neighborhoods." })).toBeVisible();
+  await expect(page.getByLabel("Knowledge graph canvas")).toBeVisible();
+  await expect(page.locator(".graph-canvas canvas").first()).toBeVisible();
+  await expect(page.getByLabel("Edge filters")).toContainText("Related to");
 });
 
 test("methods page states scope and readiness", async ({ page }) => {

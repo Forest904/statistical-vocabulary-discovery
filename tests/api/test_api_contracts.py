@@ -34,6 +34,7 @@ class FakeState:
                 "terms_loaded": True,
                 "clusters_loaded": True,
                 "relations_loaded": True,
+                "knowledge_graph_loaded": True,
                 "evaluation_loaded": True,
             },
             "artifact_counts": {
@@ -42,6 +43,8 @@ class FakeState:
                 "terms": 1,
                 "clusters": 1,
                 "relations": 1,
+                "graph_nodes": 2,
+                "graph_edges": 1,
             },
             "warnings": [],
         }
@@ -146,6 +149,63 @@ class FakeState:
             "items": [{"relation_id": "relation_1", "relation_type": "related_to"}],
         }
 
+    def graph_summary(self) -> dict[str, Any]:
+        return {
+            "run_id": "run_graph",
+            "node_count": 2,
+            "edge_count": 1,
+            "node_type_counts": {"table": 1, "term": 1},
+            "edge_type_counts": {"table_contains_term": 1},
+        }
+
+    def graph_view(
+        self,
+        *,
+        focus_type: str,
+        focus_id: str,
+        depth: int,
+        min_weight: float,
+        edge_type: str | None = None,
+    ) -> dict[str, Any] | None:
+        _ = edge_type
+        if focus_type != "term" or focus_id != "term_1":
+            return None
+        return {
+            "focus": {"focus_type": focus_type, "focus_id": focus_id},
+            "depth": depth,
+            "min_weight": min_weight,
+            "edge_types": [],
+            "nodes": [
+                {
+                    "node_id": "term_1",
+                    "node_type": "term",
+                    "label": "Employment",
+                    "properties": {"category": "measure"},
+                },
+                {
+                    "node_id": "table_1",
+                    "node_type": "table",
+                    "label": "Employment",
+                    "properties": {"title": "Employment"},
+                },
+            ],
+            "edges": [
+                {
+                    "edge_id": "graph_1",
+                    "source_id": "table_1",
+                    "target_id": "term_1",
+                    "edge_type": "table_contains_term",
+                    "weight": 1.0,
+                    "directed": True,
+                    "derived": False,
+                    "evidence_ids": [],
+                    "properties": {},
+                }
+            ],
+            "limits": {"max_nodes": 250, "max_edges": 600},
+            "total_available": {"nodes": 2, "edges": 1},
+        }
+
 
 def _client() -> TestClient:
     app = create_app(load_on_startup=False)
@@ -164,6 +224,8 @@ def test_openapi_documents_milestone_7_endpoints() -> None:
     assert "/api/terms/{term_id}" in paths
     assert "/api/clusters" in paths
     assert "/api/relations" in paths
+    assert "/api/graph" in paths
+    assert "/api/graph/summary" in paths
     assert "/api/evaluation" in paths
     assert "/api/health" in paths
 
@@ -214,6 +276,7 @@ def test_health_reports_loaded_run_and_index_readiness() -> None:
     assert payload["loaded_search_run_id"] == "run_search"
     assert payload["readiness"]["search_index_ready"] is True
     assert payload["artifact_counts"]["tables"] == 2
+    assert payload["readiness"]["knowledge_graph_loaded"] is True
 
 
 def test_collection_endpoints_use_page_and_page_size() -> None:
@@ -243,6 +306,26 @@ def test_evaluation_reports_available_and_missing_summaries() -> None:
 
     assert payload["summaries"]["retrieval"]["status"] == "available"
     assert payload["summaries"]["classification"]["status"] == "missing"
+
+
+def test_graph_summary_and_focused_view_are_served() -> None:
+    client = _client()
+
+    summary = client.get("/api/graph/summary").json()
+    graph = client.get("/api/graph?focus_type=term&focus_id=term_1&depth=1").json()
+
+    assert summary["run_id"] == "run_graph"
+    assert graph["focus"] == {"focus_type": "term", "focus_id": "term_1"}
+    assert graph["nodes"][0]["node_id"] == "term_1"
+
+
+def test_unknown_graph_focus_returns_stable_404() -> None:
+    client = _client()
+
+    response = client.get("/api/graph?focus_type=term&focus_id=missing")
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "graph_focus_not_found"
 
 
 def test_validation_errors_use_stable_error_shape() -> None:

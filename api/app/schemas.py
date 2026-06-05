@@ -125,3 +125,49 @@ class EvaluationResponse(BaseModel):
     """Read-only evaluation summary response."""
 
     summaries: dict[str, dict[str, Any]]
+
+
+class GraphNode(BaseModel):
+    """Canvas-ready knowledge graph node."""
+
+    node_id: str
+    node_type: Literal["table", "term", "category", "cluster", "domain"]
+    label: str
+    properties: dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphEdge(BaseModel):
+    """Canvas-ready knowledge graph edge."""
+
+    edge_id: str
+    source_id: str
+    target_id: str
+    edge_type: str
+    weight: float = Field(ge=0.0, le=1.0)
+    directed: bool
+    derived: bool
+    evidence_ids: list[str] = Field(default_factory=list)
+    properties: dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphResponse(BaseModel):
+    """Bounded graph neighborhood response."""
+
+    focus: dict[str, str]
+    depth: int
+    min_weight: float
+    edge_types: list[str]
+    nodes: list[GraphNode]
+    edges: list[GraphEdge]
+    limits: dict[str, int]
+    total_available: dict[str, int]
+
+
+class GraphSummaryResponse(BaseModel):
+    """Knowledge graph artifact summary."""
+
+    run_id: str
+    node_count: int
+    edge_count: int
+    node_type_counts: dict[str, int]
+    edge_type_counts: dict[str, int]

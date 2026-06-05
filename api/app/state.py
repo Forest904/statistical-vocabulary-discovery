@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from api.app.settings import ApiSettings
 from statvocab.classification import CSV_BY_CATEGORY
@@ -101,7 +101,7 @@ def _read_json(path: Path) -> dict[str, Any]:
             f"Missing required JSON artifact: {path}",
             {"path": str(path)},
         )
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
 
 def _json_list(value: object) -> list[Any]:
@@ -255,6 +255,8 @@ def validate_loaded_artifacts(
     clusters: list[dict[str, Any]],
     cluster_by_term: dict[str, dict[str, Any]],
     relations: list[dict[str, Any]],
+    graph_nodes: dict[str, dict[str, Any]] | None = None,
+    graph_edges: list[dict[str, Any]] | None = None,
 ) -> None:
     """Validate cross-artifact references after all rows are loaded."""
 
@@ -338,6 +340,22 @@ def validate_loaded_artifacts(
             {"invalid_relations": invalid_relations[:20], "invalid_count": len(invalid_relations)},
         )
 
+    if graph_nodes is not None and graph_edges is not None:
+        unknown_graph_edges = [
+            edge
+            for edge in graph_edges
+            if edge.get("source_id") not in graph_nodes or edge.get("target_id") not in graph_nodes
+        ]
+        if unknown_graph_edges:
+            raise ApiStartupError(
+                "artifact_mismatch",
+                "Knowledge graph edges reference unknown nodes.",
+                {
+                    "invalid_edges": unknown_graph_edges[:20],
+                    "invalid_count": len(unknown_graph_edges),
+                },
+            )
+
 
 @dataclass(frozen=True)
 class ApiState:
@@ -358,6 +376,9 @@ class ApiState:
     cluster_by_term: dict[str, dict[str, Any]]
     relations: list[dict[str, Any]]
     relations_by_term: dict[str, list[dict[str, Any]]]
+    graph_nodes: dict[str, dict[str, Any]]
+    graph_edges: list[dict[str, Any]]
+    graph_summary_payload: dict[str, Any]
     evaluation: dict[str, dict[str, Any]]
 
     @property
@@ -372,6 +393,8 @@ class ApiState:
             "terms": len(self.terms),
             "clusters": len(self.clusters),
             "relations": len(self.relations),
+            "graph_nodes": len(self.graph_nodes),
+            "graph_edges": len(self.graph_edges),
         }
 
     def readiness(self) -> dict[str, bool]:
@@ -382,6 +405,7 @@ class ApiState:
             "terms_loaded": bool(self.terms),
             "clusters_loaded": bool(self.clusters),
             "relations_loaded": bool(self.relations),
+            "knowledge_graph_loaded": bool(self.graph_nodes) and bool(self.graph_edges),
             "evaluation_loaded": bool(self.evaluation),
         }
 
@@ -557,11 +581,118 @@ class ApiState:
             "items": items,
         }
 
+    def graph_summary(self) -> dict[str, Any]:
+        return {
+            "run_id": str(self.graph_summary_payload.get("run_id") or ""),
+            "node_count": int(
+                self.graph_summary_payload.get("node_count") or len(self.graph_nodes)
+            ),
+            "edge_count": int(
+                self.graph_summary_payload.get("edge_count") or len(self.graph_edges)
+            ),
+            "node_type_counts": self.graph_summary_payload.get("node_type_counts") or {},
+            "edge_type_counts": self.graph_summary_payload.get("edge_type_counts") or {},
+        }
+
+    def graph_view(
+        self,
+        *,
+        focus_type: str,
+        focus_id: str,
+        depth: int,
+        min_weight: float,
+        edge_type: str | None = None,
+    ) -> dict[str, Any] | None:
+        focus = self.graph_nodes.get(focus_id)
+        if focus is None or focus.get("node_type") != focus_type:
+            return None
+        graph_config = self.config.knowledge_graph
+        bounded_depth = min(depth, graph_config.max_depth)
+        allowed_edge_types = {
+            item.strip()
+            for item in (edge_type or "").split(",")
+            if item.strip()
+        }
+        filtered_edges = [
+            edge
+            for edge in self.graph_edges
+            if float(edge.get("weight") or 0.0) >= min_weight
+            and (not allowed_edge_types or edge.get("edge_type") in allowed_edge_types)
+        ]
+        adjacency: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for edge in filtered_edges:
+            adjacency[str(edge["source_id"])].append(edge)
+            adjacency[str(edge["target_id"])].append(edge)
+
+        visited = {focus_id}
+        frontier = {focus_id}
+        for _level in range(bounded_depth):
+            next_frontier: set[str] = set()
+            for node_id in sorted(frontier):
+                for edge in adjacency.get(node_id, []):
+                    other = (
+                        str(edge["target_id"])
+                        if edge.get("source_id") == node_id
+                        else str(edge["source_id"])
+                    )
+                    if other not in visited:
+                        next_frontier.add(other)
+            for node_id in sorted(next_frontier):
+                if len(visited) >= graph_config.max_subgraph_nodes:
+                    break
+                visited.add(node_id)
+            frontier = next_frontier & visited
+            if not frontier or len(visited) >= graph_config.max_subgraph_nodes:
+                break
+
+        sub_edges = [
+            edge
+            for edge in filtered_edges
+            if edge.get("source_id") in visited and edge.get("target_id") in visited
+        ]
+        sub_edges.sort(
+            key=lambda edge: (
+                0 if focus_id in {edge.get("source_id"), edge.get("target_id")} else 1,
+                -float(edge.get("weight") or 0.0),
+                str(edge.get("edge_id") or ""),
+            )
+        )
+        sub_edges = sub_edges[: graph_config.max_subgraph_edges]
+        node_ids = {str(edge["source_id"]) for edge in sub_edges} | {
+            str(edge["target_id"]) for edge in sub_edges
+        } | {focus_id}
+        nodes = [self.graph_nodes[node_id] for node_id in node_ids if node_id in self.graph_nodes]
+        nodes.sort(
+            key=lambda node: (
+                0 if node.get("node_id") == focus_id else 1,
+                str(node.get("node_type") or ""),
+                str(node.get("label") or "").casefold(),
+            )
+        )
+        return {
+            "focus": {"focus_type": focus_type, "focus_id": focus_id},
+            "depth": bounded_depth,
+            "min_weight": min_weight,
+            "edge_types": sorted(allowed_edge_types),
+            "nodes": nodes,
+            "edges": sub_edges,
+            "limits": {
+                "max_nodes": graph_config.max_subgraph_nodes,
+                "max_edges": graph_config.max_subgraph_edges,
+            },
+            "total_available": {
+                "nodes": len(self.graph_nodes),
+                "edges": len(filtered_edges),
+            },
+        }
+
 
 def _float_or_none(value: object) -> float | None:
     if value in (None, ""):
         return None
-    return float(value)
+    if isinstance(value, int | float | str):
+        return float(value)
+    return None
 
 
 def _bool_or_none(value: object) -> bool | None:
@@ -682,8 +813,65 @@ def _load_relations(
             by_term[str(item["source_term_id"])].append(item)
         if item["target_term_id"]:
             by_term[str(item["target_term_id"])].append(item)
-    rows.sort(key=lambda item: (-float(item.get("confidence") or 0.0), str(item["relation_id"])))
+    rows.sort(
+        key=lambda item: (
+            -(_float_or_none(item.get("confidence")) or 0.0),
+            str(item["relation_id"]),
+        )
+    )
     return rows, dict(by_term)
+
+
+def _load_graph(
+    config: AppConfig,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    current_path = config.paths.outputs_dir / "knowledge_graph" / "current_graph.json"
+    if not current_path.exists():
+        raise ApiStartupError(
+            "missing_current_graph",
+            (
+                f"Missing {current_path}; run `statvocab build-knowledge-graph "
+                f"--config {config.config_name}` first."
+            ),
+            {"path": str(current_path)},
+        )
+    current = _read_json(current_path)
+    node_path = _artifact_path(current.get("nodes", ""))
+    edge_path = _artifact_path(current.get("edges", ""))
+    summary_path = _artifact_path(current.get("summary", ""))
+    node_rows = _read_required_parquet(node_path)
+    edge_rows = _read_required_parquet(edge_path)
+    nodes: dict[str, dict[str, Any]] = {}
+    for row in node_rows:
+        node_id = str(row.get("node_id") or "")
+        if not node_id:
+            continue
+        nodes[node_id] = {
+            "node_id": node_id,
+            "node_type": str(row.get("node_type") or ""),
+            "label": str(row.get("label") or node_id),
+            "properties": _json_dict(row.get("properties_json")),
+        }
+    edges: list[dict[str, Any]] = []
+    for row in edge_rows:
+        edge_id = str(row.get("edge_id") or "")
+        if not edge_id:
+            continue
+        edges.append(
+            {
+                "edge_id": edge_id,
+                "source_id": str(row.get("source_id") or ""),
+                "target_id": str(row.get("target_id") or ""),
+                "edge_type": str(row.get("edge_type") or ""),
+                "weight": _float_or_none(row.get("weight")) or 0.0,
+                "directed": _bool_or_none(row.get("directed")) or False,
+                "derived": _bool_or_none(row.get("derived")) or False,
+                "evidence_ids": _json_list(row.get("evidence_ids_json")),
+                "properties": _json_dict(row.get("properties_json")),
+            }
+        )
+    summary = _read_json(summary_path) if summary_path.exists() else {}
+    return nodes, edges, summary
 
 
 def _load_evaluation(config: AppConfig) -> dict[str, dict[str, Any]]:
@@ -739,6 +927,7 @@ def load_api_state(settings: ApiSettings) -> ApiState:
     table_terms, term_tables = _load_table_terms(config)
     clusters, cluster_by_term = _load_clusters(config)
     relations, relations_by_term = _load_relations(config)
+    graph_nodes, graph_edges, graph_summary_payload = _load_graph(config)
     validate_loaded_artifacts(
         tables=tables,
         search_documents=documents,
@@ -748,6 +937,8 @@ def load_api_state(settings: ApiSettings) -> ApiState:
         clusters=clusters,
         cluster_by_term=cluster_by_term,
         relations=relations,
+        graph_nodes=graph_nodes,
+        graph_edges=graph_edges,
     )
     evaluation = _load_evaluation(config)
     warnings = [
@@ -771,5 +962,8 @@ def load_api_state(settings: ApiSettings) -> ApiState:
         cluster_by_term=cluster_by_term,
         relations=relations,
         relations_by_term=relations_by_term,
+        graph_nodes=graph_nodes,
+        graph_edges=graph_edges,
+        graph_summary_payload=graph_summary_payload,
         evaluation=evaluation,
     )

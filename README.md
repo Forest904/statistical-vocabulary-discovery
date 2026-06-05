@@ -69,6 +69,7 @@ statvocab extract --config configs/core.yaml
 statvocab classify --config configs/core.yaml --variant local-hybrid
 statvocab cluster-measures --config configs/core.yaml
 statvocab relations --config configs/core.yaml
+statvocab build-knowledge-graph --config configs/core.yaml
 statvocab build-search-index --config configs/core.yaml
 statvocab evaluate --config configs/evaluation.yaml --area extraction
 statvocab evaluate --config configs/evaluation.yaml --area clustering
@@ -95,6 +96,8 @@ statvocab validate-artifacts --run-id run_75b90575bb9e48ce7918
 | `outputs/other_ambiguous.csv` | 7,812 | Justified extra category |
 | `outputs/measure_clusters.csv` | 632 | Step 7 domain grouping |
 | `outputs/measure_relations.csv` | 5,628 | Step 8 bonus candidates |
+| `data/processed/knowledge_graph_nodes.parquet` | generated | Supplementary semantic graph nodes |
+| `data/processed/knowledge_graph_edges.parquet` | generated | Supplementary semantic graph edges |
 
 Final classification run: `run_75b90575bb9e48ce7918`.
 
@@ -108,9 +111,9 @@ flowchart LR
     D --> E[Partition into M, N, A, U, Other]
     E --> F[Cluster measures]
     E --> G[Generate measure relationships]
-    E --> H[Build search documents and indexes]
+    G --> H[Build knowledge graph]
+    E --> I[Build search documents and indexes]
     F --> I[Report and notebooks]
-    G --> I
     H --> I
 ```
 
@@ -128,7 +131,7 @@ flowchart TB
         P1[resources.py / ingest.py]
         P2[time_extract.py / geo_extract.py / vocabulary.py]
         P3[classification.py]
-        P4[cluster_measures.py / relations.py]
+        P4[cluster_measures.py / relations.py / knowledge_graph.py]
         P5[search engine]
     end
     subgraph Submission
@@ -150,6 +153,8 @@ docker compose up --build
 ```
 
 The FastAPI backend serves grounded search/evidence endpoints, and the React frontend lets a user search for relevant Eurostat source tables. The product does not answer numeric questions.
+
+The supplementary knowledge graph stage materializes table, term, category, cluster, and domain nodes plus provenance-backed edges. The API serves bounded graph neighborhoods for the React Cytoscape.js explorer rather than rendering the full graph by default.
 
 ## Known Limitations
 

@@ -70,3 +70,10 @@ search:
   validation_fraction: 0.20
   final_test_fraction: 0.20
   embedding_batch_size: 64
+knowledge_graph:
+  min_table_relation_weight: 0.15
+  max_table_edges_per_table: 20
+  default_depth: 1
+  max_depth: 2
+  max_subgraph_nodes: 250
+  max_subgraph_edges: 600

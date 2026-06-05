@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Share2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryBadge } from "../components/Badges";
@@ -47,6 +47,13 @@ export function TableDetailPage() {
             Open source table
           </a>
         ) : null}
+        <Link
+          className="inline-action"
+          to={`/graph?focus_type=table&focus_id=${encodeURIComponent(table.table_id)}`}
+        >
+          <Share2 aria-hidden="true" size={16} />
+          Open in graph
+        </Link>
       </div>
 
       <section className="two-column">

@@ -10,6 +10,8 @@ from api.app.routes.dependencies import get_state
 from api.app.schemas import (
     ClusterListResponse,
     EvaluationResponse,
+    GraphResponse,
+    GraphSummaryResponse,
     RelationListResponse,
     RelationTypeValue,
     TableDetailResponse,
@@ -99,6 +101,43 @@ def relations(
         term_id=term_id,
         relation_type=relation_type,
     )
+
+
+@router.get("/graph/summary", response_model=GraphSummaryResponse)
+def graph_summary(state: StateDependency) -> dict[str, object]:
+    """Return the loaded knowledge graph artifact summary."""
+
+    return state.graph_summary()
+
+
+@router.get("/graph", response_model=GraphResponse)
+def graph(
+    state: StateDependency,
+    focus_type: str,
+    focus_id: str,
+    depth: Annotated[int, Query(ge=1, le=10)] = 1,
+    min_weight: Annotated[float, Query(ge=0.0, le=1.0)] = 0.0,
+    edge_type: str | None = None,
+) -> dict[str, object]:
+    """Return a bounded knowledge graph neighborhood."""
+
+    payload = state.graph_view(
+        focus_type=focus_type,
+        focus_id=focus_id,
+        depth=depth,
+        min_weight=min_weight,
+        edge_type=edge_type,
+    )
+    if payload is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "graph_focus_not_found",
+                "message": f"Unknown graph focus ID: {focus_id}",
+                "details": {"focus_type": focus_type, "focus_id": focus_id},
+            },
+        )
+    return payload
 
 
 @router.get("/evaluation", response_model=EvaluationResponse)

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Filter } from "lucide-react";
+import { Filter, Share2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -105,6 +105,20 @@ export function RelationsPage() {
               </Link>
             </p>
             <div className="chip-list">
+              <Link
+                className="simple-chip"
+                to={`/graph?focus_type=term&focus_id=${encodeURIComponent(rawText(relation, ["source_term_id"]))}`}
+              >
+                <Share2 aria-hidden="true" size={14} />
+                Source graph
+              </Link>
+              <Link
+                className="simple-chip"
+                to={`/graph?focus_type=term&focus_id=${encodeURIComponent(rawText(relation, ["target_term_id"]))}`}
+              >
+                <Share2 aria-hidden="true" size={14} />
+                Target graph
+              </Link>
               {list(relation.generation_methods).map((method) => (
                 <span className="simple-chip" key={String(method)}>
                   {String(method)}

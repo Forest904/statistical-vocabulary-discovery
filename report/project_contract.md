@@ -17,6 +17,12 @@ surface that later milestones must satisfy.
 | 7 | Group measures into domains | `cluster_measures.py` | `measure_clusters.csv` | Notebook 04, report section 7 |
 | 8 | Identify typed measure relationships | `relations.py` | `measure_relations.csv` | Notebook 05, report section 8 |
 
+## Supplementary Product Stage Mapping
+
+| Stage | Requirement | Planned modules | Planned artifacts | Product surface |
+|---|---|---|---|---|
+| KG | Materialize bounded semantic knowledge graph | `knowledge_graph.py` | `knowledge_graph_nodes.parquet`, `knowledge_graph_edges.parquet`, `knowledge_graph_summary.json` | `GET /api/graph`, React graph explorer |
+
 ## Foundation Decisions
 
 - Python runtime is pinned to Python 3.12.
@@ -25,4 +31,4 @@ surface that later milestones must satisfy.
 - The 7,605-table corpus is a scale experiment, not a core-release blocker.
 - Search returns grounded source tables and evidence, never numeric answers.
 - LLM output is optional, cached, schema-validated, and constrained to known terms.
-
+- The knowledge graph is artifact-backed, bounded at API request time, and labels derived table-table links separately from measure relationships.

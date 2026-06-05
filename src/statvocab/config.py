@@ -129,6 +129,19 @@ class SearchConfig(BaseModel):
     embedding_batch_size: int = Field(default=64, gt=0)
 
 
+class KnowledgeGraphConfig(BaseModel):
+    """Knowledge graph construction and bounded-serving defaults."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_table_relation_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+    max_table_edges_per_table: int = Field(default=20, gt=0)
+    default_depth: int = Field(default=1, gt=0)
+    max_depth: int = Field(default=2, gt=0)
+    max_subgraph_nodes: int = Field(default=250, gt=0)
+    max_subgraph_edges: int = Field(default=600, gt=0)
+
+
 class AppConfig(BaseModel):
     """Top-level typed project configuration."""
 
@@ -144,6 +157,7 @@ class AppConfig(BaseModel):
     clustering: ClusteringConfig = Field(default_factory=ClusteringConfig)
     relations: RelationsConfig = Field(default_factory=RelationsConfig)
     search: SearchConfig = Field(default_factory=SearchConfig)
+    knowledge_graph: KnowledgeGraphConfig = Field(default_factory=KnowledgeGraphConfig)
 
     @property
     def config_id_parts(self) -> tuple[str, str, int]:
