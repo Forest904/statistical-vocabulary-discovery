@@ -179,6 +179,20 @@ def _read_csv_rows(path: Path) -> list[list[str]]:
         return [row for row in csv.reader(file) if row and any(cell.strip() for cell in row)]
 
 
+def _iter_csv_rows(path: Path) -> Iterator[list[str]]:
+    limit = sys.maxsize
+    while True:
+        try:
+            csv.field_size_limit(limit)
+            break
+        except OverflowError:
+            limit //= 10
+    with _open_source_csv(path) as file:
+        for row in csv.reader(file):
+            if row and any(cell.strip() for cell in row):
+                yield row
+
+
 def _exception_reason(exc: Exception) -> str:
     return str(exc) or exc.__class__.__name__
 
@@ -400,7 +414,8 @@ class EurostatStarAdapter:
         warnings: list[ParseWarning] = []
         path = Path(reference.local_path)
         try:
-            rows = _read_csv_rows(path)
+            row_iter = _iter_csv_rows(path)
+            header = next(row_iter, None)
         except Exception as exc:
             return ParsedTable(
                 reference=reference,
@@ -414,7 +429,7 @@ class EurostatStarAdapter:
                 parse_status=ParseStatus.FAILED,
             )
 
-        if not rows or not rows[0]:
+        if not header:
             return ParsedTable(
                 reference=reference,
                 columns=(),
@@ -425,7 +440,6 @@ class EurostatStarAdapter:
                 parse_status=ParseStatus.FAILED,
             )
 
-        header = rows[0]
         if any("\x00" in cell for cell in header):
             return ParsedTable(
                 reference=reference,
@@ -464,26 +478,47 @@ class EurostatStarAdapter:
         malformed_rows = 0
         observation_count = 0
         non_numeric_warnings = 0
+        row_count = 0
 
-        for row_number, row in enumerate(rows[1:], start=2):
-            if len(row) != len(header):
-                malformed_rows += 1
-                warnings.append(
-                    ParseWarning(
-                        table_id=reference.table_id,
-                        row_number=row_number,
-                        reason="row has unexpected column count",
-                        expected_columns=len(header),
-                        actual_columns=len(row),
+        try:
+            for row_number, row in enumerate(row_iter, start=2):
+                row_count += 1
+                if len(row) != len(header):
+                    malformed_rows += 1
+                    warnings.append(
+                        ParseWarning(
+                            table_id=reference.table_id,
+                            row_number=row_number,
+                            reason="row has unexpected column count",
+                            expected_columns=len(header),
+                            actual_columns=len(row),
+                        )
                     )
-                )
-                continue
+                    continue
 
-            for column_name, raw_value in zip(time_columns, row[first_time_index:], strict=False):
-                parsed = parse_observation_cell(row_number, column_name, raw_value)
-                observation_count += 1
-                if parsed.flag == "non_numeric":
-                    non_numeric_warnings += 1
+                for column_name, raw_value in zip(
+                    time_columns,
+                    row[first_time_index:],
+                    strict=False,
+                ):
+                    parsed = parse_observation_cell(row_number, column_name, raw_value)
+                    observation_count += 1
+                    if parsed.flag == "non_numeric":
+                        non_numeric_warnings += 1
+        except Exception as exc:
+            warnings.append(
+                ParseWarning(table_id=reference.table_id, reason=_exception_reason(exc))
+            )
+            status = ParseStatus.FAILED
+            return ParsedTable(
+                reference=reference,
+                columns=columns,
+                row_count=row_count,
+                observation_count=observation_count,
+                malformed_row_count=malformed_rows,
+                warnings=tuple(warnings),
+                parse_status=status,
+            )
 
         if non_numeric_warnings:
             warnings.append(
@@ -500,7 +535,7 @@ class EurostatStarAdapter:
         return ParsedTable(
             reference=reference,
             columns=columns,
-            row_count=len(rows) - 1,
+            row_count=row_count,
             observation_count=observation_count,
             malformed_row_count=malformed_rows,
             warnings=tuple(warnings),
