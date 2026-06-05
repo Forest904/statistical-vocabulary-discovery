@@ -1,0 +1,16 @@
+{
+  "agriculture, forestry, and fisheries": "Agriculture, crops, livestock, fisheries, forestry, land use, food production.",
+  "cross-domain or other": "Cross-domain, mixed, generic, or insufficiently specific statistical measures.",
+  "economy and finance": "Prices, national accounts, money, income, expenditure, finance, trade balances.",
+  "education": "Schools, pupils, students, education attainment, training, learning.",
+  "environment and energy": "Environment, emissions, climate, waste, water, energy production, energy consumption.",
+  "government, justice, and public administration": "Government, public administration, elections, justice, crime, courts, public finance.",
+  "health": "Health, mortality, morbidity, care, hospitals, disease, wellbeing.",
+  "industry, trade, and services": "Industrial production, business, retail, services, tourism, enterprise activity.",
+  "labour market": "Employment, unemployment, labour force, jobs, wages, working time, occupations.",
+  "population and demography": "Population, births, deaths, migration, age, households, demographic change.",
+  "regional and urban statistics": "Regions, cities, urban areas, territorial statistics, local indicators.",
+  "science, technology, and digital society": "Research, development, innovation, technology, ICT, digital society.",
+  "social conditions and equality": "Poverty, inequality, social protection, living conditions, inclusion, gender equality.",
+  "transport": "Transport, vehicles, passengers, freight, roads, rail, air, maritime movement."
+}

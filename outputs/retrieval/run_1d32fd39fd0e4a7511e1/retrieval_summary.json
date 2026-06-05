@@ -43,7 +43,6 @@
     "validation": 40
   },
   "run_id": "run_1d32fd39fd0e4a7511e1",
-  "summary": "outputs\\retrieval\\run_1d32fd39fd0e4a7511e1\\retrieval_summary.json",
   "systems": {
     "all_vocabulary_bm25": {
       "original": {

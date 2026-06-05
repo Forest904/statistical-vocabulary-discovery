@@ -27,13 +27,17 @@ def _write_json(payload: dict[str, Any], path: Path) -> Path:
 
 def _latest_review_path(config: AppConfig) -> Path | None:
     candidates = sorted(
-        (config.paths.outputs_dir / "relations").glob("*/manual_relation_review_sample.csv")
+        (config.paths.outputs_dir / "relations").glob("*/manual_relation_review_sample.csv"),
+        key=lambda path: path.stat().st_mtime,
     )
     return candidates[-1] if candidates else None
 
 
 def _latest_summary(config: AppConfig) -> dict[str, Any]:
-    candidates = sorted((config.paths.outputs_dir / "relations").glob("*/relation_summary.json"))
+    candidates = sorted(
+        (config.paths.outputs_dir / "relations").glob("*/relation_summary.json"),
+        key=lambda path: path.stat().st_mtime,
+    )
     if not candidates:
         return {}
     return cast(dict[str, Any], json.loads(candidates[-1].read_text(encoding="utf-8")))

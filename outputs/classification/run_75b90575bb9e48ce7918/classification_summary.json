@@ -1,0 +1,14 @@
+{
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 365,
+    "dimension_value": 548,
+    "measure": 632,
+    "other_ambiguous": 7812,
+    "unit": 214
+  },
+  "metrics_status": "available",
+  "prediction_count": 9571,
+  "run_id": "run_75b90575bb9e48ce7918",
+  "variant": "local-hybrid"
+}

@@ -24,16 +24,28 @@ assignments are exported alongside the HDBSCAN artifacts for comparison.
 The clustering command writes:
 
 - `outputs/measure_clusters.csv`
-- `outputs/clustering/<run_id>/agglomerative_baseline.csv`
-- `outputs/clustering/<run_id>/domain_taxonomy.json`
-- `outputs/clustering/<run_id>/manual_cluster_review_sample.csv`
-- `outputs/clustering/<run_id>/clustering_summary.json`
+- `outputs/clustering/run_eb9d50c4e3e315dafd9d/agglomerative_baseline.csv`
+- `outputs/clustering/run_eb9d50c4e3e315dafd9d/domain_taxonomy.json`
+- `outputs/clustering/run_eb9d50c4e3e315dafd9d/manual_cluster_review_sample.csv`
+- `outputs/clustering/run_eb9d50c4e3e315dafd9d/clustering_summary.json`
 
 ## Evaluation
 
 `statvocab evaluate --area clustering` reports coverage, cluster-size distribution, domain
 distribution, representative counts, silhouette where valid, a HDBSCAN stability proxy, baseline
 cluster counts, and manual-review completion status.
+
+Current refreshed run:
+
+| Metric | Value |
+|---|---:|
+| Run ID | `run_eb9d50c4e3e315dafd9d` |
+| Measures | 632 |
+| HDBSCAN clusters | 35 |
+| Agglomerative baseline clusters | 42 |
+| Non-noise coverage | 0.574 |
+| Unclustered measures | 269 |
+| HDBSCAN stability proxy | 0.546 |
 
 Manual review records coherence, domain-label quality, representative quality, and error examples.
 Until review fields are completed, the automatic metrics are available but human coherence and label
@@ -42,5 +54,5 @@ quality remain pending.
 ## Current Limitations
 
 The first implementation prioritizes reproducible artifacts and explicit review data over tuned
-cluster quality. Thresholds and HDBSCAN parameters should be revisited after the manual review sample
-has enough completed rows to judge the coverage/coherence tradeoff.
+cluster quality. The refreshed sample is structurally valid but not manually reviewed yet, so
+coverage, domain distribution, and integrity checks should be treated as the current quality surface.

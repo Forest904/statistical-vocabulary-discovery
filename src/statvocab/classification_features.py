@@ -291,11 +291,9 @@ def ensure_gold_templates(config: AppConfig) -> tuple[Path, Path, Path]:
         rng.sample(label_rows, k=min(relabel_count, total)),
         key=lambda row: str(row["term_id"]),
     )
-    relabel_path = write_csv_rows(
-        relabel_rows,
-        config.evaluation.extraction_gold_dir / "vocabulary_gold_relabel.csv",
-        GOLD_FIELDNAMES,
-    )
+    relabel_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_relabel.csv"
+    if not relabel_path.exists():
+        write_csv_rows(relabel_rows, relabel_path, GOLD_FIELDNAMES)
     return sample_path, labels_path, relabel_path
 
 

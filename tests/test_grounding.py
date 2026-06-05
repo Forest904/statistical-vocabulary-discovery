@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 
 import pyarrow.parquet as pq
@@ -5,7 +6,7 @@ import pyarrow.parquet as pq
 from statvocab.artifact_validation import validate_artifacts
 from statvocab.classification import run_classification
 from statvocab.classification_evaluate import evaluate_classification
-from statvocab.classification_features import feature_rows
+from statvocab.classification_features import ensure_gold_templates, feature_rows, read_csv_rows
 from statvocab.config import AppConfig, load_config
 from statvocab.ingest import run_ingestion
 from statvocab.vocabulary import run_extraction
@@ -74,3 +75,25 @@ def test_classification_evaluation_is_pending_without_gold_labels(tmp_path: Path
     assert metrics_path.exists()
     assert payload["gold_status"] == "pending"
     assert payload["metrics_status"] == "pending_predictions"
+
+
+def test_gold_template_creation_preserves_completed_relabels(tmp_path: Path) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config)
+    _sample_path, _labels_path, relabel_path = ensure_gold_templates(config)
+
+    rows = read_csv_rows(relabel_path)
+    rows[0]["category"] = "measure"
+    rows[0]["annotator_id"] = "test"
+    rows[0]["notes"] = "completed duplicate label"
+    with relabel_path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    ensure_gold_templates(config)
+
+    preserved = read_csv_rows(relabel_path)
+    assert preserved[0]["category"] == "measure"
+    assert preserved[0]["notes"] == "completed duplicate label"

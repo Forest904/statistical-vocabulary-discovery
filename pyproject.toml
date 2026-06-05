@@ -57,6 +57,7 @@ packages = ["src/statvocab"]
 [tool.pytest.ini_options]
 addopts = "--strict-markers --strict-config --cov=statvocab --cov-report=term-missing"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

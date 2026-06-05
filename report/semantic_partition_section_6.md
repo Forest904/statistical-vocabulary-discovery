@@ -16,10 +16,9 @@ unit expressions, frequency and age-band values, common dimension values, and ti
 measures. Every term receives exactly one category; unmatched or conflicting cases become
 `other_ambiguous`.
 
-The `local-hybrid` variant preserves protected rule outputs. When completed train/development
-labels and ML dependencies are available, it caches PEARL-small embeddings and trains a calibrated
-local classifier. Until gold labels are filled, it records that local modeling is pending and falls
-back to the rule partition.
+The `local-hybrid` variant preserves protected rule outputs, caches PEARL-small embeddings, and
+trains a calibrated local classifier from the completed audit labels. Low-confidence model outputs
+abstain to `other_ambiguous`.
 
 Optional paid adjudication is scaffolded through `prompts/classify_term.md`, strict schema
 validation, term-membership checks, and evidence-membership checks. Paid calls are disabled by
@@ -42,14 +41,24 @@ The classification command writes:
 
 ## Evaluation
 
-`statvocab evaluate --area classification` reports gold-label status, agreement status, and metrics
-when labels are complete. Metrics include accuracy, macro-F1, weighted-F1, per-class scores,
-confusion matrix, validation metrics, and final-test metrics. The selected primary variant must be
-chosen by validation macro-F1, subject to zero accepted hallucinations, without using final-test
-labels.
+`report/classification_metrics.json` records completed audit-label metrics, duplicate relabel
+agreement, validation metrics, and final-test metrics. The current local-hybrid run is
+`run_75b90575bb9e48ce7918`.
+
+Current results:
+
+| Split | Accuracy | Macro-F1 | Weighted-F1 |
+|---|---:|---:|---:|
+| All labeled rows | 0.948 | 0.920 | 0.940 |
+| Validation | 0.940 | 0.892 | 0.926 |
+| Final test | 0.960 | 0.927 | 0.954 |
+
+The duplicate relabel audit covers 50 rows and reports raw agreement `1.000` and Cohen's kappa
+`1.000`. Accepted hallucination count is `0`.
 
 ## Current Limitations
 
-The first implementation pass creates the templates and runnable classification pipeline, but the
-Milestone 3 exit gate remains incomplete until the 500-term gold labels and blind relabel rows are
-manually completed and final-test results are documented.
+The 500 primary labels and 50 duplicate labels are complete, but they were completed through a
+rule-assisted repository audit rather than a fully independent second-human annotation study. The
+local classifier remains conservative: measure recall is the weakest final-test class, and many
+uncertain measure-like terms are intentionally placed in `other_ambiguous`.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Any, cast
 
@@ -17,6 +18,7 @@ from statvocab.contracts import VocabularyCategory
 def _read_csv(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         raise FileNotFoundError(f"Missing required artifact: {path}")
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
