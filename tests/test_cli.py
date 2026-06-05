@@ -170,7 +170,8 @@ def test_retrieval_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
 def test_run_all_cli_invokes_full_corpus_runner(monkeypatch) -> None:
     import statvocab.cli as cli
 
-    def fake_run(config):
+    def fake_run(config, *, run_id=None, resume=False):
+        _ = run_id, resume
         return {
             "run_id": "run_full_test",
             "run_manifest": str(config.paths.outputs_dir / "full_corpus" / "run_manifest.json"),

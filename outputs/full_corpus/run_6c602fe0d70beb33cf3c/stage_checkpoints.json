@@ -1,0 +1,42 @@
+[
+  {
+    "artifacts": [],
+    "diagnostics": {
+      "archive_exists": false,
+      "archive_path": "data\\raw\\eurostat_7605_tables.tgz",
+      "archive_size_bytes": 0,
+      "expected_table_count": 7605,
+      "extracted_csv_count": 7605,
+      "extracted_dir": "data\\raw\\eurostat_7605_tables",
+      "extracted_size_bytes": 108168419429,
+      "free_bytes": 406255349760,
+      "required_free_bytes": 129802103314,
+      "warnings": [
+        "full archive is absent; continuing from exact-size extracted cache without archive checksum verification"
+      ]
+    },
+    "disk_after": {
+      "free_bytes": 406255349760,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 551141720064
+    },
+    "disk_before": {
+      "free_bytes": 406255349760,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 551141720064
+    },
+    "failure_message": "",
+    "finished_at": "2026-06-05T01:10:06.588157+00:00",
+    "last_valid_checkpoint": "none",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": 71049216,
+    "run_id": null,
+    "stage": "disk-preflight",
+    "started_at": "2026-06-05T01:10:06.424156+00:00",
+    "status": "succeeded",
+    "wall_clock_seconds": 0.15977929999644402
+  }
+]

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -156,3 +157,70 @@ def test_full_corpus_validation_accepts_incomplete_stages_with_blockers(
     assert validation["validated"] is True
     assert validation["pipeline_stage"] == "run-all"
     assert validation["incomplete_stages"]
+
+
+def test_full_corpus_resume_reuses_completed_checkpoints(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import statvocab.full_corpus as full_corpus
+
+    config = _full_config(tmp_path)
+    run_id = "run_resume_test"
+    checkpoint_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    checkpoint_dir.mkdir(parents=True)
+    (checkpoint_dir / "stage_checkpoints.json").write_text(
+        json.dumps(
+            [
+                {
+                    "stage": "disk-preflight",
+                    "status": "succeeded",
+                    "optional": False,
+                    "started_at": "2026-06-05T00:00:00+00:00",
+                    "finished_at": "2026-06-05T00:00:01+00:00",
+                    "wall_clock_seconds": 1.0,
+                    "peak_rss_bytes": None,
+                    "disk_before": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "disk_after": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "run_id": None,
+                    "manifest_path": "",
+                    "artifacts": [],
+                    "failure_message": "",
+                    "last_valid_checkpoint": "none",
+                    "diagnostics": {},
+                }
+            ],
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    events: list[tuple[str, str]] = []
+
+    def fake_acquire_stage(config: AppConfig) -> dict[str, object]:
+        path = _touch(config.paths.processed_dir / "resource_manifest.json", "[]\n")
+        return {
+            "artifacts": {"resource_manifest": path},
+            "diagnostics": {"run_id": "run_acquire"},
+            "resources": (),
+        }
+
+    monkeypatch.setattr(full_corpus, "_acquire_stage", fake_acquire_stage)
+    monkeypatch.setattr(
+        full_corpus,
+        "run_ingestion",
+        lambda config, **_kwargs: (_ for _ in ()).throw(RuntimeError("stop after acquire")),
+    )
+
+    payload = run_full_corpus(
+        config,
+        run_id=run_id,
+        resume=True,
+        progress_callback=lambda stage, event, _checkpoint: events.append((stage, event)),
+    )
+
+    assert payload["run_id"] == run_id
+    assert ("disk-preflight", "resumed") in events
+    checkpoints = json.loads((checkpoint_dir / "stage_checkpoints.json").read_text())
+    assert checkpoints[0]["stage"] == "disk-preflight"
+    assert checkpoints[1]["stage"] == "acquire"

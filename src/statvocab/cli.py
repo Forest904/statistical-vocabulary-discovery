@@ -311,11 +311,21 @@ def evaluate(
 
 
 @app.command("run-all")
-def run_all(config: Annotated[Path, _config_option()] = Path("configs/full.yaml")) -> None:
+def run_all(
+    config: Annotated[Path, _config_option()] = Path("configs/full.yaml"),
+    resume_run_id: Annotated[
+        str | None,
+        typer.Option("--resume-run-id", help="Resume a checkpointed full-corpus run ID."),
+    ] = None,
+) -> None:
     """Run the instrumented full-corpus scale attempt."""
 
     loaded = load_config(config)
-    payload = run_full_corpus(loaded)
+    payload = run_full_corpus(
+        loaded,
+        run_id=resume_run_id,
+        resume=resume_run_id is not None,
+    )
     console.print(payload)
 
 
