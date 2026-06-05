@@ -266,6 +266,15 @@ def _load_checkpoints(path: Path) -> list[dict[str, Any]]:
     return cast(list[dict[str, Any]], json.loads(path.read_text(encoding="utf-8")))
 
 
+def _completed_prefix(checkpoints: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    completed: list[dict[str, Any]] = []
+    for checkpoint in checkpoints:
+        if checkpoint.get("status") != "succeeded":
+            break
+        completed.append(checkpoint)
+    return completed
+
+
 def _checkpoint_for_stage(
     checkpoints: list[dict[str, Any]],
     stage: str,
@@ -630,7 +639,9 @@ def run_full_corpus(
     output_dir = config.paths.outputs_dir / "full_corpus" / actual_run_id
     checkpoints_path = output_dir / "stage_checkpoints.json"
     measurements_path = output_dir / "resource_measurements.csv"
-    checkpoints: list[dict[str, Any]] = _load_checkpoints(checkpoints_path) if resume else []
+    checkpoints = _completed_prefix(_load_checkpoints(checkpoints_path)) if resume else []
+    if resume and checkpoints:
+        _write_checkpoints(checkpoints, checkpoints_path)
     resources: tuple[ResourceRecord, ...] = ()
 
     preflight_checkpoint = resumed_checkpoint(

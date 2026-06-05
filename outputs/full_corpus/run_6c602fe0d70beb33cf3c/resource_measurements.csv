@@ -1,0 +1,13 @@
+stage,status,wall_clock_seconds,peak_rss_bytes,disk_free_before_bytes,disk_free_after_bytes,artifact_size_bytes,failure_message
+disk-preflight,succeeded,0.159779,71049216,406255349760,406255349760,0,
+acquire,succeeded,1305.556106,84725760,406255345664,393551532032,5390,
+ingest,failed,8833.800329,,393551532032,293964369920,0,"1 validation error for ParseWarning
+reason
+  String should have at least 1 character [type=string_too_short, input_value='', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_too_short"
+extract,skipped,0.000000,,293964369920,293964369920,0,ingestion did not complete in this run
+classify-local-hybrid,skipped,0.000000,,293964365824,293964365824,0,extraction did not complete in this run
+cluster-measures,skipped,0.000000,,293964365824,293964365824,0,classification did not complete in this run
+relations,skipped,0.000000,,293964365824,293964365824,0,classification did not complete in this run
+build-search-index,skipped,0.000000,,293964365824,293964365824,0,classification did not complete in this run
+evaluate-retrieval,skipped,0.000000,,293964365824,293964365824,0,classification did not complete in this run

@@ -1,0 +1,21 @@
+{
+  "config_name": "full",
+  "corpus": "full",
+  "deliverables": {
+    "resource_measurements": "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\resource_measurements.csv",
+    "scalability_report": "report\\full_corpus_scalability.md",
+    "stage_checkpoints": "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\stage_checkpoints.json"
+  },
+  "finished_at": "2026-06-05T03:59:04.813054+00:00",
+  "overall_status": "completed_with_blockers",
+  "pipeline_stage": "run-all",
+  "resource_measurements": "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\resource_measurements.csv",
+  "run_id": "run_6c602fe0d70beb33cf3c",
+  "stage_checkpoints": "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\stage_checkpoints.json",
+  "stage_status_counts": {
+    "failed": 1,
+    "skipped": 6,
+    "succeeded": 2
+  },
+  "started_at": "2026-06-05T01:10:06.424156+00:00"
+}

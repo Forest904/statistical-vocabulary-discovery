@@ -38,5 +38,250 @@
     "started_at": "2026-06-05T01:10:06.424156+00:00",
     "status": "succeeded",
     "wall_clock_seconds": 0.15977929999644402
+  },
+  {
+    "artifacts": [
+      {
+        "exists": true,
+        "kind": "file",
+        "md5": "fc74a4272d77f486b34ddc9874b20826",
+        "path": "data\\processed\\resource_manifest.json",
+        "size_bytes": 4765
+      },
+      {
+        "exists": true,
+        "kind": "file",
+        "md5": "fed7cb4a0d7b5e0526e9ec044af0642e",
+        "path": "outputs\\manifests\\run_18ed2724274acf1fd8b3_acquire.json",
+        "size_bytes": 625
+      }
+    ],
+    "diagnostics": {
+      "extracted_table_count": 7605,
+      "resource_count": 7,
+      "resources": {
+        "eurostat_geo_codelist_sdmx3": "reused",
+        "eurostat_title_catalog_en": "reused",
+        "nuts_2024_attributes": "reused",
+        "star_annotations": "reused",
+        "star_original_questions": "reused",
+        "star_reformulated_questions": "reused",
+        "zenodo_eurostat_7605_tables.tgz": "verified"
+      },
+      "run_id": "run_18ed2724274acf1fd8b3",
+      "warnings": []
+    },
+    "disk_after": {
+      "free_bytes": 393551532032,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 563845537792
+    },
+    "disk_before": {
+      "free_bytes": 406255345664,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 551141724160
+    },
+    "failure_message": "",
+    "finished_at": "2026-06-05T01:31:52.145750+00:00",
+    "last_valid_checkpoint": "disk-preflight",
+    "manifest_path": "outputs\\manifests\\run_18ed2724274acf1fd8b3_acquire.json",
+    "optional": false,
+    "peak_rss_bytes": 84725760,
+    "run_id": "run_18ed2724274acf1fd8b3",
+    "stage": "acquire",
+    "started_at": "2026-06-05T01:10:06.589008+00:00",
+    "status": "succeeded",
+    "wall_clock_seconds": 1305.5561058000021
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964369920,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432699904
+    },
+    "disk_before": {
+      "free_bytes": 393551532032,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 563845537792
+    },
+    "failure_message": "1 validation error for ParseWarning\nreason\n  String should have at least 1 character [type=string_too_short, input_value='', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_too_short",
+    "finished_at": "2026-06-05T03:59:04.801376+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "ingest",
+    "started_at": "2026-06-05T01:31:52.167774+00:00",
+    "status": "failed",
+    "wall_clock_seconds": 8833.800328900004
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964369920,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432699904
+    },
+    "disk_before": {
+      "free_bytes": 293964369920,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432699904
+    },
+    "failure_message": "ingestion did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "extract",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "disk_before": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "failure_message": "extraction did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "classify-local-hybrid",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "disk_before": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "failure_message": "classification did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "cluster-measures",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "disk_before": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "failure_message": "classification did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": false,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "relations",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "disk_before": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "failure_message": "classification did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": true,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "build-search-index",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
+  },
+  {
+    "artifacts": [],
+    "diagnostics": {},
+    "disk_after": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "disk_before": {
+      "free_bytes": 293964365824,
+      "path": "data",
+      "total_bytes": 957397069824,
+      "used_bytes": 663432704000
+    },
+    "failure_message": "classification did not complete in this run",
+    "finished_at": "2026-06-05T03:59:04.813054+00:00",
+    "last_valid_checkpoint": "acquire",
+    "manifest_path": "",
+    "optional": true,
+    "peak_rss_bytes": null,
+    "run_id": null,
+    "stage": "evaluate-retrieval",
+    "started_at": "2026-06-05T03:59:04.813054+00:00",
+    "status": "skipped",
+    "wall_clock_seconds": 0.0
   }
 ]

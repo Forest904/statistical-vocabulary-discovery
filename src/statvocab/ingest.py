@@ -7,13 +7,14 @@ import gzip
 import io
 import json
 import re
+import sys
 import tarfile
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol, TextIO
+from typing import Protocol, TextIO, cast
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -167,8 +168,19 @@ def _open_source_csv(path: Path) -> Iterator[TextIO]:
 
 
 def _read_csv_rows(path: Path) -> list[list[str]]:
+    limit = sys.maxsize
+    while True:
+        try:
+            csv.field_size_limit(limit)
+            break
+        except OverflowError:
+            limit //= 10
     with _open_source_csv(path) as file:
         return [row for row in csv.reader(file) if row and any(cell.strip() for cell in row)]
+
+
+def _exception_reason(exc: Exception) -> str:
+    return str(exc) or exc.__class__.__name__
 
 
 def _corpus_dir(config: AppConfig) -> Path:
@@ -396,7 +408,9 @@ class EurostatStarAdapter:
                 row_count=0,
                 observation_count=0,
                 malformed_row_count=0,
-                warnings=(ParseWarning(table_id=reference.table_id, reason=str(exc)),),
+                warnings=(
+                    ParseWarning(table_id=reference.table_id, reason=_exception_reason(exc)),
+                ),
                 parse_status=ParseStatus.FAILED,
             )
 
@@ -591,6 +605,60 @@ def _diagnostics_from_rows(
     }
 
 
+def _partial_ingestion_path(config: AppConfig) -> Path:
+    return config.paths.processed_dir / f"ingestion_partial_{config.corpus.name}.jsonl"
+
+
+def _load_partial_ingestion_rows(path: Path) -> dict[str, dict[str, object]]:
+    if not path.exists():
+        return {}
+    rows: dict[str, dict[str, object]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = cast(dict[str, object], json.loads(line))
+        table_id = str(row.get("table_id") or "")
+        if table_id:
+            rows[table_id] = row
+    return rows
+
+
+def _append_partial_ingestion_row(path: Path, row: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(row, sort_keys=True) + "\n")
+
+
+def _ingestion_diagnostic_accumulators(
+    rows: Iterable[dict[str, object]],
+) -> tuple[Counter[str], list[dict[str, object]], list[dict[str, object]]]:
+    status_counts: Counter[str] = Counter()
+    warning_tables: list[dict[str, object]] = []
+    failed_tables: list[dict[str, object]] = []
+    for row in rows:
+        status = str(row.get("parse_status") or "")
+        if status:
+            status_counts[status] += 1
+        raw_reasons = row.get("warning_reasons") or []
+        warning_reasons = [str(reason) for reason in cast(list[object], raw_reasons)]
+        if warning_reasons:
+            warning_tables.append(
+                {
+                    "table_id": str(row.get("table_id") or ""),
+                    "parse_status": status,
+                    "reasons": warning_reasons,
+                }
+            )
+        if status == ParseStatus.FAILED.value:
+            failed_tables.append(
+                {
+                    "table_id": str(row.get("table_id") or ""),
+                    "reasons": warning_reasons,
+                }
+            )
+    return status_counts, warning_tables, failed_tables
+
+
 def write_tables_parquet(rows: list[dict[str, object]], output_path: Path) -> Path:
     """Write table inventory rows to Parquet."""
 
@@ -617,30 +685,18 @@ def run_ingestion(
 
     manifest = create_manifest(config, "ingest")
     adapter = EurostatStarAdapter(config)
-    rows: list[dict[str, object]] = []
-    status_counts: Counter[str] = Counter()
-    warning_tables: list[dict[str, object]] = []
-    failed_tables: list[dict[str, object]] = []
+    partial_path = _partial_ingestion_path(config)
+    rows_by_table = _load_partial_ingestion_rows(partial_path)
     for reference in adapter.iter_references():
+        if reference.table_id in rows_by_table:
+            continue
         parsed_table = adapter.parse_table(reference)
-        rows.append(parsed_table_to_row(parsed_table))
-        status_counts[parsed_table.parse_status.value] += 1
-        if parsed_table.warnings:
-            warning_tables.append(
-                {
-                    "table_id": parsed_table.reference.table_id,
-                    "parse_status": parsed_table.parse_status.value,
-                    "reasons": [warning.reason for warning in parsed_table.warnings],
-                }
-            )
-        if parsed_table.parse_status == ParseStatus.FAILED:
-            failed_tables.append(
-                {
-                    "table_id": parsed_table.reference.table_id,
-                    "reasons": [warning.reason for warning in parsed_table.warnings],
-                }
-            )
+        row = parsed_table_to_row(parsed_table)
+        rows_by_table[reference.table_id] = row
+        _append_partial_ingestion_row(partial_path, row)
 
+    rows = [rows_by_table[table_id] for table_id in sorted(rows_by_table)]
+    status_counts, warning_tables, failed_tables = _ingestion_diagnostic_accumulators(rows)
     tables_path = write_tables_parquet(rows, config.paths.processed_dir / "tables.parquet")
     diagnostics = _diagnostics_from_rows(
         config,
