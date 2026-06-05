@@ -152,10 +152,26 @@ export function GraphPage() {
         }
       }))
     ];
+    const nodeCount = graph.data.nodes.length;
+    const edgeCount = graph.data.edges.length;
+    const density = edgeCount / Math.max(1, nodeCount);
+    const nodeRepulsion = Math.min(26000, 7200 + nodeCount * 90 + density * 320);
+    const idealEdgeLength = Math.min(240, 80 + nodeCount * 0.7 + density * 4);
     const cy = cytoscape({
       container: containerRef.current,
       elements,
-      layout: { name: "cose", animate: false, padding: 36, nodeRepulsion: 7000 },
+      layout: {
+        name: "cose",
+        animate: false,
+        padding: 56,
+        nodeRepulsion,
+        idealEdgeLength,
+        edgeElasticity: 80,
+        nestingFactor: 1.15,
+        gravity: nodeCount > 80 ? 0.08 : 0.18,
+        componentSpacing: 90,
+        nodeOverlap: 12
+      },
       minZoom: 0.22,
       maxZoom: 2.4,
       wheelSensitivity: 0.18,
@@ -208,6 +224,22 @@ export function GraphPage() {
         { selector: 'edge[derived = "true"]', style: { "line-style": "dashed", "line-color": "#7a8b99" } },
         { selector: ".faded", style: { opacity: 0.14, "text-opacity": 0.08 } },
         { selector: ".hovered", style: { "border-color": "#111827", "border-width": 4, opacity: 1 } },
+        {
+          selector: "node.hovered",
+          style: {
+            color: "#071411",
+            "font-size": 14,
+            "font-weight": "bold",
+            "text-background-color": "#fff8d6",
+            "text-background-opacity": 1,
+            "text-background-padding": "5px",
+            "text-border-color": "#d5a71f",
+            "text-border-opacity": 1,
+            "text-border-width": 1,
+            "text-margin-y": -13,
+            "z-index": 20
+          }
+        },
         { selector: "edge.hovered", style: { "line-color": "#111827", "target-arrow-color": "#111827", opacity: 1 } }
       ]
     });
