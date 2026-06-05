@@ -473,6 +473,60 @@ class ApiState:
             "relations": {"incoming": incoming, "outgoing": outgoing},
         }
 
+    def term_list(
+        self,
+        *,
+        page: int,
+        page_size: int,
+        category: str | None = None,
+        q: str | None = None,
+    ) -> dict[str, Any]:
+        query = (q or "").strip().casefold()
+        rows: list[dict[str, Any]] = []
+        for term_id, term in self.terms.items():
+            output = self.term_outputs.get(term_id, {})
+            item_category = output.get("category")
+            canonical_term = str(term.get("canonical_term") or output.get("canonical_term") or "")
+            if category and item_category != category:
+                continue
+            if query and query not in canonical_term.casefold():
+                continue
+            relations = self.relations_by_term.get(term_id, [])
+            incoming_count = sum(
+                1 for relation in relations if relation.get("target_term_id") == term_id
+            )
+            outgoing_count = sum(
+                1 for relation in relations if relation.get("source_term_id") == term_id
+            )
+            rows.append(
+                {
+                    "term_id": term_id,
+                    "canonical_term": canonical_term,
+                    "category": item_category,
+                    "confidence": _float_or_none(output.get("confidence")),
+                    "table_count": term.get("table_count"),
+                    "occurrence_count": term.get("occurrence_count"),
+                    "cluster": self.cluster_by_term.get(term_id),
+                    "relation_counts": {
+                        "incoming": incoming_count,
+                        "outgoing": outgoing_count,
+                        "total": incoming_count + outgoing_count,
+                    },
+                }
+            )
+        rows.sort(
+            key=lambda item: (
+                str(item.get("category") or ""),
+                str(item.get("canonical_term") or "").casefold(),
+                str(item.get("term_id") or ""),
+            )
+        )
+        items, total = _page(rows, page=page, page_size=page_size)
+        return {
+            "pagination": {"page": page, "page_size": page_size, "total": total},
+            "items": items,
+        }
+
     def cluster_list(self, *, page: int, page_size: int) -> dict[str, Any]:
         items, total = _page(self.clusters, page=page, page_size=page_size)
         return {

@@ -258,3 +258,5 @@ web/build/
 web/.vite/
 web/.next/
 web/coverage/
+web/test-results/
+web/tsconfig.tsbuildinfo

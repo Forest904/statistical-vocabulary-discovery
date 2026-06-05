@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      STATVOCAB_CONFIG: configs/core.yaml
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: web
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "5173:80"

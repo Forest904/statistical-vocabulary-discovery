@@ -86,6 +86,46 @@ class FakeState:
             "relations": {"incoming": [], "outgoing": []},
         }
 
+    def term_list(
+        self,
+        *,
+        page: int,
+        page_size: int,
+        category: str | None = None,
+        q: str | None = None,
+    ) -> dict[str, Any]:
+        rows = [
+            {
+                "term_id": "term_1",
+                "canonical_term": "Employment",
+                "category": "measure",
+                "confidence": 0.9,
+                "table_count": 1,
+                "occurrence_count": 2,
+                "cluster": {"cluster_id": "cluster_1", "domain": "labour market"},
+                "relation_counts": {"incoming": 0, "outgoing": 1, "total": 1},
+            },
+            {
+                "term_id": "term_2",
+                "canonical_term": "Italy",
+                "category": "dimension_value",
+                "confidence": 0.8,
+                "table_count": 1,
+                "occurrence_count": 1,
+                "cluster": None,
+                "relation_counts": {"incoming": 0, "outgoing": 0, "total": 0},
+            },
+        ]
+        if category:
+            rows = [row for row in rows if row["category"] == category]
+        if q:
+            rows = [row for row in rows if q.casefold() in row["canonical_term"].casefold()]
+        offset = (page - 1) * page_size
+        return {
+            "pagination": {"page": page, "page_size": page_size, "total": len(rows)},
+            "items": rows[offset : offset + page_size],
+        }
+
     def cluster_list(self, *, page: int, page_size: int) -> dict[str, Any]:
         return {
             "pagination": {"page": page, "page_size": page_size, "total": 1},
@@ -120,6 +160,7 @@ def test_openapi_documents_milestone_7_endpoints() -> None:
 
     assert "/api/search" in paths
     assert "/api/tables/{table_id}" in paths
+    assert "/api/terms" in paths
     assert "/api/terms/{term_id}" in paths
     assert "/api/clusters" in paths
     assert "/api/relations" in paths
@@ -185,6 +226,16 @@ def test_collection_endpoints_use_page_and_page_size() -> None:
     assert relations["pagination"] == {"page": 1, "page_size": 5, "total": 1}
 
 
+def test_terms_endpoint_paginates_and_filters() -> None:
+    client = _client()
+
+    payload = client.get("/api/terms?page=1&page_size=1&category=measure&q=employment").json()
+
+    assert payload["pagination"] == {"page": 1, "page_size": 1, "total": 1}
+    assert payload["items"][0]["term_id"] == "term_1"
+    assert payload["items"][0]["relation_counts"]["total"] == 1
+
+
 def test_evaluation_reports_available_and_missing_summaries() -> None:
     client = _client()
 
@@ -207,6 +258,15 @@ def test_invalid_relation_type_uses_stable_validation_error() -> None:
     client = _client()
 
     response = client.get("/api/relations?relation_type=not_a_relation")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+
+
+def test_invalid_term_category_uses_stable_validation_error() -> None:
+    client = _client()
+
+    response = client.get("/api/terms?category=not_a_category")
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"

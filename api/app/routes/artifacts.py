@@ -14,6 +14,8 @@ from api.app.schemas import (
     RelationTypeValue,
     TableDetailResponse,
     TermDetailResponse,
+    TermListResponse,
+    VocabularyCategoryValue,
 )
 from api.app.state import ApiState
 
@@ -38,6 +40,19 @@ def table_detail(table_id: str, state: StateDependency) -> dict[str, object]:
             },
         )
     return payload
+
+
+@router.get("/terms", response_model=TermListResponse)
+def terms(
+    state: StateDependency,
+    page: PageQuery = 1,
+    page_size: PageSizeQuery = 20,
+    category: VocabularyCategoryValue | None = None,
+    q: str | None = None,
+) -> dict[str, object]:
+    """Return paginated vocabulary-term summaries."""
+
+    return state.term_list(page=page, page_size=page_size, category=category, q=q)
 
 
 @router.get("/terms/{term_id}", response_model=TermDetailResponse)

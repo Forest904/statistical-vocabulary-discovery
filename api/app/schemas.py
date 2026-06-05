@@ -31,6 +31,13 @@ class Pagination(BaseModel):
 
 SearchSystem = Literal["fused", "title_bm25", "all_vocabulary_bm25", "pearl_semantic"]
 RelationTypeValue = Literal["broader_than", "narrower_than", "variant_of", "related_to"]
+VocabularyCategoryValue = Literal[
+    "measure",
+    "dimension_name",
+    "dimension_value",
+    "unit",
+    "other_ambiguous",
+]
 
 
 class SearchRequest(BaseModel):
@@ -91,6 +98,13 @@ class TermDetailResponse(BaseModel):
     table_appearances: list[dict[str, Any]] = Field(default_factory=list)
     cluster: dict[str, Any] | None = None
     relations: dict[str, list[dict[str, Any]]] = Field(default_factory=dict)
+
+
+class TermListResponse(BaseModel):
+    """Paginated vocabulary-term summaries."""
+
+    pagination: Pagination
+    items: list[dict[str, Any]]
 
 
 class ClusterListResponse(BaseModel):
