@@ -33,7 +33,7 @@ from statvocab.search.lexical import build_lexical_index
 from statvocab.vocabulary import run_extraction
 
 StageStatus = Literal["succeeded", "failed", "skipped", "blocked"]
-ProgressEvent = Literal["started", "finished", "resumed"]
+ProgressEvent = Literal["started", "finished", "resumed", "progress"]
 ProgressCallback = Callable[[str, ProgressEvent, dict[str, Any]], None]
 CHECKSUM_SIZE_LIMIT_BYTES = 512 * 1024 * 1024
 MIN_PROJECTED_ARTIFACT_BYTES = 10 * 1024 * 1024 * 1024
@@ -622,6 +622,33 @@ def _write_full_manifest(
     return manifest_path
 
 
+def _write_run_state(
+    *,
+    config: AppConfig,
+    run_id: str,
+    output_dir: Path,
+    checkpoints: list[dict[str, Any]],
+    current_stage: str,
+) -> Path:
+    dataset_path = config.paths.raw_dir / (config.corpus.archive_name or "").removesuffix(".tgz")
+    payload = {
+        "run_id": run_id,
+        "config_name": config.config_name,
+        "corpus": config.corpus.name,
+        "current_stage": current_stage,
+        "dataset_path": str(dataset_path),
+        "expected_csv_count": config.corpus.expected_table_count,
+        "last_valid_checkpoint": _last_valid_checkpoint(checkpoints) or "none",
+        "stage_checkpoints": str(output_dir / "stage_checkpoints.json"),
+        "partial_extract_dir": str(config.paths.processed_dir / "full_extract_partial" / run_id),
+        "updated_at": _now_iso(),
+    }
+    path = output_dir / "run_state.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
 def run_full_corpus(
     config: AppConfig,
     *,
@@ -643,6 +670,27 @@ def run_full_corpus(
     if resume and checkpoints:
         _write_checkpoints(checkpoints, checkpoints_path)
     resources: tuple[ResourceRecord, ...] = ()
+    run_state_path = _write_run_state(
+        config=config,
+        run_id=actual_run_id,
+        output_dir=output_dir,
+        checkpoints=checkpoints,
+        current_stage="starting",
+    )
+    external_progress_callback = progress_callback
+
+    def record_progress(stage: str, event: ProgressEvent, checkpoint: dict[str, Any]) -> None:
+        _write_run_state(
+            config=config,
+            run_id=actual_run_id,
+            output_dir=output_dir,
+            checkpoints=checkpoints,
+            current_stage=stage,
+        )
+        if external_progress_callback is not None:
+            external_progress_callback(stage, event, checkpoint)
+
+    progress_callback = record_progress
 
     preflight_checkpoint = resumed_checkpoint(
         checkpoints,
@@ -722,11 +770,36 @@ def run_full_corpus(
     if ingest_checkpoint["status"] == "succeeded":
         extract_checkpoint = resumed_checkpoint(checkpoints, "extract", progress_callback)
         if extract_checkpoint is None:
+            _write_run_state(
+                config=config,
+                run_id=actual_run_id,
+                output_dir=output_dir,
+                checkpoints=checkpoints,
+                current_stage="extract",
+            )
+
+            def extract_progress(payload: dict[str, Any]) -> None:
+                _write_run_state(
+                    config=config,
+                    run_id=actual_run_id,
+                    output_dir=output_dir,
+                    checkpoints=checkpoints,
+                    current_stage="extract",
+                )
+                if progress_callback is not None:
+                    progress_callback("extract", "progress", payload)
+
             extract_checkpoint, _extract_result = _run_stage(
                 name="extract",
                 config=config,
                 checkpoints=checkpoints,
-                action=lambda: run_extraction(config, resources=resources),
+                action=lambda: run_extraction(
+                    config,
+                    resources=resources,
+                    partial_run_id=actual_run_id,
+                    resume_partials=resume,
+                    progress_callback=extract_progress,
+                ),
                 checkpoint_path=checkpoints_path,
                 progress_callback=progress_callback,
             )
@@ -869,7 +942,16 @@ def run_full_corpus(
         "stage_checkpoints": checkpoints_path,
         "resource_measurements": measurements_path,
         "scalability_report": report_path,
+        "run_state": run_state_path,
     }
+    run_state_path = _write_run_state(
+        config=config,
+        run_id=actual_run_id,
+        output_dir=output_dir,
+        checkpoints=checkpoints,
+        current_stage="completed",
+    )
+    deliverables["run_state"] = run_state_path
     full_manifest_path = _write_full_manifest(
         config=config,
         run_id=actual_run_id,

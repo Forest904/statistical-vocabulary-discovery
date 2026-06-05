@@ -14,6 +14,7 @@ from rich.progress import (
     SpinnerColumn,
     TextColumn,
     TimeElapsedColumn,
+    TimeRemainingColumn,
 )
 
 from statvocab.config import load_config
@@ -56,7 +57,34 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Start a new run even if an unfinished run directory exists.",
     )
+    parser.add_argument(
+        "--show-copy-plan",
+        action="store_true",
+        help="Print the folders to copy when moving an in-progress full run to another computer.",
+    )
     return parser
+
+
+def _copy_plan(config_path: str, run_id: str, config: Any) -> dict[str, Any]:
+    run_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    partial_dir = config.paths.processed_dir / "full_extract_partial" / run_id
+    raw_dir = config.paths.raw_dir / (config.corpus.archive_name or "").removesuffix(".tgz")
+    return {
+        "config": config_path,
+        "run_id": run_id,
+        "copy_to_new_computer": [
+            "git checkout the same branch/commit after pushing the code",
+            str(raw_dir),
+            str(run_dir),
+            str(partial_dir),
+        ],
+        "dataset_note": "Copy the 100 GiB raw dataset manually; it is intentionally not in git.",
+        "resume_command": (
+            f".\\.venv\\Scripts\\python scripts\\run_full_dataset.py --config {config_path} "
+            f"--resume-run-id {run_id}"
+        ),
+        "optional_if_extract_not_started": str(partial_dir),
+    }
 
 
 def main() -> int:
@@ -68,6 +96,19 @@ def main() -> int:
     if run_id is None and not args.no_auto_resume:
         run_id = _latest_incomplete_run(config.paths.outputs_dir)
         resume = run_id is not None
+    if args.show_copy_plan:
+        if run_id is None:
+            console.print(
+                {
+                    "error": (
+                        "--show-copy-plan needs --resume-run-id or "
+                        "an auto-detected incomplete run"
+                    )
+                }
+            )
+            return 2
+        console.print(_copy_plan(args.config, run_id, config))
+        return 0
 
     completed: set[str] = set()
     stage_total = len(STAGE_SEQUENCE)
@@ -86,11 +127,36 @@ def main() -> int:
         BarColumn(),
         MofNCompleteColumn(),
         TimeElapsedColumn(),
+        TimeRemainingColumn(),
         console=console,
     ) as progress:
         task_id = progress.add_task("starting full-corpus run", total=stage_total)
+        extract_task_id = progress.add_task(
+            "extract tables",
+            total=None,
+            visible=False,
+        )
 
         def on_progress(stage: str, event: ProgressEvent, checkpoint: dict[str, Any]) -> None:
+            if event == "progress" and stage == "extract":
+                total_tables = int(checkpoint.get("total_tables") or 0)
+                completed_tables = int(checkpoint.get("completed_tables") or 0)
+                failed_tables = int(checkpoint.get("failed_tables") or 0)
+                resumed_tables = int(checkpoint.get("resumed_tables") or 0)
+                table_id = str(checkpoint.get("table_id") or "")
+                progress.update(
+                    extract_task_id,
+                    total=total_tables or None,
+                    completed=completed_tables,
+                    visible=True,
+                    description=(
+                        "extract tables "
+                        f"{completed_tables}/{total_tables} "
+                        f"failed={failed_tables} resumed={resumed_tables} {table_id}"
+                    ),
+                )
+                progress.update(task_id, description="running extract")
+                return
             status = str(checkpoint.get("status") or event)
             if event == "started":
                 progress.update(task_id, description=f"running {stage}")
@@ -102,6 +168,8 @@ def main() -> int:
             if stage not in completed:
                 completed.add(stage)
                 progress.advance(task_id, 1)
+            if stage == "extract" and event == "finished":
+                progress.update(extract_task_id, visible=False)
 
         payload = run_full_corpus(
             config,

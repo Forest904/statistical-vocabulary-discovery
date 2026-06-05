@@ -226,6 +226,7 @@ data/downloads/
 data/indexes/
 outputs/runs/
 outputs/manifests/
+outputs/full_corpus/
 outputs/**/*.parquet
 outputs/**/*.jsonl
 outputs/**/*.sqlite
@@ -233,6 +234,7 @@ outputs/**/*.faiss
 outputs/**/*.pkl
 outputs/**/*.joblib
 !outputs/.gitkeep
+report/full_corpus_scalability.md
 
 # Model and API caches
 .cache/

@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter, defaultdict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
@@ -25,6 +27,14 @@ from statvocab.time_extract import TimeOccurrence, extract_header_times, extract
 from statvocab.title_extract import TitleTerm, extract_title_terms
 
 MISSING_MARKERS = {"", ":"}
+EXTRACTION_ROW_KEYS = (
+    "time_rows",
+    "string_rows",
+    "geography_rows",
+    "title_rows",
+    "term_occurrences",
+)
+ExtractionProgressCallback = Callable[[dict[str, Any]], None]
 
 
 def _read_tables(path: Path) -> list[dict[str, Any]]:
@@ -46,6 +56,81 @@ def _write_json(payload: dict[str, Any], output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return output_path
+
+
+def _append_jsonl(payload: dict[str, Any], output_path: Path) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(payload, sort_keys=True) + "\n")
+    return output_path
+
+
+def _safe_fragment_name(table_id: str) -> str:
+    safe = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in table_id)
+    digest = hashlib.blake2b(table_id.encode("utf-8"), digest_size=10).hexdigest()
+    return f"{safe[:80]}_{digest}.json"
+
+
+def _partial_paths(config: AppConfig, run_id: str) -> dict[str, Path]:
+    root = config.paths.processed_dir / "full_extract_partial" / run_id
+    return {
+        "root": root,
+        "fragments": root / "tables",
+        "ledger": root / "table_progress.jsonl",
+        "state": root / "run_state.json",
+    }
+
+
+def _fragment_path(config: AppConfig, run_id: str, table_id: str) -> Path:
+    return _partial_paths(config, run_id)["fragments"] / _safe_fragment_name(table_id)
+
+
+def _load_fragment(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("status") != "succeeded":
+        return None
+    return cast(dict[str, Any], payload)
+
+
+def _write_fragment(payload: dict[str, Any], path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = path.with_suffix(path.suffix + ".tmp")
+    temporary_path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+    temporary_path.replace(path)
+    return path
+
+
+def _write_partial_state(
+    *,
+    config: AppConfig,
+    run_id: str,
+    total_tables: int,
+    completed_tables: int,
+    failed_tables: int,
+    current_table_id: str | None,
+) -> Path:
+    paths = _partial_paths(config, run_id)
+    dataset_path = config.paths.raw_dir / (config.corpus.archive_name or "").removesuffix(".tgz")
+    payload = {
+        "run_id": run_id,
+        "current_stage": "extract",
+        "dataset_path": str(dataset_path),
+        "expected_csv_count": config.corpus.expected_table_count,
+        "total_tables": total_tables,
+        "completed_tables": completed_tables,
+        "failed_tables": failed_tables,
+        "current_table_id": current_table_id,
+        "partial_artifact_dir": str(paths["root"]),
+        "table_fragment_dir": str(paths["fragments"]),
+        "table_progress_ledger": str(paths["ledger"]),
+    }
+    return _write_json(payload, paths["state"])
+
+
+def _now_iso() -> str:
+    return datetime.now(UTC).isoformat()
 
 
 def _path_from_row(row: dict[str, Any]) -> Path:
@@ -367,10 +452,134 @@ def _sort_rows(rows: list[dict[str, Any]], keys: tuple[str, ...]) -> list[dict[s
     return sorted(rows, key=lambda row: tuple(str(row.get(key) or "") for key in keys))
 
 
+def _extract_table_rows(
+    table_row: dict[str, Any],
+    *,
+    config: AppConfig,
+    artifact_run_id: str,
+    nuts_matcher: Any,
+    enhanced_matcher: Any,
+    active_matcher: Any,
+) -> dict[str, Any]:
+    table_id = _row_string(table_row["table_id"])
+    title = _row_string(table_row.get("title")) or None
+    time_columns = _list_value(table_row, "time_columns")
+    title_times = extract_title_times(table_id, title, config.extraction)
+    header_times = extract_header_times(table_id, time_columns, config.extraction)
+    time_rows = [_time_to_row(item, artifact_run_id) for item in header_times + title_times]
+
+    table_string_rows, malformed_rows_skipped = _extract_string_occurrences(
+        table_row,
+        artifact_run_id=artifact_run_id,
+    )
+
+    geography_rows: list[dict[str, Any]] = []
+    active_geo_keys: set[tuple[str, str, str]] = set()
+    for string_row in table_string_rows:
+        source_area = str(string_row["source_area"])
+        location = str(string_row["location"])
+        metadata_column = cast(str | None, string_row.get("metadata_column"))
+        row_index = cast(int | None, string_row.get("row_index"))
+        column_index = cast(int | None, string_row.get("column_index"))
+        if is_geography_metadata_column(metadata_column):
+            nuts_match = nuts_matcher.match(
+                str(string_row["raw_term"]),
+                table_id=table_id,
+                source_area=source_area,
+                location=location,
+                metadata_column=metadata_column,
+                row_index=row_index,
+                column_index=column_index,
+            )
+            enhanced_match = enhanced_matcher.match(
+                str(string_row["raw_term"]),
+                table_id=table_id,
+                source_area=source_area,
+                location=location,
+                metadata_column=metadata_column,
+                row_index=row_index,
+                column_index=column_index,
+            )
+            for match in (nuts_match, enhanced_match):
+                if match is not None:
+                    geography_rows.append(_geo_to_row(match, artifact_run_id))
+            active_match = active_matcher.match(
+                str(string_row["raw_term"]),
+                table_id=table_id,
+                source_area=source_area,
+                location=location,
+                metadata_column=metadata_column,
+                row_index=row_index,
+                column_index=column_index,
+            )
+            if active_match is not None:
+                active_geo_keys.add(
+                    (
+                        str(string_row["table_id"]),
+                        str(string_row["source_area"]),
+                        str(string_row["location"]),
+                    )
+                )
+
+    title_geo_matches = active_matcher.find_in_title(title or "", table_id=table_id)
+    geography_rows.extend(_geo_to_row(match, artifact_run_id) for match in title_geo_matches)
+    removal_spans = [
+        (item.source_span_start, item.source_span_end)
+        for item in title_times
+        if item.source_span_start is not None and item.source_span_end is not None
+    ]
+    removal_spans.extend(
+        (match.source_span_start, match.source_span_end)
+        for match in title_geo_matches
+        if match.source_span_start is not None and match.source_span_end is not None
+    )
+    title_clean, title_terms = extract_title_terms(table_id, title, removal_spans)
+    title_rows = [_title_term_to_row(term, title_clean, artifact_run_id) for term in title_terms]
+
+    term_occurrences: list[dict[str, Any]] = []
+    for string_row in table_string_rows:
+        occurrence_key = (
+            str(string_row["table_id"]),
+            str(string_row["source_area"]),
+            str(string_row["location"]),
+        )
+        if occurrence_key in active_geo_keys:
+            continue
+        term_id = stable_id("term", str(string_row["matching_key"]))
+        term_occurrences.append(_term_occurrence_from_string(string_row, term_id))
+    for title_row in title_rows:
+        term_id = stable_id("term", str(title_row["matching_key"]))
+        term_occurrences.append(_term_occurrence_from_title(title_row, term_id))
+
+    return {
+        "time_rows": time_rows,
+        "string_rows": table_string_rows,
+        "geography_rows": geography_rows,
+        "title_rows": title_rows,
+        "term_occurrences": term_occurrences,
+        "malformed_rows_skipped": malformed_rows_skipped,
+    }
+
+
+def _extend_extraction_rows(
+    target: dict[str, list[dict[str, Any]]],
+    payload: dict[str, Any],
+) -> int:
+    row_count = 0
+    for key in EXTRACTION_ROW_KEYS:
+        rows = cast(list[dict[str, Any]], payload.get(key) or [])
+        target[key].extend(rows)
+        row_count += len(rows)
+    return row_count
+
+
 def run_extraction(
     config: AppConfig,
     *,
     resources: Iterable[ResourceRecord] = (),
+    partial_run_id: str | None = None,
+    resume_partials: bool = False,
+    progress_callback: ExtractionProgressCallback | None = None,
 ) -> tuple[dict[str, Path], Path, dict[str, Any]]:
     """Run Milestone 2 extraction and write all artifacts."""
 
@@ -392,107 +601,129 @@ def run_extraction(
         enhanced_matcher if config.extraction.geography_variant == "enhanced" else nuts_matcher
     )
 
-    time_rows: list[dict[str, Any]] = []
-    string_rows: list[dict[str, Any]] = []
-    geography_rows: list[dict[str, Any]] = []
-    title_rows: list[dict[str, Any]] = []
-    term_occurrences: list[dict[str, Any]] = []
+    rows_by_artifact: dict[str, list[dict[str, Any]]] = {
+        key: [] for key in EXTRACTION_ROW_KEYS
+    }
     malformed_rows_skipped = 0
+    completed_tables = 0
+    resumed_tables = 0
+    failed_tables = 0
+    partial_artifact_paths = _partial_paths(config, partial_run_id) if partial_run_id else None
+    total_tables = len(table_rows)
 
-    for table_row in sorted(table_rows, key=lambda row: str(row["table_id"])):
+    for position, table_row in enumerate(
+        sorted(table_rows, key=lambda row: str(row["table_id"])),
+        start=1,
+    ):
         table_id = _row_string(table_row["table_id"])
-        title = _row_string(table_row.get("title")) or None
-        time_columns = _list_value(table_row, "time_columns")
-        title_times = extract_title_times(table_id, title, config.extraction)
-        header_times = extract_header_times(table_id, time_columns, config.extraction)
-        time_rows.extend(_time_to_row(item, artifact_run_id) for item in header_times + title_times)
-
-        table_string_rows, malformed_count = _extract_string_occurrences(
-            table_row,
-            artifact_run_id=artifact_run_id,
+        started_at = _now_iso()
+        fragment_path = (
+            _fragment_path(config, partial_run_id, table_id) if partial_run_id is not None else None
         )
-        malformed_rows_skipped += malformed_count
-        string_rows.extend(table_string_rows)
-
-        active_geo_keys: set[tuple[str, str, str]] = set()
-        for string_row in table_string_rows:
-            source_area = str(string_row["source_area"])
-            location = str(string_row["location"])
-            metadata_column = cast(str | None, string_row.get("metadata_column"))
-            row_index = cast(int | None, string_row.get("row_index"))
-            column_index = cast(int | None, string_row.get("column_index"))
-            if is_geography_metadata_column(metadata_column):
-                nuts_match = nuts_matcher.match(
-                    str(string_row["raw_term"]),
-                    table_id=table_id,
-                    source_area=source_area,
-                    location=location,
-                    metadata_column=metadata_column,
-                    row_index=row_index,
-                    column_index=column_index,
+        fragment = _load_fragment(fragment_path) if resume_partials and fragment_path else None
+        try:
+            if fragment is None:
+                fragment = _extract_table_rows(
+                    table_row,
+                    config=config,
+                    artifact_run_id=artifact_run_id,
+                    nuts_matcher=nuts_matcher,
+                    enhanced_matcher=enhanced_matcher,
+                    active_matcher=active_matcher,
                 )
-                enhanced_match = enhanced_matcher.match(
-                    str(string_row["raw_term"]),
-                    table_id=table_id,
-                    source_area=source_area,
-                    location=location,
-                    metadata_column=metadata_column,
-                    row_index=row_index,
-                    column_index=column_index,
-                )
-                for match in (nuts_match, enhanced_match):
-                    if match is not None:
-                        geography_rows.append(_geo_to_row(match, artifact_run_id))
-                active_match = active_matcher.match(
-                    str(string_row["raw_term"]),
-                    table_id=table_id,
-                    source_area=source_area,
-                    location=location,
-                    metadata_column=metadata_column,
-                    row_index=row_index,
-                    column_index=column_index,
-                )
-                if active_match is not None:
-                    active_geo_keys.add(
-                        (
-                            str(string_row["table_id"]),
-                            str(string_row["source_area"]),
-                            str(string_row["location"]),
-                        )
-                    )
+                fragment["table_id"] = table_id
+                fragment["status"] = "succeeded"
+                fragment["artifact_run_id"] = artifact_run_id
+                if fragment_path is not None:
+                    _write_fragment(fragment, fragment_path)
+                    fragment["fragment_path"] = str(fragment_path)
+                resumed = False
+            else:
+                resumed = True
+                resumed_tables += 1
 
-        title_geo_matches = active_matcher.find_in_title(title or "", table_id=table_id)
-        geography_rows.extend(_geo_to_row(match, artifact_run_id) for match in title_geo_matches)
-        removal_spans = [
-            (item.source_span_start, item.source_span_end)
-            for item in title_times
-            if item.source_span_start is not None and item.source_span_end is not None
-        ]
-        removal_spans.extend(
-            (match.source_span_start, match.source_span_end)
-            for match in title_geo_matches
-            if match.source_span_start is not None and match.source_span_end is not None
-        )
-        title_clean, title_terms = extract_title_terms(table_id, title, removal_spans)
-        _ = title_clean
-        title_artifact_rows = [
-            _title_term_to_row(term, title_clean, artifact_run_id) for term in title_terms
-        ]
-        title_rows.extend(title_artifact_rows)
+            row_count = _extend_extraction_rows(rows_by_artifact, fragment)
+            malformed_rows_skipped += int(fragment.get("malformed_rows_skipped") or 0)
+            completed_tables += 1
+            if partial_run_id is not None and partial_artifact_paths is not None:
+                ledger_payload = {
+                    "table_id": table_id,
+                    "status": "succeeded",
+                    "position": position,
+                    "total_tables": total_tables,
+                    "resumed": resumed,
+                    "started_at": started_at,
+                    "finished_at": _now_iso(),
+                    "row_count": row_count,
+                    "malformed_rows_skipped": int(fragment.get("malformed_rows_skipped") or 0),
+                    "fragment_path": str(fragment_path) if fragment_path else "",
+                }
+                _append_jsonl(ledger_payload, partial_artifact_paths["ledger"])
+                _write_partial_state(
+                    config=config,
+                    run_id=partial_run_id,
+                    total_tables=total_tables,
+                    completed_tables=completed_tables,
+                    failed_tables=failed_tables,
+                    current_table_id=table_id,
+                )
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        "event": "table_finished",
+                        "table_id": table_id,
+                        "current_table": position,
+                        "total_tables": total_tables,
+                        "completed_tables": completed_tables,
+                        "failed_tables": failed_tables,
+                        "resumed_tables": resumed_tables,
+                        "resumed": resumed,
+                        "row_count": row_count,
+                    }
+                )
+        except Exception as exc:
+            failed_tables += 1
+            if partial_run_id is not None and partial_artifact_paths is not None:
+                _append_jsonl(
+                    {
+                        "table_id": table_id,
+                        "status": "failed",
+                        "position": position,
+                        "total_tables": total_tables,
+                        "started_at": started_at,
+                        "finished_at": _now_iso(),
+                        "failure_message": str(exc),
+                        "fragment_path": str(fragment_path) if fragment_path else "",
+                    },
+                    partial_artifact_paths["ledger"],
+                )
+                _write_partial_state(
+                    config=config,
+                    run_id=partial_run_id,
+                    total_tables=total_tables,
+                    completed_tables=completed_tables,
+                    failed_tables=failed_tables,
+                    current_table_id=table_id,
+                )
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        "event": "table_failed",
+                        "table_id": table_id,
+                        "current_table": position,
+                        "total_tables": total_tables,
+                        "completed_tables": completed_tables,
+                        "failed_tables": failed_tables,
+                        "failure_message": str(exc),
+                    }
+                )
+            raise
 
-        for string_row in table_string_rows:
-            occurrence_key = (
-                str(string_row["table_id"]),
-                str(string_row["source_area"]),
-                str(string_row["location"]),
-            )
-            if occurrence_key in active_geo_keys:
-                continue
-            term_id = stable_id("term", str(string_row["matching_key"]))
-            term_occurrences.append(_term_occurrence_from_string(string_row, term_id))
-        for title_row in title_artifact_rows:
-            term_id = stable_id("term", str(title_row["matching_key"]))
-            term_occurrences.append(_term_occurrence_from_title(title_row, term_id))
+    time_rows = rows_by_artifact["time_rows"]
+    string_rows = rows_by_artifact["string_rows"]
+    geography_rows = rows_by_artifact["geography_rows"]
+    title_rows = rows_by_artifact["title_rows"]
+    term_occurrences = rows_by_artifact["term_occurrences"]
 
     table_string_rows = _build_table_strings(
         string_rows,
@@ -542,6 +773,9 @@ def run_extraction(
         "config_name": config.config_name,
         "corpus": config.corpus.name,
         "table_count": len(table_rows),
+        "completed_table_count": completed_tables,
+        "failed_table_count": failed_tables,
+        "resumed_table_count": resumed_tables,
         "time_occurrence_count": len(time_rows),
         "string_occurrence_count": len(string_rows),
         "table_string_count": len(table_string_rows),
@@ -554,7 +788,23 @@ def run_extraction(
         "geography_variant_for_vocabulary": config.extraction.geography_variant,
         "artifact_run_id": artifact_run_id,
     }
+    if partial_run_id is not None and partial_artifact_paths is not None:
+        diagnostics["partial_run_id"] = partial_run_id
+        diagnostics["partial_artifact_dir"] = str(partial_artifact_paths["root"])
+        diagnostics["partial_run_state"] = str(partial_artifact_paths["state"])
     diagnostics_path = _write_json(diagnostics, processed_dir / "extraction_diagnostics.json")
+    if partial_run_id is not None and partial_artifact_paths is not None:
+        _write_partial_state(
+            config=config,
+            run_id=partial_run_id,
+            total_tables=total_tables,
+            completed_tables=completed_tables,
+            failed_tables=failed_tables,
+            current_table_id=None,
+        )
+        artifacts["partial_extract_state"] = partial_artifact_paths["state"]
+        artifacts["partial_extract_ledger"] = partial_artifact_paths["ledger"]
+        artifacts["partial_extract_dir"] = partial_artifact_paths["root"]
     completed = complete_manifest(
         manifest,
         resources=tuple(record.resource_id for record in resources),

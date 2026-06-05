@@ -84,6 +84,47 @@ def test_fixture_extraction_is_deterministic_for_vocabulary_artifacts(tmp_path: 
     assert first == second
 
 
+def test_partial_extraction_resume_reuses_table_fragments(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    import statvocab.vocabulary as vocabulary
+
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    events: list[dict[str, object]] = []
+
+    run_extraction(
+        config,
+        partial_run_id="run_partial",
+        resume_partials=True,
+        progress_callback=events.append,
+    )
+    first = pq.read_table(config.paths.processed_dir / "vocabulary.parquet").to_pylist()
+    partial_dir = config.paths.processed_dir / "full_extract_partial" / "run_partial"
+
+    assert (partial_dir / "run_state.json").exists()
+    assert (partial_dir / "table_progress.jsonl").exists()
+    assert len(list((partial_dir / "tables").glob("*.json"))) == 4
+    assert any(event.get("event") == "table_finished" for event in events)
+
+    def fail_if_raw_table_is_reprocessed(*_args, **_kwargs):
+        raise AssertionError("resume should reuse partial table fragments")
+
+    monkeypatch.setattr(vocabulary, "_extract_string_occurrences", fail_if_raw_table_is_reprocessed)
+
+    run_extraction(
+        config,
+        partial_run_id="run_partial",
+        resume_partials=True,
+        progress_callback=events.append,
+    )
+    second = pq.read_table(config.paths.processed_dir / "vocabulary.parquet").to_pylist()
+
+    assert first == second
+    assert any(event.get("resumed") is True for event in events)
+
+
 def test_extraction_evaluation_uses_fixture_gold_labels(tmp_path: Path) -> None:
     config = _fixture_config(tmp_path)
     run_ingestion(config)
