@@ -4,10 +4,11 @@ import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { CategoryBadge, ConstraintBadge } from "../components/Badges";
-import { ScoreBars } from "../components/ScoreBars";
+import { EvidenceDisclosure } from "../components/EvidenceDisclosure";
+import { ScoreBars, ScorePills } from "../components/ScoreBars";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
-import { compactJson, rawText } from "../lib/format";
+import { rawText } from "../lib/format";
 import type { SearchResult, SearchSystem } from "../lib/types";
 
 const systems: Array<{ value: SearchSystem; label: string }> = [
@@ -41,12 +42,9 @@ export function SearchPage() {
   return (
     <section className="page-grid">
       <div className="page-heading">
-        <p className="eyebrow">Journalism search</p>
-        <h1>Find source tables with visible evidence.</h1>
-        <p>
-          StatVocab finds relevant Eurostat-style source tables; it does not return a numeric
-          answer.
-        </p>
+        <p className="eyebrow">Table search</p>
+        <h1>Find source tables with inspectable evidence.</h1>
+        <p>Retrieve Eurostat-style tables, then inspect the vocabulary and signals behind each rank.</p>
       </div>
 
       <form className="search-panel" onSubmit={submit}>
@@ -83,7 +81,7 @@ export function SearchPage() {
       {search.data ? (
         <div className="results-layout">
           <aside className="parsed-panel" aria-label="Parsed query">
-            <h2>Parsed Query</h2>
+            <h2>Query facets</h2>
             <div className="chip-list">
               <ConstraintBadge
                 kind="query"
@@ -104,10 +102,14 @@ export function SearchPage() {
                 />
               ))}
             </div>
-            <p className="notice">{search.data.notice}</p>
+            <p className="compact-note">{search.data.notice}</p>
           </aside>
 
           <div className="result-stack">
+            <div className="result-summary">
+              <strong>{search.data.pagination.total.toLocaleString()} ranked tables</strong>
+              <span className="muted">Showing the strongest evidence matches for this query.</span>
+            </div>
             {search.data.results.length ? (
               search.data.results.map((result) => (
                 <article className="result-card" key={result.table_id}>
@@ -119,14 +121,17 @@ export function SearchPage() {
                     </div>
                     <p className="muted">{result.table_id}</p>
                     <div className="chip-list">
-                      {(result.matched_terms || []).slice(0, 8).map((term) => (
+                      {(result.matched_terms || []).slice(0, 4).map((term) => (
                         <span className="term-chip" key={`${term.category}-${term.term}`}>
                           <CategoryBadge category={term.category} />
                           {term.term}
                         </span>
                       ))}
+                      {(result.matched_terms || []).length > 4 ? (
+                        <span className="simple-chip">+{(result.matched_terms || []).length - 4} more</span>
+                      ) : null}
                     </div>
-                    <ScoreBars components={result.score_components} />
+                    <ScorePills components={result.score_components} />
                     <div className="card-actions">
                       <button type="button" onClick={() => setSelected(result)}>
                         <FileText aria-hidden="true" size={16} />
@@ -203,8 +208,8 @@ function ExplanationDrawer({ result, onClose }: { result: SearchResult; onClose:
           <p className="muted">No warning flags for this result.</p>
         )}
         <h3>Raw Evidence</h3>
-        <pre>{compactJson(result.evidence)}</pre>
-        <p className="notice">{result.notice}</p>
+        <EvidenceDisclosure summary="Full ranking payload" value={result.evidence} />
+        <p className="compact-note">{result.notice}</p>
       </aside>
     </div>
   );

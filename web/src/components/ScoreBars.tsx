@@ -19,3 +19,20 @@ export function ScoreBars({ components }: { components?: Record<string, number> 
     </div>
   );
 }
+
+export function ScorePills({ components }: { components?: Record<string, number> }) {
+  const rows = Object.entries(components || {}).filter(([, value]) => Number.isFinite(value));
+  if (!rows.length) {
+    return null;
+  }
+  return (
+    <dl className="score-pills" aria-label="Score components">
+      {rows.map(([key, value]) => (
+        <div className="score-pill" key={key}>
+          <dt>{sentenceCase(key)}</dt>
+          <dd>{value.toFixed(2)}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}

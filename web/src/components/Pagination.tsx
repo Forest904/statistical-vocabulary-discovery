@@ -22,7 +22,7 @@ export function PaginationControls({
         <ChevronLeft aria-hidden="true" size={18} />
       </button>
       <span>
-        Page {pagination.page} of {maxPage} · {pagination.total.toLocaleString()} items
+        Page {pagination.page} of {maxPage} - {pagination.total.toLocaleString()} items
       </span>
       <button
         className="icon-button"

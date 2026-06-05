@@ -79,13 +79,22 @@ export function VocabularyPage() {
               <Link className="term-row" to={`/terms/${encodeURIComponent(term.term_id)}`} key={term.term_id}>
                 <div>
                   <strong>{term.canonical_term}</strong>
-                  <span>{term.term_id}</span>
+                  <span className="record-id">{term.term_id}</span>
                 </div>
                 <CategoryBadge category={term.category} />
                 <ConfidenceBadge value={term.confidence} />
-                <span>{formatNumber(term.table_count)} tables</span>
-                <span>{formatNumber(term.occurrence_count)} occurrences</span>
-                <span>{term.relation_counts?.total || 0} relations</span>
+                <span className="stat-cell">
+                  <strong>{formatNumber(term.table_count)}</strong>
+                  tables
+                </span>
+                <span className="stat-cell">
+                  <strong>{formatNumber(term.occurrence_count)}</strong>
+                  occurrences
+                </span>
+                <span className="stat-cell">
+                  <strong>{formatNumber(term.relation_counts?.total || 0)}</strong>
+                  relations
+                </span>
               </Link>
             ))}
           </div>

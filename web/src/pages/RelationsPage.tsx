@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { ConfidenceBadge } from "../components/Badges";
+import { EvidenceDisclosure, EvidenceFacts } from "../components/EvidenceDisclosure";
 import { PaginationControls } from "../components/Pagination";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
-import { compactJson, rawText, relationTypeLabels } from "../lib/format";
+import { rawText, relationTypeLabels } from "../lib/format";
 import type { RelationType } from "../lib/types";
 
 const relationOptions: Array<RelationType | "all"> = [
@@ -110,7 +111,8 @@ export function RelationsPage() {
                 </span>
               ))}
             </div>
-            <pre>{compactJson(relation.evidence)}</pre>
+            <EvidenceFacts record={recordValue(relation.evidence)} />
+            <EvidenceDisclosure title="Raw relation evidence" value={relation.evidence} />
           </article>
         ))}
       </div>
@@ -125,4 +127,10 @@ function list(value: unknown): unknown[] {
 
 function numberValue(value: unknown): number | null {
   return typeof value === "number" ? value : null;
+}
+
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }

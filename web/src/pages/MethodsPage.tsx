@@ -1,10 +1,12 @@
 import { useQueries } from "@tanstack/react-query";
 import { CheckCircle2, CircleAlert } from "lucide-react";
 
+import { EvidenceDisclosure } from "../components/EvidenceDisclosure";
 import { JsonTable } from "../components/JsonTable";
 import { ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
-import { compactJson, sentenceCase } from "../lib/format";
+import { formatNumber, sentenceCase } from "../lib/format";
+import type { AnyRecord } from "../lib/types";
 
 export function MethodsPage() {
   const [health, evaluation] = useQueries({
@@ -89,12 +91,74 @@ export function MethodsPage() {
                 <h3>{sentenceCase(area)}</h3>
                 <span className={`status-pill status-${summary.status}`}>{summary.status}</span>
               </div>
-              <p className="muted">{summary.path}</p>
-              <pre>{compactJson(summary.data)}</pre>
+              <MetricSummary record={summary.data} />
+              <EvidenceDisclosure
+                title="Full evaluation artifact"
+                summary={summary.path}
+                value={summary.data}
+              />
             </article>
           ))}
         </div>
       </section>
     </section>
   );
+}
+
+function MetricSummary({ record }: { record?: AnyRecord }) {
+  const metrics = collectMetrics(record);
+  if (!metrics.length) {
+    return <p className="muted">No headline metrics reported.</p>;
+  }
+
+  return (
+    <dl className="metric-grid">
+      {metrics.map(([key, value]) => (
+        <div key={key}>
+          <dt>{key}</dt>
+          <dd>{formatMetric(value)}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function collectMetrics(record?: AnyRecord): Array<[string, number]> {
+  const wanted = [
+    "HitRate@10",
+    "HitRate@5",
+    "MRR",
+    "macro_f1",
+    "accuracy",
+    "coverage",
+    "relation_count",
+    "cluster_count",
+    "question_count"
+  ];
+  const found = new Map<string, number>();
+
+  function visit(value: unknown) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return;
+    }
+    for (const [key, child] of Object.entries(value as AnyRecord)) {
+      if (wanted.includes(key) && typeof child === "number" && Number.isFinite(child)) {
+        found.set(key, child);
+      }
+      visit(child);
+    }
+  }
+
+  visit(record);
+  return wanted
+    .filter((key) => found.has(key))
+    .slice(0, 5)
+    .map((key) => [key, found.get(key) as number]);
+}
+
+function formatMetric(value: number): string {
+  if (value > 0 && value <= 1) {
+    return `${Math.round(value * 100)}%`;
+  }
+  return formatNumber(value);
 }

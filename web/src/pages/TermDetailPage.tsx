@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryBadge, ConfidenceBadge } from "../components/Badges";
+import { EvidenceDisclosure } from "../components/EvidenceDisclosure";
 import { JsonTable } from "../components/JsonTable";
 import { ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
@@ -31,6 +32,11 @@ export function TermDetailPage() {
       <div className="page-heading">
         <p className="eyebrow">Vocabulary term</p>
         <h1>{data.canonical_term}</h1>
+        <div className="meta-strip">
+          <span>{data.term_id}</span>
+          <span>{data.table_appearances.length.toLocaleString()} table appearances</span>
+          <span>{data.occurrence_ids.length.toLocaleString()} occurrences</span>
+        </div>
         <div className="chip-list">
           <CategoryBadge category={data.category} />
           <ConfidenceBadge value={data.confidence} />
@@ -49,7 +55,10 @@ export function TermDetailPage() {
       </section>
 
       <section className="panel">
-        <h2>Table Appearances</h2>
+        <div className="section-title">
+          <h2>Table appearances</h2>
+          <span>{data.table_appearances.length.toLocaleString()} records</span>
+        </div>
         <div className="chip-list">
           {data.table_appearances.slice(0, 80).map((appearance, index) => {
             const tableId = rawText(appearance, ["table_id"]);
@@ -78,7 +87,7 @@ export function TermDetailPage() {
                   <span>
                     {rawText(relation, ["source_term"])} to {rawText(relation, ["target_term"])}
                   </span>
-                  <pre>{compactJson(relation.evidence)}</pre>
+                  <EvidenceDisclosure title="Relation evidence" value={relation.evidence} />
                 </article>
               ))
             ) : (

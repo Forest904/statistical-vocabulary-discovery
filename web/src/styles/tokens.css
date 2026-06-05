@@ -5,13 +5,13 @@
   line-height: 1.5;
   font-weight: 400;
   color: #17211c;
-  background: #f7f7f2;
+  background: #f6f7f6;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --bg: #f7f7f2;
+  --bg: #f6f7f6;
   --surface: #ffffff;
-  --surface-strong: #f0f4ef;
+  --surface-strong: #eef3f0;
   --ink: #17211c;
   --muted: #66736b;
   --line: #d8ded8;

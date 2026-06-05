@@ -3,10 +3,11 @@ import { ExternalLink } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { CategoryBadge } from "../components/Badges";
+import { EvidenceDisclosure } from "../components/EvidenceDisclosure";
 import { JsonTable } from "../components/JsonTable";
 import { ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
-import { compactJson, rawText, sentenceCase } from "../lib/format";
+import { compactJson, formatNumber, rawText, recordCountBy, sentenceCase, uniqueTexts } from "../lib/format";
 
 export function TableDetailPage() {
   const { tableId = "" } = useParams();
@@ -27,14 +28,19 @@ export function TableDetailPage() {
   }
 
   const table = query.data;
+  const geographies = uniqueTexts(table.geographies, ["name", "code", "raw_value"], 28);
+  const times = uniqueTexts(table.times, ["normalized_value", "raw_value"], 28);
+  const evidenceCounts = recordCountBy(table.evidence, "kind");
   return (
     <section className="page-grid">
       <div className="page-heading">
         <p className="eyebrow">Table evidence</p>
         <h1>{table.title}</h1>
-        <p>
-          {table.table_id} · Parse status: <strong>{table.parse_status}</strong>
-        </p>
+        <div className="meta-strip">
+          <span>{table.table_id}</span>
+          <span>Parsed: {table.parse_status}</span>
+          <span>{formatNumber(table.metadata?.observation_count)} observations</span>
+        </div>
         {table.source_url ? (
           <a className="inline-action" href={table.source_url} target="_blank" rel="noreferrer">
             <ExternalLink aria-hidden="true" size={16} />
@@ -52,10 +58,10 @@ export function TableDetailPage() {
           <h2>Vocabulary</h2>
           {Object.entries(table.vocabulary).map(([category, values]) => (
             <div className="vocab-group" key={category}>
-              <h3>
-                <CategoryBadge category={category.replace(/s$/, "")} />
-                {sentenceCase(category)}
-              </h3>
+              <div className="subsection-title">
+                <h3>{sentenceCase(category)}</h3>
+                <CategoryBadge category={categoryForGroup(category)} />
+              </div>
               <div className="chip-list">
                 {(values || []).slice(0, 40).map((value, index) => (
                   <span className="simple-chip" key={`${String(value)}-${index}`}>
@@ -70,36 +76,60 @@ export function TableDetailPage() {
 
       <section className="two-column">
         <article className="panel">
-          <h2>Geographies</h2>
-          <ul className="plain-list">
-            {table.geographies.slice(0, 40).map((item, index) => (
-              <li key={`${rawText(item, ["geography_id", "code", "name"])}-${index}`}>
-                {rawText(item, ["name", "code", "raw_value"]) || compactJson(item)}
-              </li>
+          <div className="section-title">
+            <h2>Geographies</h2>
+            <span>{table.geographies.length.toLocaleString()} records</span>
+          </div>
+          <div className="chip-list">
+            {geographies.map((item) => (
+              <span className="simple-chip" key={item}>
+                {item}
+              </span>
             ))}
-          </ul>
+            {table.geographies.length > geographies.length ? (
+              <span className="simple-chip">+{table.geographies.length - geographies.length} more records</span>
+            ) : null}
+          </div>
         </article>
         <article className="panel">
-          <h2>Times</h2>
-          <ul className="plain-list">
-            {table.times.slice(0, 40).map((item, index) => (
-              <li key={`${rawText(item, ["time_id", "normalized_value"])}-${index}`}>
-                {rawText(item, ["normalized_value", "raw_value"]) || compactJson(item)}
-              </li>
+          <div className="section-title">
+            <h2>Times</h2>
+            <span>{table.times.length.toLocaleString()} records</span>
+          </div>
+          <div className="chip-list">
+            {times.map((item) => (
+              <span className="simple-chip" key={item}>
+                {item}
+              </span>
             ))}
-          </ul>
+          </div>
         </article>
       </section>
 
       <section className="panel">
-        <h2>Evidence</h2>
-        <div className="evidence-list">
-          {table.evidence.slice(0, 80).map((item, index) => (
-            <pre key={`${rawText(item, ["evidence_id", "raw_value"])}-${index}`}>
-              {compactJson(item)}
-            </pre>
+        <div className="section-title">
+          <h2>Evidence</h2>
+          <span>{table.evidence.length.toLocaleString()} records</span>
+        </div>
+        <div className="chip-list evidence-counts">
+          {Object.entries(evidenceCounts).map(([kind, count]) => (
+            <span className="simple-chip" key={kind}>
+              {sentenceCase(kind)}: {count.toLocaleString()}
+            </span>
           ))}
         </div>
+        <EvidenceDisclosure
+          title="Raw evidence records"
+          summary={`${table.evidence.length.toLocaleString()} records, preserved for audit`}
+        >
+          <div className="evidence-list">
+            {table.evidence.slice(0, 80).map((item, index) => (
+              <pre key={`${rawText(item, ["evidence_id", "raw_value"])}-${index}`}>
+                {compactJson(item)}
+              </pre>
+            ))}
+          </div>
+        </EvidenceDisclosure>
       </section>
 
       <section className="panel">
@@ -121,4 +151,14 @@ export function TableDetailPage() {
       </section>
     </section>
   );
+}
+
+function categoryForGroup(category: string): string {
+  if (category === "other_ambiguous") {
+    return category;
+  }
+  if (category === "domains") {
+    return "domain";
+  }
+  return category.endsWith("s") ? category.slice(0, -1) : category;
 }
