@@ -564,6 +564,33 @@ def _diagnostics(
     }
 
 
+def _diagnostics_from_rows(
+    config: AppConfig,
+    *,
+    rows: list[dict[str, object]],
+    warning_tables: list[dict[str, object]],
+    failed_tables: list[dict[str, object]],
+    status_counts: Counter[str],
+    resources: Iterable[ResourceRecord] = (),
+    source_repairs: Iterable[SourceRepair] = (),
+) -> dict[str, object]:
+    """Build ingestion diagnostics from streaming parse summaries."""
+
+    return {
+        "config_name": config.config_name,
+        "corpus": config.corpus.name,
+        "expected_table_count": config.corpus.expected_table_count,
+        "inventoried_table_count": len(rows),
+        "status_counts": dict(status_counts),
+        "warning_table_count": len(warning_tables),
+        "failed_table_count": len(failed_tables),
+        "warning_tables": warning_tables,
+        "failed_tables": failed_tables,
+        "resource_validation": [resource.model_dump(mode="json") for resource in resources],
+        "source_repairs": [repair.model_dump(mode="json") for repair in source_repairs],
+    }
+
+
 def write_tables_parquet(rows: list[dict[str, object]], output_path: Path) -> Path:
     """Write table inventory rows to Parquet."""
 
@@ -590,16 +617,39 @@ def run_ingestion(
 
     manifest = create_manifest(config, "ingest")
     adapter = EurostatStarAdapter(config)
-    references = list(adapter.iter_references())
-    parsed_tables = [adapter.parse_table(reference) for reference in references]
-    rows = [parsed_table_to_row(table) for table in parsed_tables]
+    rows: list[dict[str, object]] = []
+    status_counts: Counter[str] = Counter()
+    warning_tables: list[dict[str, object]] = []
+    failed_tables: list[dict[str, object]] = []
+    for reference in adapter.iter_references():
+        parsed_table = adapter.parse_table(reference)
+        rows.append(parsed_table_to_row(parsed_table))
+        status_counts[parsed_table.parse_status.value] += 1
+        if parsed_table.warnings:
+            warning_tables.append(
+                {
+                    "table_id": parsed_table.reference.table_id,
+                    "parse_status": parsed_table.parse_status.value,
+                    "reasons": [warning.reason for warning in parsed_table.warnings],
+                }
+            )
+        if parsed_table.parse_status == ParseStatus.FAILED:
+            failed_tables.append(
+                {
+                    "table_id": parsed_table.reference.table_id,
+                    "reasons": [warning.reason for warning in parsed_table.warnings],
+                }
+            )
 
     tables_path = write_tables_parquet(rows, config.paths.processed_dir / "tables.parquet")
-    diagnostics = _diagnostics(
+    diagnostics = _diagnostics_from_rows(
         config,
-        parsed_tables,
-        resources,
-        adapter.source_repairs,
+        rows=rows,
+        warning_tables=warning_tables,
+        failed_tables=failed_tables,
+        status_counts=status_counts,
+        resources=resources,
+        source_repairs=adapter.source_repairs,
     )
     diagnostics_path = write_ingestion_diagnostics(
         diagnostics,

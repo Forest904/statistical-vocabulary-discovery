@@ -13,6 +13,7 @@ import pyarrow.parquet as pq
 from statvocab.classification import CSV_BY_CATEGORY
 from statvocab.config import AppConfig
 from statvocab.contracts import VocabularyCategory
+from statvocab.resources import file_md5
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -39,10 +40,97 @@ def _read_manifest(config: AppConfig, run_id: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(candidates[-1].read_text(encoding="utf-8")))
 
 
+def _validate_full_run(
+    config: AppConfig,
+    *,
+    run_id: str,
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    checkpoint_path = config.paths.outputs_dir / "full_corpus" / run_id / "stage_checkpoints.json"
+    if not checkpoint_path.exists():
+        for artifact in manifest.get("artifacts", []):
+            candidate = Path(str(artifact))
+            if candidate.name == "stage_checkpoints.json":
+                checkpoint_path = candidate
+                break
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Missing full-corpus checkpoint artifact: {checkpoint_path}")
+
+    checkpoints = cast(
+        list[dict[str, Any]],
+        json.loads(checkpoint_path.read_text(encoding="utf-8")),
+    )
+    failures: list[str] = []
+    status_counts: dict[str, int] = {}
+    incomplete: list[dict[str, str]] = []
+    for checkpoint in checkpoints:
+        stage = str(checkpoint.get("stage") or "")
+        status = str(checkpoint.get("status") or "")
+        status_counts[status] = status_counts.get(status, 0) + 1
+        if status == "succeeded":
+            for artifact in checkpoint.get("artifacts", []):
+                artifact_path = Path(str(artifact.get("path") or ""))
+                if not artifact_path.exists():
+                    failures.append(f"{stage} declared missing artifact {artifact_path}")
+                    continue
+                expected_size = int(artifact.get("size_bytes") or 0)
+                if artifact_path.is_file() and artifact_path.stat().st_size <= 0:
+                    failures.append(f"{stage} artifact is empty: {artifact_path}")
+                if expected_size and artifact_path.exists():
+                    actual_size = artifact_path.stat().st_size
+                    if artifact_path.is_dir():
+                        actual_size = sum(
+                            child.stat().st_size
+                            for child in artifact_path.rglob("*")
+                            if child.is_file()
+                        )
+                    if actual_size != expected_size:
+                        failures.append(
+                            f"{stage} artifact size changed for {artifact_path}: "
+                            f"expected {expected_size}, found {actual_size}"
+                        )
+                expected_md5 = artifact.get("md5")
+                if (
+                    expected_md5
+                    and artifact_path.is_file()
+                    and file_md5(artifact_path) != expected_md5
+                ):
+                    failures.append(f"{stage} artifact checksum changed: {artifact_path}")
+            continue
+
+        message = str(checkpoint.get("failure_message") or "")
+        last_valid = checkpoint.get("last_valid_checkpoint")
+        if not message:
+            failures.append(f"{stage} is incomplete without a blocker message")
+        if stage != "disk-preflight" and not last_valid:
+            failures.append(f"{stage} is incomplete without a last valid checkpoint")
+        incomplete.append(
+            {
+                "stage": stage,
+                "status": status,
+                "blocker": message,
+                "last_valid_checkpoint": str(last_valid or ""),
+            }
+        )
+
+    if failures:
+        raise ValueError("; ".join(failures[:20]))
+    return {
+        "run_id": run_id,
+        "validated": True,
+        "pipeline_stage": "run-all",
+        "checkpoint_count": len(checkpoints),
+        "stage_status_counts": status_counts,
+        "incomplete_stages": incomplete,
+    }
+
+
 def validate_artifacts(config: AppConfig, *, run_id: str) -> dict[str, Any]:
     """Validate required semantic partition outputs."""
 
     manifest = _read_manifest(config, run_id)
+    if str(manifest.get("pipeline_stage", "")) == "run-all":
+        return _validate_full_run(config, run_id=run_id, manifest=manifest)
     if not str(manifest.get("pipeline_stage", "")).startswith("classify-"):
         raise ValueError(f"Run {run_id} is not a classification run.")
 

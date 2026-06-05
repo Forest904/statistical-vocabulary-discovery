@@ -19,6 +19,7 @@ from statvocab.clustering_evaluate import evaluate_clustering
 from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
+from statvocab.full_corpus import run_full_corpus
 from statvocab.ingest import run_ingestion
 from statvocab.logging import configure_logging
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
@@ -310,11 +311,12 @@ def evaluate(
 
 
 @app.command("run-all")
-def run_all(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
-    """Run the full pipeline. Reserved for final reproducibility milestones."""
+def run_all(config: Annotated[Path, _config_option()] = Path("configs/full.yaml")) -> None:
+    """Run the instrumented full-corpus scale attempt."""
 
-    _ = config
-    _not_ready("run-all", "Milestone 11")
+    loaded = load_config(config)
+    payload = run_full_corpus(loaded)
+    console.print(payload)
 
 
 @app.command("validate-artifacts")

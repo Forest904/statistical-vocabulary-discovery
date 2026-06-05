@@ -165,3 +165,21 @@ def test_retrieval_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
     assert result.exit_code == 0
     assert "retrieval" in result.output
     assert "prd_default" in result.output
+
+
+def test_run_all_cli_invokes_full_corpus_runner(monkeypatch) -> None:
+    import statvocab.cli as cli
+
+    def fake_run(config):
+        return {
+            "run_id": "run_full_test",
+            "run_manifest": str(config.paths.outputs_dir / "full_corpus" / "run_manifest.json"),
+            "stage_status_counts": {"succeeded": 1, "failed": 0, "blocked": 0, "skipped": 0},
+        }
+
+    monkeypatch.setattr(cli, "run_full_corpus", fake_run)
+
+    result = CliRunner().invoke(app, ["run-all", "--config", "configs/full.yaml"])
+
+    assert result.exit_code == 0
+    assert "run_full_test" in result.output
