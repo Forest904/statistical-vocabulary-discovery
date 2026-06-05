@@ -69,6 +69,14 @@ button:hover,
   background: var(--surface-strong);
 }
 
+button:disabled,
+button:disabled:hover {
+  border-color: var(--line);
+  background: #f2f4f1;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .content {
   width: min(1280px, 100%);
   margin: 0 auto;

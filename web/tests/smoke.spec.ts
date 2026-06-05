@@ -257,6 +257,24 @@ test("search renders parsed query, evidence drawer, and table navigation", async
   await expect(page.getByText("Row count")).toBeVisible();
 });
 
+test("search does not submit when the query is empty", async ({ page }) => {
+  let searchRequests = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/search") {
+      searchRequests += 1;
+    }
+  });
+
+  await page.goto("/");
+  await page.getByLabel("Search query").fill("   ");
+  await expect(page.getByRole("button", { name: "Search" })).toBeDisabled();
+  await page.getByLabel("Search query").press("Enter");
+  await page.waitForTimeout(100);
+
+  expect(searchRequests).toBe(0);
+  await expect(page.getByText("Ready to search")).toBeVisible();
+});
+
 test("vocabulary atlas filters and opens term detail", async ({ page }) => {
   await page.goto("/vocabulary");
   await page.getByRole("tab", { name: "Measure" }).click();

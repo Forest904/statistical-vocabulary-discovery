@@ -21,14 +21,21 @@ export function SearchPage() {
   const [query, setQuery] = useState("employment in Italy 2020");
   const [system, setSystem] = useState<SearchSystem>("fused");
   const [selected, setSelected] = useState<SearchResult | null>(null);
+  const canSearch = query.trim().length > 0;
   const search = useMutation({
-    mutationFn: () => api.search({ query, system, page: 1, page_size: 10 })
+    mutationFn: (input: { query: string; system: SearchSystem }) =>
+      api.search({ ...input, page: 1, page_size: 10 })
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      search.reset();
+      return;
+    }
     setSelected(null);
-    search.mutate();
+    search.mutate({ query: trimmedQuery, system });
   };
 
   return (
@@ -50,6 +57,7 @@ export function SearchPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Example: unemployment rate in Italy 2020"
+            required
           />
           <select
             aria-label="Retrieval system"
@@ -62,7 +70,7 @@ export function SearchPage() {
               </option>
             ))}
           </select>
-          <button type="submit">
+          <button type="submit" disabled={!canSearch}>
             <Search aria-hidden="true" size={17} />
             Search
           </button>
