@@ -40,6 +40,7 @@ export function GraphPage() {
     : "term";
   const [focusType, setFocusType] = useState<FocusSearchType>("all");
   const [searchText, setSearchText] = useState(searchParams.get("focus_id") || "");
+  const [selectedSearchText, setSelectedSearchText] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [submittedFocus, setSubmittedFocus] = useState({
@@ -62,6 +63,25 @@ export function GraphPage() {
     queryKey: ["graph-summary"],
     queryFn: () => api.graphSummary()
   });
+
+  useEffect(() => {
+    const trimmed = searchText.trim();
+    if (trimmed.length < 2) {
+      setSubmittedSearch("");
+      setShowResults(false);
+      return undefined;
+    }
+    if (trimmed === selectedSearchText) {
+      setShowResults(false);
+      return undefined;
+    }
+    setShowResults(true);
+    const timeout = window.setTimeout(() => {
+      setSubmittedSearch(trimmed);
+    }, 220);
+    return () => window.clearTimeout(timeout);
+  }, [searchText]);
+
   const focusOptions = useQuery({
     queryKey: ["graph-focus-options", submittedSearch, focusType],
     queryFn: () =>
@@ -238,6 +258,7 @@ export function GraphPage() {
     if (trimmed.length < 2) {
       return;
     }
+    setSelectedSearchText("");
     setSubmittedSearch(trimmed);
     setShowResults(true);
   };
@@ -245,6 +266,7 @@ export function GraphPage() {
   const loadFocus = (option: GraphFocusOption) => {
     setSubmittedFocus({ focus_type: option.node_type, focus_id: option.node_id });
     setSearchText(option.label);
+    setSelectedSearchText(option.label);
     setSearchParams({
       focus_type: option.node_type,
       focus_id: option.node_id,
@@ -282,7 +304,10 @@ export function GraphPage() {
             <input
               id="graph-search"
               value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
+              onChange={(event) => {
+                setSelectedSearchText("");
+                setSearchText(event.target.value);
+              }}
               placeholder="Search terms, tables, clusters, or domains"
               autoComplete="off"
             />

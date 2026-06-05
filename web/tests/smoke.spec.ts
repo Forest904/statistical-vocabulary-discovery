@@ -491,10 +491,11 @@ test("knowledge graph page renders canvas and accepts focused navigation", async
   await page.getByRole("button", { name: "Settings" }).click();
   await expect(page.getByLabel("Edge filters")).not.toBeVisible();
 
-  await page.getByLabel("Graph search").fill("employment");
-  await page.getByLabel("Graph search").press("Enter");
+  await page.getByRole("textbox", { name: "Graph search" }).fill("employment");
   await expect(page.getByRole("listbox", { name: "Graph search results" })).toContainText("Employment");
+  await page.getByRole("textbox", { name: "Graph search" }).press("Enter");
   await page.getByRole("option", { name: /Employment term_1/ }).click();
+  await expect(page.getByRole("listbox", { name: "Graph search results" })).not.toBeVisible();
   await expect(page.locator(".graph-canvas canvas").first()).toBeVisible();
 
   await page.getByRole("button", { expanded: true }).last().click();
