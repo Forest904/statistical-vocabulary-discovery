@@ -158,6 +158,36 @@ class FakeState:
             "edge_type_counts": {"table_contains_term": 1},
         }
 
+    def graph_focus_options(
+        self,
+        *,
+        q: str,
+        focus_type: str | None = None,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        candidates = [
+            {
+                "node_id": "term_1",
+                "node_type": "term",
+                "label": "Employment",
+                "score": 100.0 if q == "term_1" else 90.0,
+                "metadata": {"category": "measure"},
+            },
+            {
+                "node_id": "table_1",
+                "node_type": "table",
+                "label": "Employment table",
+                "score": 70.0,
+                "metadata": {},
+            },
+        ]
+        if len(q.strip()) < 2:
+            candidates = []
+        if focus_type:
+            candidates = [item for item in candidates if item["node_type"] == focus_type]
+        candidates.sort(key=lambda item: -float(item["score"]))
+        return {"query": q.strip(), "focus_type": focus_type, "items": candidates[:page_size]}
+
     def graph_view(
         self,
         *,
@@ -225,6 +255,7 @@ def test_openapi_documents_milestone_7_endpoints() -> None:
     assert "/api/clusters" in paths
     assert "/api/relations" in paths
     assert "/api/graph" in paths
+    assert "/api/graph/focus-options" in paths
     assert "/api/graph/summary" in paths
     assert "/api/evaluation" in paths
     assert "/api/health" in paths
@@ -317,6 +348,19 @@ def test_graph_summary_and_focused_view_are_served() -> None:
     assert summary["run_id"] == "run_graph"
     assert graph["focus"] == {"focus_type": "term", "focus_id": "term_1"}
     assert graph["nodes"][0]["node_id"] == "term_1"
+
+
+def test_graph_focus_options_searches_focus_nodes() -> None:
+    client = _client()
+
+    payload = client.get("/api/graph/focus-options?q=employment&page_size=10").json()
+    exact = client.get("/api/graph/focus-options?q=term_1&focus_type=term").json()
+    empty = client.get("/api/graph/focus-options?q=e").json()
+
+    assert payload["items"][0]["node_id"] == "term_1"
+    assert {item["node_type"] for item in payload["items"]} == {"term", "table"}
+    assert exact["items"][0]["node_id"] == "term_1"
+    assert empty["items"] == []
 
 
 def test_unknown_graph_focus_returns_stable_404() -> None:

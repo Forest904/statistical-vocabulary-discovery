@@ -594,6 +594,65 @@ class ApiState:
             "edge_type_counts": self.graph_summary_payload.get("edge_type_counts") or {},
         }
 
+    def graph_focus_options(
+        self,
+        *,
+        q: str,
+        focus_type: str | None = None,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        query = q.strip()
+        normalized = query.casefold()
+        allowed_types = {"term", "table", "cluster", "domain"}
+        if focus_type:
+            allowed_types &= {focus_type}
+        if len(normalized) < 2 or not allowed_types:
+            return {"query": query, "focus_type": focus_type, "items": []}
+
+        ranked: list[tuple[float, str, dict[str, Any]]] = []
+        for node in self.graph_nodes.values():
+            node_type = str(node.get("node_type") or "")
+            if node_type not in allowed_types:
+                continue
+            node_id = str(node.get("node_id") or "")
+            label = str(node.get("label") or "")
+            node_id_key = node_id.casefold()
+            label_key = label.casefold()
+            score = 0.0
+            if node_id_key == normalized:
+                score = 100.0
+            elif label_key == normalized:
+                score = 90.0
+            elif label_key.startswith(normalized):
+                score = 80.0
+            elif normalized in label_key:
+                score = 70.0
+            elif normalized in node_id_key:
+                score = 60.0
+            if score <= 0.0:
+                continue
+            ranked.append((score, label_key, node))
+
+        ranked.sort(key=lambda item: (-item[0], item[2]["node_type"], item[1], item[2]["node_id"]))
+        items = []
+        for score, _label_key, node in ranked[:page_size]:
+            properties = node.get("properties") if isinstance(node.get("properties"), dict) else {}
+            metadata = {
+                key: properties.get(key)
+                for key in ("category", "domain", "cluster_id", "table_count", "occurrence_count")
+                if properties.get(key) not in (None, "")
+            }
+            items.append(
+                {
+                    "node_id": node["node_id"],
+                    "node_type": node["node_type"],
+                    "label": node["label"],
+                    "score": score,
+                    "metadata": metadata,
+                }
+            )
+        return {"query": query, "focus_type": focus_type, "items": items}
+
     def graph_view(
         self,
         *,

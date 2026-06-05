@@ -10,6 +10,7 @@ from api.app.routes.dependencies import get_state
 from api.app.schemas import (
     ClusterListResponse,
     EvaluationResponse,
+    GraphFocusOptionsResponse,
     GraphResponse,
     GraphSummaryResponse,
     RelationListResponse,
@@ -108,6 +109,18 @@ def graph_summary(state: StateDependency) -> dict[str, object]:
     """Return the loaded knowledge graph artifact summary."""
 
     return state.graph_summary()
+
+
+@router.get("/graph/focus-options", response_model=GraphFocusOptionsResponse)
+def graph_focus_options(
+    state: StateDependency,
+    q: str = "",
+    focus_type: str | None = None,
+    page_size: Annotated[int, Query(ge=1, le=25)] = 10,
+) -> dict[str, object]:
+    """Search graph nodes that can be used as a graph focus."""
+
+    return state.graph_focus_options(q=q, focus_type=focus_type, page_size=page_size)
 
 
 @router.get("/graph", response_model=GraphResponse)

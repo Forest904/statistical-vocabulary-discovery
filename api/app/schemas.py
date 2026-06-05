@@ -163,6 +163,24 @@ class GraphResponse(BaseModel):
     total_available: dict[str, int]
 
 
+class GraphFocusOption(BaseModel):
+    """Search candidate for a graph focus node."""
+
+    node_id: str
+    node_type: Literal["table", "term", "cluster", "domain"]
+    label: str
+    score: float
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphFocusOptionsResponse(BaseModel):
+    """Graph focus node search results."""
+
+    query: str
+    focus_type: str | None = None
+    items: list[GraphFocusOption]
+
+
 class GraphSummaryResponse(BaseModel):
     """Knowledge graph artifact summary."""
 

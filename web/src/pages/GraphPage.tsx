@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import cytoscape from "cytoscape";
 import type { Core, ElementDefinition, EventObject } from "cytoscape";
-import { Crosshair, Focus, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronUp, Focus, RefreshCcw, Search, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -9,9 +9,12 @@ import { JsonTable } from "../components/JsonTable";
 import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status";
 import { api } from "../lib/api";
 import { sentenceCase } from "../lib/format";
-import type { GraphEdge, GraphNode, GraphNodeType } from "../lib/types";
+import type { GraphEdge, GraphFocusOption, GraphNode, GraphNodeType } from "../lib/types";
 
-const focusTypes: GraphNodeType[] = ["term", "table", "cluster", "domain"];
+type FocusSearchType = "all" | Exclude<GraphNodeType, "category">;
+
+const focusTypes: Array<Exclude<GraphNodeType, "category">> = ["term", "table", "cluster", "domain"];
+const focusSearchTypes: FocusSearchType[] = ["all", ...focusTypes];
 const edgeTypes = [
   "table_contains_term",
   "term_classified_as",
@@ -31,11 +34,14 @@ type Selection =
 
 export function GraphPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialFocusType = focusTypes.includes(searchParams.get("focus_type") as GraphNodeType)
-    ? (searchParams.get("focus_type") as GraphNodeType)
+  const focusTypeParam = searchParams.get("focus_type") as Exclude<GraphNodeType, "category"> | null;
+  const initialFocusType = focusTypeParam && focusTypes.includes(focusTypeParam)
+    ? focusTypeParam
     : "term";
-  const [focusType, setFocusType] = useState<GraphNodeType>(initialFocusType);
-  const [focusId, setFocusId] = useState(searchParams.get("focus_id") || "");
+  const [focusType, setFocusType] = useState<FocusSearchType>("all");
+  const [searchText, setSearchText] = useState(searchParams.get("focus_id") || "");
+  const [submittedSearch, setSubmittedSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
   const [submittedFocus, setSubmittedFocus] = useState({
     focus_type: initialFocusType,
     focus_id: searchParams.get("focus_id") || ""
@@ -43,6 +49,10 @@ export function GraphPage() {
   const [depth, setDepth] = useState(Number(searchParams.get("depth") || 1));
   const [minWeight, setMinWeight] = useState(Number(searchParams.get("min_weight") || 0));
   const [enabledEdges, setEnabledEdges] = useState<string[]>(edgeTypes);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectionOpen, setSelectionOpen] = useState(() =>
+    typeof window === "undefined" ? true : !window.matchMedia("(max-width: 820px)").matches
+  );
   const [hovered, setHovered] = useState<Selection>(null);
   const [selected, setSelected] = useState<Selection>(null);
   const cyRef = useRef<Core | null>(null);
@@ -51,6 +61,16 @@ export function GraphPage() {
   const summary = useQuery({
     queryKey: ["graph-summary"],
     queryFn: () => api.graphSummary()
+  });
+  const focusOptions = useQuery({
+    queryKey: ["graph-focus-options", submittedSearch, focusType],
+    queryFn: () =>
+      api.graphFocusOptions({
+        q: submittedSearch,
+        focus_type: focusType,
+        page_size: 10
+      }),
+    enabled: submittedSearch.trim().length >= 2
   });
   const graph = useQuery({
     queryKey: [
@@ -71,6 +91,12 @@ export function GraphPage() {
       }),
     enabled: Boolean(submittedFocus.focus_id)
   });
+
+  useEffect(() => {
+    if (focusOptions.data) {
+      setShowResults(true);
+    }
+  }, [focusOptions.data]);
 
   const nodesById = useMemo(() => {
     const byId = new Map<string, GraphNode>();
@@ -194,6 +220,7 @@ export function GraphPage() {
         const edge = edgeLookup.get(String(target.id()));
         setSelected(edge ? { kind: "edge", item: edge } : null);
       }
+      setSelectionOpen(true);
     };
     cy.on("mouseover", "node, edge", focusElement);
     cy.on("mouseout", "node, edge", blurElement);
@@ -206,15 +233,25 @@ export function GraphPage() {
     };
   }, [graph.data]);
 
-  const submitFocus = () => {
-    const trimmed = focusId.trim();
-    setSubmittedFocus({ focus_type: focusType, focus_id: trimmed });
+  const submitSearch = () => {
+    const trimmed = searchText.trim();
+    if (trimmed.length < 2) {
+      return;
+    }
+    setSubmittedSearch(trimmed);
+    setShowResults(true);
+  };
+
+  const loadFocus = (option: GraphFocusOption) => {
+    setSubmittedFocus({ focus_type: option.node_type, focus_id: option.node_id });
+    setSearchText(option.label);
     setSearchParams({
-      focus_type: focusType,
-      focus_id: trimmed,
+      focus_type: option.node_type,
+      focus_id: option.node_id,
       depth: String(depth),
       min_weight: String(minWeight)
     });
+    setShowResults(false);
     setSelected(null);
   };
 
@@ -232,69 +269,110 @@ export function GraphPage() {
         ) : null}
       </div>
 
-      <div className="graph-toolbar">
-        <label>
-          Focus
-          <select value={focusType} onChange={(event) => setFocusType(event.target.value as GraphNodeType)}>
-            {focusTypes.map((type) => (
-              <option key={type} value={type}>
-                {sentenceCase(type)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="graph-focus-input">
-          ID
-          <input value={focusId} onChange={(event) => setFocusId(event.target.value)} placeholder="term_..." />
-        </label>
-        <label>
-          Depth
-          <select value={depth} onChange={(event) => setDepth(Number(event.target.value))}>
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-          </select>
-        </label>
-        <label>
-          Weight {minWeight.toFixed(2)}
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={minWeight}
-            onChange={(event) => setMinWeight(Number(event.target.value))}
-          />
-        </label>
-        <button type="button" onClick={submitFocus} disabled={!focusId.trim()}>
-          <Crosshair aria-hidden="true" size={16} />
-          Load
-        </button>
-        <button type="button" onClick={() => cyRef.current?.fit(undefined, 28)} disabled={!graph.data}>
-          <Focus aria-hidden="true" size={16} />
-          Fit
-        </button>
-        <button type="button" onClick={() => graph.refetch()} disabled={!submittedFocus.focus_id}>
-          <RefreshCcw aria-hidden="true" size={16} />
-          Refresh
+      <div className="graph-search-row">
+        <form
+          className="graph-search-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitSearch();
+          }}
+        >
+          <label htmlFor="graph-search">Graph search</label>
+          <div className="graph-search-box">
+            <input
+              id="graph-search"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Search terms, tables, clusters, or domains"
+              autoComplete="off"
+            />
+            <button type="submit" aria-label="Search knowledge graph" disabled={searchText.trim().length < 2}>
+              <Search aria-hidden="true" size={17} />
+            </button>
+          </div>
+          {showResults ? (
+            <FocusResults
+              isLoading={focusOptions.isLoading}
+              isError={focusOptions.isError}
+              errorMessage={focusOptions.error?.message}
+              items={focusOptions.data?.items || []}
+              onSelect={loadFocus}
+            />
+          ) : null}
+        </form>
+        <button
+          className="graph-settings-button"
+          type="button"
+          aria-expanded={settingsOpen}
+          aria-controls="graph-settings-panel"
+          onClick={() => setSettingsOpen((current) => !current)}
+        >
+          <Settings aria-hidden="true" size={17} />
+          Settings
+          {settingsOpen ? <ChevronUp aria-hidden="true" size={16} /> : <ChevronDown aria-hidden="true" size={16} />}
         </button>
       </div>
 
-      <div className="graph-edge-controls" aria-label="Edge filters">
-        {edgeTypes.map((type) => (
-          <label className="toggle-chip" key={type}>
-            <input
-              type="checkbox"
-              checked={enabledEdges.includes(type)}
-              onChange={(event) => {
-                setEnabledEdges((current) =>
-                  event.target.checked ? [...current, type] : current.filter((item) => item !== type)
-                );
-              }}
-            />
-            {edgeLabel(type)}
-          </label>
-        ))}
-      </div>
+      {settingsOpen ? (
+        <section className="graph-settings-panel" id="graph-settings-panel">
+          <div className="graph-settings-grid">
+            <label>
+              Search scope
+              <select value={focusType} onChange={(event) => setFocusType(event.target.value as FocusSearchType)}>
+                {focusSearchTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type === "all" ? "All focus nodes" : sentenceCase(type)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Depth
+              <select value={depth} onChange={(event) => setDepth(Number(event.target.value))}>
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+              </select>
+            </label>
+            <label>
+              Weight {minWeight.toFixed(2)}
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={minWeight}
+                onChange={(event) => setMinWeight(Number(event.target.value))}
+              />
+            </label>
+            <div className="graph-settings-actions">
+              <button type="button" onClick={() => cyRef.current?.fit(undefined, 28)} disabled={!graph.data}>
+                <Focus aria-hidden="true" size={16} />
+                Fit
+              </button>
+              <button type="button" onClick={() => graph.refetch()} disabled={!submittedFocus.focus_id}>
+                <RefreshCcw aria-hidden="true" size={16} />
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div className="graph-edge-controls" aria-label="Edge filters">
+            {edgeTypes.map((type) => (
+              <label className="toggle-chip" key={type}>
+                <input
+                  type="checkbox"
+                  checked={enabledEdges.includes(type)}
+                  onChange={(event) => {
+                    setEnabledEdges((current) =>
+                      event.target.checked ? [...current, type] : current.filter((item) => item !== type)
+                    );
+                  }}
+                />
+                {edgeLabel(type)}
+              </label>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {!submittedFocus.focus_id ? <EmptyBlock title="Choose a graph focus" /> : null}
       {graph.isLoading ? <LoadingBlock label="Loading graph" /> : null}
@@ -306,9 +384,53 @@ export function GraphPage() {
           <div className="graph-canvas" ref={containerRef} aria-label="Knowledge graph canvas" />
           {hovered ? <HoverPreview selection={hovered} nodesById={nodesById} /> : null}
         </div>
-        <GraphPanel selection={selected} nodesById={nodesById} />
+        <GraphPanel
+          selection={selected}
+          nodesById={nodesById}
+          isOpen={selectionOpen}
+          onToggle={() => setSelectionOpen((current) => !current)}
+        />
       </div>
     </section>
+  );
+}
+
+function FocusResults({
+  isLoading,
+  isError,
+  errorMessage,
+  items,
+  onSelect
+}: {
+  isLoading: boolean;
+  isError: boolean;
+  errorMessage?: string;
+  items: GraphFocusOption[];
+  onSelect: (option: GraphFocusOption) => void;
+}) {
+  return (
+    <div className="graph-search-results" role="listbox" aria-label="Graph search results">
+      {isLoading ? <div className="graph-search-result muted">Searching...</div> : null}
+      {isError ? <div className="graph-search-result graph-search-error">{errorMessage || "Search failed"}</div> : null}
+      {!isLoading && !isError && !items.length ? (
+        <div className="graph-search-result muted">No matching graph nodes.</div>
+      ) : null}
+      {items.map((item) => (
+        <button
+          type="button"
+          className="graph-search-result"
+          key={`${item.node_type}-${item.node_id}`}
+          onClick={() => onSelect(item)}
+          role="option"
+        >
+          <span>
+            <strong>{item.label}</strong>
+            <small>{item.node_id}</small>
+          </span>
+          <span className="simple-chip">{sentenceCase(item.node_type)}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -335,36 +457,66 @@ function HoverPreview({ selection, nodesById }: { selection: Selection; nodesByI
   );
 }
 
-function GraphPanel({ selection, nodesById }: { selection: Selection; nodesById: Map<string, GraphNode> }) {
+function GraphPanel({
+  selection,
+  nodesById,
+  isOpen,
+  onToggle
+}: {
+  selection: Selection;
+  nodesById: Map<string, GraphNode>;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const toggle = (
+    <button
+      className="graph-panel-toggle"
+      type="button"
+      aria-expanded={isOpen}
+      onClick={onToggle}
+    >
+      {isOpen ? <ChevronUp aria-hidden="true" size={16} /> : <ChevronDown aria-hidden="true" size={16} />}
+    </button>
+  );
   if (!selection) {
     return (
-      <aside className="graph-panel">
-        <h2>Selection</h2>
-        <p className="muted">No node or relation selected.</p>
+      <aside className={`graph-panel ${isOpen ? "" : "collapsed"}`}>
+        <div className="graph-panel-header">
+          <h2>Selection</h2>
+          {toggle}
+        </div>
+        {isOpen ? <p className="muted">No node or relation selected.</p> : null}
       </aside>
     );
   }
   if (selection.kind === "node") {
     const node = selection.item;
     return (
-      <aside className="graph-panel">
-        <div className="section-title">
-          <h2>{node.label}</h2>
-          <span>{sentenceCase(node.node_type)}</span>
+      <aside className={`graph-panel ${isOpen ? "" : "collapsed"}`}>
+        <div className="graph-panel-header">
+          <div>
+            <h2>{node.label}</h2>
+            <span>{sentenceCase(node.node_type)}</span>
+          </div>
+          {toggle}
         </div>
-        <div className="chip-list">
-          {node.node_type === "term" ? (
-            <Link className="simple-chip" to={`/terms/${encodeURIComponent(node.node_id)}`}>
-              Open term
-            </Link>
-          ) : null}
-          {node.node_type === "table" ? (
-            <Link className="simple-chip" to={`/tables/${encodeURIComponent(node.node_id)}`}>
-              Open table
-            </Link>
-          ) : null}
-        </div>
-        <JsonTable record={{ node_id: node.node_id, ...node.properties }} />
+        {isOpen ? (
+          <>
+            <div className="chip-list">
+              {node.node_type === "term" ? (
+                <Link className="simple-chip" to={`/terms/${encodeURIComponent(node.node_id)}`}>
+                  Open term
+                </Link>
+              ) : null}
+              {node.node_type === "table" ? (
+                <Link className="simple-chip" to={`/tables/${encodeURIComponent(node.node_id)}`}>
+                  Open table
+                </Link>
+              ) : null}
+            </div>
+            <JsonTable record={{ node_id: node.node_id, ...node.properties }} />
+          </>
+        ) : null}
       </aside>
     );
   }
@@ -372,25 +524,32 @@ function GraphPanel({ selection, nodesById }: { selection: Selection; nodesById:
   const source = nodesById.get(edge.source_id);
   const target = nodesById.get(edge.target_id);
   return (
-    <aside className="graph-panel">
-      <div className="section-title">
-        <h2>{edgeLabel(edge.edge_type)}</h2>
-        <span>{edge.weight.toFixed(2)}</span>
+    <aside className={`graph-panel ${isOpen ? "" : "collapsed"}`}>
+      <div className="graph-panel-header">
+        <div>
+          <h2>{edgeLabel(edge.edge_type)}</h2>
+          <span>{edge.weight.toFixed(2)}</span>
+        </div>
+        {toggle}
       </div>
-      <p>
-        {source?.label || edge.source_id} to {target?.label || edge.target_id}
-      </p>
-      <div className="chip-list">
-        {edge.derived ? <span className="simple-chip">Derived</span> : null}
-        {edge.directed ? <span className="simple-chip">Directed</span> : <span className="simple-chip">Undirected</span>}
-      </div>
-      <JsonTable
-        record={{
-          edge_id: edge.edge_id,
-          evidence_ids: edge.evidence_ids,
-          ...edge.properties
-        }}
-      />
+      {isOpen ? (
+        <>
+          <p>
+            {source?.label || edge.source_id} to {target?.label || edge.target_id}
+          </p>
+          <div className="chip-list">
+            {edge.derived ? <span className="simple-chip">Derived</span> : null}
+            {edge.directed ? <span className="simple-chip">Directed</span> : <span className="simple-chip">Undirected</span>}
+          </div>
+          <JsonTable
+            record={{
+              edge_id: edge.edge_id,
+              evidence_ids: edge.evidence_ids,
+              ...edge.properties
+            }}
+          />
+        </>
+      ) : null}
     </aside>
   );
 }

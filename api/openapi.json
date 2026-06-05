@@ -407,6 +407,78 @@
         }
       }
     },
+    "/api/graph/focus-options": {
+      "get": {
+        "tags": [
+          "artifacts"
+        ],
+        "summary": "Graph Focus Options",
+        "description": "Search graph nodes that can be used as a graph focus.",
+        "operationId": "graph_focus_options_api_graph_focus_options_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "focus_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Focus Type"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 25,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphFocusOptionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/graph": {
       "get": {
         "tags": [
@@ -643,6 +715,79 @@
         ],
         "title": "GraphEdge",
         "description": "Canvas-ready knowledge graph edge."
+      },
+      "GraphFocusOption": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "table",
+              "term",
+              "cluster",
+              "domain"
+            ],
+            "title": "Node Type"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "node_type",
+          "label",
+          "score"
+        ],
+        "title": "GraphFocusOption",
+        "description": "Search candidate for a graph focus node."
+      },
+      "GraphFocusOptionsResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "focus_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Type"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GraphFocusOption"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "items"
+        ],
+        "title": "GraphFocusOptionsResponse",
+        "description": "Graph focus node search results."
       },
       "GraphNode": {
         "properties": {

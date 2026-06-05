@@ -252,6 +252,34 @@ async function mockApi(page: Page) {
       return;
     }
 
+    if (path === "/api/graph/focus-options") {
+      const query = url.searchParams.get("q") || "";
+      const items = query.length < 2 ? [] : [
+        {
+          node_id: "term_1",
+          node_type: "term",
+          label: "Employment",
+          score: query === "term_1" ? 100 : 90,
+          metadata: { category: "measure", domain: "labour market" }
+        },
+        {
+          node_id: "table_1",
+          node_type: "table",
+          label: "Employment by sex, age and citizenship",
+          score: 70,
+          metadata: {}
+        }
+      ];
+      await route.fulfill({
+        json: {
+          query,
+          focus_type: url.searchParams.get("focus_type"),
+          items
+        }
+      });
+      return;
+    }
+
     if (path === "/api/graph") {
       await route.fulfill({
         json: {
@@ -458,7 +486,19 @@ test("knowledge graph page renders canvas and accepts focused navigation", async
   await expect(page.getByRole("heading", { name: "Explore bounded semantic neighborhoods." })).toBeVisible();
   await expect(page.getByLabel("Knowledge graph canvas")).toBeVisible();
   await expect(page.locator(".graph-canvas canvas").first()).toBeVisible();
+  await page.getByRole("button", { name: "Settings" }).click();
   await expect(page.getByLabel("Edge filters")).toContainText("Related to");
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(page.getByLabel("Edge filters")).not.toBeVisible();
+
+  await page.getByLabel("Graph search").fill("employment");
+  await page.getByLabel("Graph search").press("Enter");
+  await expect(page.getByRole("listbox", { name: "Graph search results" })).toContainText("Employment");
+  await page.getByRole("option", { name: /Employment term_1/ }).click();
+  await expect(page.locator(".graph-canvas canvas").first()).toBeVisible();
+
+  await page.getByRole("button", { expanded: true }).last().click();
+  await expect(page.getByText("No node or relation selected.")).not.toBeVisible();
 });
 
 test("methods page states scope and readiness", async ({ page }) => {
