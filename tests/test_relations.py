@@ -91,6 +91,13 @@ def _relation_rows(config: AppConfig) -> list[dict[str, str]]:
 
 def test_measure_relations_export_grounded_candidates(tmp_path: Path) -> None:
     config = _config(tmp_path)
+    config = config.model_copy(
+        update={
+            "relations": config.relations.model_copy(
+                update={"submitted_related_confidence_threshold": 0.95}
+            )
+        }
+    )
     rows = [
         {"term_id": "term_population", "canonical_term": "population", "embedding": [1.0, 0.0]},
         {
@@ -126,11 +133,18 @@ def test_measure_relations_export_grounded_candidates(tmp_path: Path) -> None:
 
     exported = _relation_rows(config)
     assert artifacts["measure_relations"].exists()
-    assert diagnostics["accepted_count"] >= 3
+    assert diagnostics["full_accepted_count"] >= 3
+    assert diagnostics["accepted_count"] == len(exported)
     assert all(row["evidence_ids_json"] and row["confidence"] for row in exported)
+    assert artifacts["accepted_relations_full"].exists()
+    assert all(
+        row["relation_type"] != "related_to" or float(row["confidence"]) >= 0.95
+        for row in exported
+    )
+    full_exported = list(csv.DictReader(artifacts["accepted_relations_full"].open()))
     triples = {
         (row["source_term_id"], row["target_term_id"], row["relation_type"])
-        for row in exported
+        for row in full_exported
     }
     assert triples >= {
         ("term_population", "term_urban_population", "broader_than"),
@@ -141,7 +155,7 @@ def test_measure_relations_export_grounded_candidates(tmp_path: Path) -> None:
         "variant_of",
     ) in {
         (frozenset((row["source_term_id"], row["target_term_id"])), row["relation_type"])
-        for row in exported
+        for row in full_exported
     }
 
 
@@ -193,6 +207,96 @@ def test_relations_evaluation_reports_artifact_integrity(tmp_path: Path) -> None
 
     assert payload["validation"]["passed"] is False
     assert "unknown measures" in payload["validation"]["failures"][0]
+
+
+def test_relations_evaluation_reports_manual_precision_at_100(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    _write_measures(
+        config,
+        [
+            {"term_id": "term_a", "canonical_term": "population", "embedding": [1.0, 0.0]},
+            {"term_id": "term_b", "canonical_term": "urban population", "embedding": [0.9, 0.1]},
+        ],
+    )
+    relation_fields = [
+        "relation_id",
+        "source_term_id",
+        "source_term",
+        "target_term_id",
+        "target_term",
+        "relation_type",
+        "confidence",
+        "evidence_ids_json",
+        "evidence",
+        "generation_methods_json",
+        "run_id",
+    ]
+    with (config.paths.outputs_dir / "measure_relations.csv").open(
+        "w",
+        encoding="utf-8",
+        newline="",
+    ) as file:
+        writer = csv.DictWriter(file, fieldnames=relation_fields)
+        writer.writeheader()
+        writer.writerow(
+            {
+                "relation_id": "relation_a",
+                "source_term_id": "term_a",
+                "source_term": "population",
+                "target_term_id": "term_b",
+                "target_term": "urban population",
+                "relation_type": "broader_than",
+                "confidence": "0.9",
+                "evidence_ids_json": '["occ_a"]',
+                "evidence": "{}",
+                "generation_methods_json": '["test"]',
+                "run_id": "run_test",
+            }
+        )
+    review_dir = config.paths.outputs_dir / "relations" / "run_review"
+    review_dir.mkdir(parents=True)
+    with (review_dir / "manual_relation_review_sample.csv").open(
+        "w",
+        encoding="utf-8",
+        newline="",
+    ) as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                *relation_fields,
+                "is_valid_relation",
+                "correct_relation_type",
+                "gold_relation_type",
+                "false_positive_type",
+                "notes",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "relation_id": "relation_a",
+                "source_term_id": "term_a",
+                "source_term": "population",
+                "target_term_id": "term_b",
+                "target_term": "urban population",
+                "relation_type": "broader_than",
+                "confidence": "0.9",
+                "evidence_ids_json": '["occ_a"]',
+                "evidence": "{}",
+                "generation_methods_json": '["test"]',
+                "run_id": "run_test",
+                "is_valid_relation": "true",
+                "correct_relation_type": "true",
+                "gold_relation_type": "",
+                "false_positive_type": "",
+                "notes": "",
+            }
+        )
+
+    _metrics_path, payload = evaluate_relations(config)
+
+    assert payload["manual_review"]["precision_at_100"] == 1.0
+    assert payload["manual_review"]["typed_accuracy"] == 1.0
 
 
 def test_relation_dedupe_rejects_self_and_duplicate_pairs() -> None:

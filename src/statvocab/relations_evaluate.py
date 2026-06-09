@@ -72,6 +72,7 @@ def _manual_metrics(config: AppConfig) -> dict[str, Any]:
     payload["precision_at_10"] = _precision_at(rows, 10)
     payload["precision_at_25"] = _precision_at(rows, 25)
     payload["precision_at_50"] = _precision_at(rows, 50)
+    payload["precision_at_100"] = _precision_at(rows, 100)
     payload["typed_accuracy"] = len(typed_correct) / len(valid) if valid else 0.0
     payload["false_positive_taxonomy"] = dict(
         sorted(

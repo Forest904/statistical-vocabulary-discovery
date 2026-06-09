@@ -78,6 +78,22 @@ def _score_rows(
     }
 
 
+def _non_other_precision(
+    gold_rows: list[dict[str, str]],
+    prediction_rows: list[dict[str, Any]],
+) -> float | None:
+    by_term = {str(row["term_id"]): str(row["category"]) for row in prediction_rows}
+    predicted_non_other = [
+        row
+        for row in gold_rows
+        if by_term.get(row["term_id"]) not in {None, "other_ambiguous"}
+    ]
+    if not predicted_non_other:
+        return None
+    correct = sum(1 for row in predicted_non_other if by_term[row["term_id"]] == row["category"])
+    return correct / len(predicted_non_other)
+
+
 def _cohen_kappa(primary: list[str], secondary: list[str]) -> float:
     total = len(primary)
     if total == 0:
@@ -96,9 +112,7 @@ def _cohen_kappa(primary: list[str], secondary: list[str]) -> float:
     return (agreement - chance) / (1.0 - chance)
 
 
-def _agreement(config: AppConfig) -> dict[str, Any]:
-    label_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_labels.csv"
-    relabel_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_relabel.csv"
+def _agreement_for(label_path: Path, relabel_path: Path) -> dict[str, Any]:
     labels = {
         row["term_id"]: row
         for row in read_csv_rows(label_path)
@@ -137,6 +151,42 @@ def _agreement(config: AppConfig) -> dict[str, Any]:
     }
 
 
+def _agreement(config: AppConfig) -> dict[str, Any]:
+    label_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_labels.csv"
+    relabel_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_relabel.csv"
+    payload = _agreement_for(label_path, relabel_path)
+    targeted_label_path = config.evaluation.extraction_gold_dir / "vocabulary_reclaim_labels.csv"
+    targeted_relabel_path = config.evaluation.extraction_gold_dir / "vocabulary_reclaim_relabel.csv"
+    if targeted_label_path.exists() or targeted_relabel_path.exists():
+        payload = {
+            "random_sample": payload,
+            "targeted_reclaim": _agreement_for(targeted_label_path, targeted_relabel_path),
+        }
+    return payload
+
+
+def _score_source_splits(
+    gold_rows: list[dict[str, str]],
+    prediction_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {}
+    sources = sorted({row.get("audit_source") or "random_sample" for row in gold_rows})
+    for source in sources:
+        source_rows = [
+            row for row in gold_rows if (row.get("audit_source") or "random_sample") == source
+        ]
+        source_payload: dict[str, Any] = {"metrics": _score_rows(source_rows, prediction_rows)}
+        for split in ("validation", "final_test"):
+            split_rows = [row for row in source_rows if row.get("split") == split]
+            source_payload[f"{split}_metrics"] = _score_rows(split_rows, prediction_rows)
+            source_payload[f"{split}_non_other_precision"] = _non_other_precision(
+                split_rows,
+                prediction_rows,
+            )
+        payload[source] = source_payload
+    return payload
+
+
 def evaluate_classification(
     config: AppConfig,
     *,
@@ -166,6 +216,7 @@ def evaluate_classification(
         validation_gold = [row for row in gold_rows if row.get("split") == "validation"]
         payload["validation_metrics"] = _score_rows(validation_gold, prediction_rows)
         payload["final_test_metrics"] = _score_rows(final_test_gold, prediction_rows)
+        payload["source_metrics"] = _score_source_splits(gold_rows, prediction_rows)
     elif prediction_rows is not None:
         payload["metrics_status"] = "pending_gold_labels"
         payload["message"] = "Classification predictions exist, but gold labels are pending."

@@ -76,6 +76,16 @@ class ClassificationConfig(BaseModel):
     pearl_revision: str = "0d29fb4a61ec2a11b60e8b078664389eb915286b"
     embedding_batch_size: int = Field(default=64, gt=0)
     abstention_threshold: float = Field(default=0.55, ge=0.0, le=1.0)
+    classifier_max_iter: int = Field(default=5000, gt=0)
+    balance_class_weight: bool = True
+    targeted_reclaim_sample_size: int = Field(default=250, gt=0)
+    targeted_relabel_size: int = Field(default=25, ge=0)
+    targeted_train_dev_count: int = Field(default=150, ge=0)
+    targeted_validation_count: int = Field(default=50, ge=0)
+    targeted_final_test_count: int = Field(default=50, ge=0)
+    non_other_precision_floor: float = Field(default=0.85, ge=0.0, le=1.0)
+    acceptance_final_macro_drop: float = Field(default=0.02, ge=0.0, le=1.0)
+    min_other_reduction_fraction: float = Field(default=0.20, ge=0.0, le=1.0)
 
 
 class ClusteringConfig(BaseModel):
@@ -106,6 +116,7 @@ class RelationsConfig(BaseModel):
     manual_review_sample_size: int = Field(default=100, gt=0)
     llm_adjudication_enabled: bool = False
     llm_confidence_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
+    submitted_related_confidence_threshold: float = Field(default=0.70, ge=0.0, le=1.0)
 
 
 class SearchConfig(BaseModel):

@@ -29,6 +29,7 @@ from statvocab.relations_evaluate import evaluate_relations
 from statvocab.resources import acquire_resources, count_csv_files, write_resource_manifest
 from statvocab.retrieval_evaluate import evaluate_retrieval
 from statvocab.search import build_search_index as run_search_index_build
+from statvocab.targeted_review import ensure_targeted_reclaim_templates
 from statvocab.vocabulary import run_extraction
 
 app = typer.Typer(
@@ -181,6 +182,23 @@ def classify(
             "run_manifest": str(manifest_path),
             "category_counts": diagnostics["category_counts"],
             "metrics_status": diagnostics["metrics_status"],
+        }
+    )
+
+
+@app.command("prepare-targeted-review")
+def prepare_targeted_review(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Create targeted reclaim review templates for `other_ambiguous` terms."""
+
+    loaded = load_config(config)
+    sample_path, labels_path, relabel_path = ensure_targeted_reclaim_templates(loaded)
+    console.print(
+        {
+            "sample": str(sample_path),
+            "labels": str(labels_path),
+            "relabel": str(relabel_path),
         }
     )
 

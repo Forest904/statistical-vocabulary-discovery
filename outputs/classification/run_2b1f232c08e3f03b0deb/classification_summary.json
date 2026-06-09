@@ -1,0 +1,27 @@
+{
+  "acceptance_gate": {
+    "accepted": false,
+    "reasons": [
+      "targeted reclaim final-test labels are pending"
+    ]
+  },
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 365,
+    "dimension_value": 548,
+    "measure": 632,
+    "other_ambiguous": 7812,
+    "unit": 214
+  },
+  "exports_promoted": false,
+  "metrics_status": "available",
+  "model_selection": {
+    "reason": "selected on validation macro-F1 with non-other precision floor",
+    "threshold": 0.45,
+    "validation_macro_f1": 0.8916666666666666,
+    "validation_non_other_precision": 1.0
+  },
+  "prediction_count": 9571,
+  "run_id": "run_2b1f232c08e3f03b0deb",
+  "variant": "local-hybrid"
+}

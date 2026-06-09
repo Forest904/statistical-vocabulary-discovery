@@ -46,8 +46,8 @@
     "cluster_fbcb7007a26d": 7,
     "unclustered": 269
   },
-  "config_name": "evaluation",
-  "corpus": "fixture",
+  "config_name": "core",
+  "corpus": "core",
   "coverage": 0.5743670886075949,
   "cross_domain_or_other_count": 414,
   "domain_distribution": {

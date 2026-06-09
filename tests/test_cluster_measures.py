@@ -229,6 +229,83 @@ def test_clustering_evaluation_reports_artifact_integrity(tmp_path: Path) -> Non
     assert payload["coverage"] == 1.0
 
 
+def test_clustering_evaluation_reports_completed_manual_review_metrics(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    config.paths.outputs_dir.mkdir(parents=True, exist_ok=True)
+    run_dir = config.paths.outputs_dir / "clustering" / "run_review"
+    run_dir.mkdir(parents=True)
+    with (config.paths.outputs_dir / "measure_clusters.csv").open(
+        "w",
+        encoding="utf-8",
+        newline="",
+    ) as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "term_id",
+                "term",
+                "cluster_id",
+                "domain",
+                "membership_probability",
+                "is_representative",
+                "labeling_method",
+                "evidence",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "term_id": "term_a",
+                "term": "gross domestic product",
+                "cluster_id": "cluster_a",
+                "domain": "economy and finance",
+                "membership_probability": "0.9",
+                "is_representative": "true",
+                "labeling_method": "embedding_threshold",
+                "evidence": "{}",
+            }
+        )
+    with (run_dir / "manual_cluster_review_sample.csv").open(
+        "w",
+        encoding="utf-8",
+        newline="",
+    ) as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "term_id",
+                "term",
+                "cluster_id",
+                "domain",
+                "is_representative",
+                "coherence_score",
+                "domain_label_quality",
+                "representative_quality",
+                "notes",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "term_id": "term_a",
+                "term": "gross domestic product",
+                "cluster_id": "cluster_a",
+                "domain": "economy and finance",
+                "is_representative": "true",
+                "coherence_score": "2",
+                "domain_label_quality": "correct",
+                "representative_quality": "good",
+                "notes": "coherent",
+            }
+        )
+
+    _metrics_path, payload = evaluate_clustering(config)
+
+    assert payload["manual_review"]["status"] == "available"
+    assert payload["manual_review"]["mean_coherence"] == 2.0
+    assert payload["manual_review"]["domain_label_accuracy"] == 1.0
+
+
 def test_missing_clustering_dependencies_error_is_clear(monkeypatch: pytest.MonkeyPatch) -> None:
     import statvocab.cluster_measures as cluster_measures
 

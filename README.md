@@ -66,6 +66,7 @@ The pipeline stages can be run explicitly:
 statvocab acquire --config configs/core.yaml
 statvocab ingest --config configs/core.yaml
 statvocab extract --config configs/core.yaml
+statvocab prepare-targeted-review --config configs/core.yaml
 statvocab classify --config configs/core.yaml --variant local-hybrid
 statvocab cluster-measures --config configs/core.yaml
 statvocab relations --config configs/core.yaml
@@ -95,7 +96,7 @@ statvocab validate-artifacts --run-id run_75b90575bb9e48ce7918
 | `outputs/units.csv` | 214 | Required assignment `U` |
 | `outputs/other_ambiguous.csv` | 7,812 | Justified extra category |
 | `outputs/measure_clusters.csv` | 632 | Step 7 domain grouping |
-| `outputs/measure_relations.csv` | 5,628 | Step 8 bonus candidates |
+| `outputs/measure_relations.csv` | 1,719 | Step 8 filtered bonus candidates |
 | `data/processed/knowledge_graph_nodes.parquet` | generated | Supplementary semantic graph nodes |
 | `data/processed/knowledge_graph_edges.parquet` | generated | Supplementary semantic graph edges |
 
@@ -159,6 +160,6 @@ The supplementary knowledge graph stage materializes table, term, category, clus
 ## Known Limitations
 
 - Step-6 labels were completed through a rule-assisted repository audit; the duplicate relabel file is filled and agreement is reported, but it is not a fully independent second-human annotation study.
-- The local classifier is conservative: many uncertain measure-like terms are placed in `other_ambiguous`.
-- The refreshed clustering and relationship exports are structurally validated, but their new manual review samples remain pending.
+- The local classifier is conservative: many uncertain measure-like terms are placed in `other_ambiguous`. A 250-row targeted reclaim audit template is generated but remains pending human labels.
+- The refreshed clustering and relationship exports are structurally validated, but their manual review samples remain pending.
 - The 7,605-table full-corpus scale experiment is not yet attempted in this milestone.

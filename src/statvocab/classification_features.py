@@ -6,6 +6,7 @@ import csv
 import json
 import random
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, cast
@@ -65,6 +66,7 @@ def read_csv_rows(path: Path) -> list[dict[str, str]]:
 
     if not path.exists():
         return []
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
@@ -301,6 +303,16 @@ def completed_gold_labels(config: AppConfig) -> list[dict[str, str]]:
     """Return rows whose category is filled with an allowed label."""
 
     labels_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_labels.csv"
-    rows = read_csv_rows(labels_path)
     allowed = set(CATEGORY_VALUES)
-    return [row for row in rows if row.get("category", "").strip() in allowed]
+    completed: list[dict[str, str]] = []
+    for row in read_csv_rows(labels_path):
+        if row.get("category", "").strip() in allowed:
+            row["audit_source"] = row.get("audit_source") or "random_sample"
+            completed.append(row)
+
+    targeted_path = config.evaluation.extraction_gold_dir / "vocabulary_reclaim_labels.csv"
+    for row in read_csv_rows(targeted_path):
+        if row.get("category", "").strip() in allowed:
+            row["audit_source"] = row.get("audit_source") or "targeted_reclaim"
+            completed.append(row)
+    return completed

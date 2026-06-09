@@ -46,12 +46,69 @@ def _manual_review_status(config: AppConfig) -> dict[str, Any]:
         or row.get("domain_label_quality")
         or row.get("representative_quality")
     ]
-    return {
+    payload: dict[str, Any] = {
         "status": "available" if completed else "pending",
         "review_sample": str(candidates[-1]),
         "sample_count": len(rows),
         "completed_count": len(completed),
     }
+    if not completed:
+        return payload
+
+    coherence_values = [
+        int(row["coherence_score"])
+        for row in completed
+        if row.get("coherence_score", "").strip() in {"0", "1", "2"}
+    ]
+    domain_values = [
+        row.get("domain_label_quality", "").strip().casefold()
+        for row in completed
+        if row.get("domain_label_quality", "").strip()
+    ]
+    representative_values = [
+        row.get("representative_quality", "").strip().casefold()
+        for row in completed
+        if row.get("representative_quality", "").strip()
+    ]
+    notes = [
+        row.get("notes", "").strip().casefold()
+        for row in completed
+        if row.get("notes", "").strip()
+    ]
+    payload.update(
+        {
+            "mean_coherence": (
+                sum(coherence_values) / len(coherence_values) if coherence_values else None
+            ),
+            "coherent_fraction": (
+                sum(1 for value in coherence_values if value >= 1) / len(coherence_values)
+                if coherence_values
+                else None
+            ),
+            "strongly_coherent_fraction": (
+                sum(1 for value in coherence_values if value == 2) / len(coherence_values)
+                if coherence_values
+                else None
+            ),
+            "domain_label_quality_distribution": dict(sorted(Counter(domain_values).items())),
+            "domain_label_accuracy": (
+                sum(1 for value in domain_values if value == "correct") / len(domain_values)
+                if domain_values
+                else None
+            ),
+            "representative_quality_distribution": dict(
+                sorted(Counter(representative_values).items())
+            ),
+            "representative_good_fraction": (
+                sum(1 for value in representative_values if value == "good")
+                / len(representative_values)
+                if representative_values
+                else None
+            ),
+            "note_distribution": dict(sorted(Counter(notes).items())),
+        }
+    )
+    return payload
 
 
 def evaluate_clustering(

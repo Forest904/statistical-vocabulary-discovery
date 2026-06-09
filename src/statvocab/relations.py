@@ -41,6 +41,7 @@ CANDIDATE_FIELDNAMES = [
     "accepted",
     "rejection_reason",
 ]
+ACCEPTED_FIELDNAMES = RELATION_FIELDNAMES
 REVIEW_FIELDNAMES = [
     *RELATION_FIELDNAMES,
     "is_valid_relation",
@@ -504,6 +505,8 @@ def _summary(
     rows: list[dict[str, Any]],
     candidate_rows: list[dict[str, Any]],
     run_id: str,
+    *,
+    full_accepted_count: int | None = None,
 ) -> dict[str, Any]:
     type_counts = Counter(str(row["relation_type"]) for row in rows)
     method_counts: Counter[str] = Counter()
@@ -525,6 +528,9 @@ def _summary(
         "run_id": run_id,
         "candidate_count": len(candidate_rows),
         "accepted_count": len(rows),
+        "full_accepted_count": (
+            full_accepted_count if full_accepted_count is not None else len(rows)
+        ),
         "relation_type_distribution": dict(sorted(type_counts.items())),
         "generation_method_distribution": dict(sorted(method_counts.items())),
         "rejection_distribution": dict(sorted(rejection_counts.items())),
@@ -554,7 +560,15 @@ def run_measure_relations(
         candidates = []
 
     accepted, rejections = _dedupe(candidates, valid_measure_ids)
-    relation_rows = [_relation_row(candidate, measures_by_id, run_id) for candidate in accepted]
+    full_relation_rows = [
+        _relation_row(candidate, measures_by_id, run_id) for candidate in accepted
+    ]
+    relation_rows = [
+        row
+        for row in full_relation_rows
+        if row["relation_type"] != RelationType.RELATED_TO.value
+        or float(row["confidence"]) >= config.relations.submitted_related_confidence_threshold
+    ]
     candidate_rows = []
     for index, candidate in enumerate(candidates):
         row = _relation_row(candidate, measures_by_id, run_id)
@@ -564,12 +578,25 @@ def run_measure_relations(
         candidate_rows.append(row)
 
     review_rows = _review_rows(relation_rows, config)
-    summary = _summary(relation_rows, candidate_rows, run_id)
+    summary = _summary(
+        relation_rows,
+        candidate_rows,
+        run_id,
+        full_accepted_count=len(full_relation_rows),
+    )
+    summary["submitted_related_confidence_threshold"] = (
+        config.relations.submitted_related_confidence_threshold
+    )
     artifacts = {
         "measure_relations": write_csv_rows(
             relation_rows,
             config.paths.outputs_dir / "measure_relations.csv",
             RELATION_FIELDNAMES,
+        ),
+        "accepted_relations_full": write_csv_rows(
+            full_relation_rows,
+            output_dir / "accepted_relations_full.csv",
+            ACCEPTED_FIELDNAMES,
         ),
         "relation_candidates": write_csv_rows(
             candidate_rows,

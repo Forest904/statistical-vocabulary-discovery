@@ -6,9 +6,15 @@ import pyarrow.parquet as pq
 from statvocab.artifact_validation import validate_artifacts
 from statvocab.classification import run_classification
 from statvocab.classification_evaluate import evaluate_classification
-from statvocab.classification_features import ensure_gold_templates, feature_rows, read_csv_rows
+from statvocab.classification_features import (
+    completed_gold_labels,
+    ensure_gold_templates,
+    feature_rows,
+    read_csv_rows,
+)
 from statvocab.config import AppConfig, load_config
 from statvocab.ingest import run_ingestion
+from statvocab.targeted_review import ensure_targeted_reclaim_templates
 from statvocab.vocabulary import run_extraction
 
 
@@ -97,3 +103,30 @@ def test_gold_template_creation_preserves_completed_relabels(tmp_path: Path) -> 
     preserved = read_csv_rows(relabel_path)
     assert preserved[0]["category"] == "measure"
     assert preserved[0]["notes"] == "completed duplicate label"
+
+
+def test_targeted_reclaim_templates_preserve_original_gold_and_expose_source(
+    tmp_path: Path,
+) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config)
+    run_classification(config, variant="rule-only")
+    _sample_path, labels_path, _relabel_path = ensure_targeted_reclaim_templates(config)
+
+    rows = read_csv_rows(labels_path)
+
+    assert rows
+    assert {"audit_source", "target_cohort"} <= set(rows[0])
+    assert {row["audit_source"] for row in rows} == {"targeted_reclaim"}
+
+    rows[0]["category"] = "dimension_value"
+    rows[0]["annotator_id"] = "human_audit"
+    with labels_path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    completed = completed_gold_labels(config)
+
+    assert any(row["audit_source"] == "targeted_reclaim" for row in completed)
