@@ -48,11 +48,12 @@ Current refreshed run:
 | HDBSCAN stability proxy | 0.546 |
 
 Manual review records coherence, domain-label quality, representative quality, and error examples.
-Until review fields are completed, the automatic metrics are available but human coherence and label
-quality remain pending.
+The current 100-row review is complete: mean coherence is `1.160`, coherent fraction is `0.690`,
+domain-label accuracy is `0.710`, and representative-good fraction is `0.470`.
 
 ## Current Limitations
 
 The first implementation prioritizes reproducible artifacts and explicit review data over tuned
-cluster quality. The refreshed sample is structurally valid but not manually reviewed yet, so
-coverage, domain distribution, and integrity checks should be treated as the current quality surface.
+cluster quality. The manual review shows useful coherent clusters, but also a large unclustered
+bucket and several domain-label misses where coherent clusters should be assigned to a more specific
+controlled domain.

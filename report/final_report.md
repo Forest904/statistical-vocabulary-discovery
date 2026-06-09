@@ -28,7 +28,7 @@ Final core run IDs:
 | Stage | Run ID |
 |---|---|
 | Classification | `run_75b90575bb9e48ce7918` |
-| Targeted reclaim proposal | `run_2b1f232c08e3f03b0deb` |
+| Latest gated reclaim attempt | `run_5f8127cf8e6be829b1ac` |
 | Clustering | `run_eb9d50c4e3e315dafd9d` |
 | Relationships | `run_e6e523656ea9857ecac9` |
 | Search appendix | `run_c52b745f8105938306a7` |
@@ -130,19 +130,27 @@ Artifact mapping:
 | Units `U` | `outputs/units.csv` | 214 |
 | Other/ambiguous | `outputs/other_ambiguous.csv` | 7,812 |
 
-Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed audit labels and `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels. The duplicate relabel audit reports raw agreement `1.000` and Cohen's kappa `1.000`. Metrics from `report/classification_metrics.json` are:
+Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, and `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The headline submission metrics use the random audit from `report/classification_metrics.json`:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All labeled rows | 0.948 | 0.920 | 0.940 |
-| Validation | 0.940 | 0.892 | 0.926 |
-| Final test | 0.960 | 0.927 | 0.954 |
+| All random rows | 0.948 | 0.920 | 0.940 |
+| Random validation | 0.940 | 0.892 | 0.926 |
+| Random final test | 0.960 | 0.927 | 0.954 |
 
-The final-test measure class is the weakest class: F1 `0.667`, with measure recall `0.500`. This reflects a conservative design choice: uncertain measure-like terms are often placed in `other_ambiguous` instead of being forced into `M`.
+The completed targeted reclaim audit is reported separately as a diagnostic stress test over terms previously assigned to `other_ambiguous`:
 
-Targeted reclaim audit. To address the large `other_ambiguous` bucket without overclaiming, the repository now generates a separate human-only targeted review: `data/gold/vocabulary_reclaim_sample.csv` and `data/gold/vocabulary_reclaim_labels.csv` contain 250 candidate terms, with 25 blind duplicate rows in `data/gold/vocabulary_reclaim_relabel.csv`. The sample targets title terms, title clauses, frequent metadata values, unit/range/digit metadata values, short codes, conflicts, and noise-like terms. These labels are blank at the time of this report, so the original submitted CSVs remain the accepted outputs. A gated proposed classifier run, `run_2b1f232c08e3f03b0deb`, uses balanced class weights, `max_iter=5000`, and validation-threshold selection, but writes only proposed CSVs until targeted final-test labels are completed and the acceptance gate passes.
+| Split | Accuracy | Macro-F1 | Weighted-F1 |
+|---|---:|---:|---:|
+| All targeted rows | 0.084 | 0.031 | 0.013 |
+| Targeted validation | 0.020 | 0.008 | 0.001 |
+| Targeted final test | 0.000 | 0.000 | 0.000 |
 
-Limitations. The completed labels were produced through a rule-assisted repository audit rather than a fully independent second-human annotation study. The targeted reclaim audit is prepared but not yet completed, so no reduction of `other_ambiguous` is claimed here.
+These diagnostic metrics are low because the accepted classifier still abstains heavily on reclaim candidates. They are not used as the headline submission metric.
+
+Targeted reclaim audit. To address the large `other_ambiguous` bucket without overclaiming, the repository now includes a completed targeted review: `data/gold/vocabulary_reclaim_sample.csv` and `data/gold/vocabulary_reclaim_labels.csv` contain 250 candidate terms, with 25 blind duplicate rows in `data/gold/vocabulary_reclaim_relabel.csv`. The sample targets title terms, title clauses, frequent metadata values, unit/range/digit metadata values, short codes, conflicts, and noise-like terms. A gated classifier attempt, `run_5f8127cf8e6be829b1ac`, was not promoted: random final-test macro-F1 dropped by `0.036 > 0.020`, targeted final-test non-other precision was `0.714 < 0.850`, and the `other_ambiguous` reduction was only `0.007 < 0.200`.
+
+Limitations. The completed labels were produced through repository audits rather than a fully independent second-human annotation study. Because the latest reclaim attempt failed the acceptance gate, accepted outputs remain unchanged and no reduction of `other_ambiguous` is claimed here.
 
 Code reference. Partition orchestration and acceptance gating are in `src/statvocab/classification.py`; deterministic rules are in `src/statvocab/classify_rules.py`; embedding support is in `src/statvocab/classify_embeddings.py`; targeted review sampling is in `src/statvocab/targeted_review.py`; optional LLM adjudication is in `src/statvocab/classify_llm.py`. Tests include `tests/test_classification_contracts.py`, `tests/test_classify_rules.py`, and `tests/test_grounding.py`.
 
@@ -168,9 +176,9 @@ Quality evaluation. Current metrics from `report/clustering_metrics.json` are:
 
 Domain distribution is conservative: `cross-domain or other` contains 414 measures. Large visible domains include economy and finance, transport, labour market, agriculture, education, and industry/trade/services.
 
-Manual review status. The 100-row manual cluster-review template at `outputs/clustering/run_eb9d50c4e3e315dafd9d/manual_cluster_review_sample.csv` uses fixed fields for coherence score, domain-label quality, representative quality, and notes. The evaluator now reports mean coherence, coherent fraction, domain-label accuracy, representative quality distribution, and note counts once those fields are completed.
+Manual review status. The 100-row manual cluster-review file at `outputs/clustering/run_eb9d50c4e3e315dafd9d/manual_cluster_review_sample.csv` is complete. It reports mean coherence `1.160`, coherent fraction `0.690`, strongly coherent fraction `0.470`, domain-label accuracy `0.710`, and representative-good fraction `0.470`.
 
-Limitations. The manual cluster-review sample has not yet been completed, so human coherence and label-quality scores are pending. The current quality surface is automatic validation, coverage, domain distribution, representative checks, and the visible unclustered set.
+Limitations. The manual cluster review confirms useful coherent clusters, but it also surfaces a large unclustered bucket and several domain-label misses where coherent clusters should map to a more specific controlled domain.
 
 Code reference. Measure clustering, baseline export, domain labeling, and manual-review sampling are implemented in `src/statvocab/cluster_measures.py`. Manual-review metric parsing is implemented in `src/statvocab/clustering_evaluate.py`; tests are in `tests/test_cluster_measures.py`.
 
@@ -192,9 +200,9 @@ Quality evaluation. `report/relations_metrics.json` reports 1,719 submitted cand
 
 LLM guardrails. Optional LLM relationship adjudication is scaffolded through `prompts/classify_relation.md` and disabled by default. The prompt requires existing endpoint IDs, controlled relation types, evidence-ID membership, self-relation rejection, and strict JSON.
 
-Manual review status. The 100-row manual relation-review template is `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv`. It uses fixed fields for validity, type correctness, optional corrected type, false-positive type, and notes. Once completed, `src/statvocab/relations_evaluate.py` reports precision@10, precision@25, precision@50, precision@100, typed accuracy, and a false-positive taxonomy.
+Manual review status. The 100-row manual relation-review file is `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv` and is complete. It reports precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, typed accuracy `0.888`, and a false-positive taxonomy dominated by generic qualifier and denominator-fragment matches.
 
-Limitations. The refreshed manual relation-review sample has not yet been completed. The output should therefore be read as a structurally valid, confidence-filtered, grounded candidate graph rather than a fully adjudicated semantic taxonomy.
+Limitations. The accepted relation graph is structurally valid and manually sampled, but some broad `related_to` edges and lexical-containment false positives remain. Generic qualifier handling and hierarchy rules are the clearest next tightening points.
 
 Code reference. Candidate generation, confidence-filtered export, and full-candidate preservation are implemented in `src/statvocab/relations.py`. Evaluation is implemented in `src/statvocab/relations_evaluate.py`; tests are in `tests/test_relations.py`.
 
@@ -222,9 +230,9 @@ The local embedding model is `Lihuchen/pearl_small`; the exact pinned revision i
 
 The annotation guide is `report/annotation_guide.md`. Completed vocabulary audit labels are in `data/gold/vocabulary_gold_labels.csv`; duplicate relabel rows are in `data/gold/vocabulary_gold_relabel.csv`.
 
-Agreement on the 50 duplicate relabel rows is raw agreement `1.000` and Cohen's kappa `1.000`. Because the labels were completed through a rule-assisted repository audit, this is reported as an internal consistency check rather than an independent multi-annotator study.
+Agreement on the 50 random duplicate relabel rows is raw agreement `1.000` and Cohen's kappa `1.000`. Agreement on the 25 targeted reclaim duplicate relabel rows is also raw agreement `1.000` and Cohen's kappa `1.000`. Because the labels were completed through repository audits, this is reported as an internal consistency check rather than an independent multi-annotator study.
 
-The targeted reclaim review files are generated but not completed: `data/gold/vocabulary_reclaim_labels.csv` contains 250 rows and `data/gold/vocabulary_reclaim_relabel.csv` contains 25 duplicate relabel rows.
+The targeted reclaim review files are complete: `data/gold/vocabulary_reclaim_labels.csv` contains 250 rows and `data/gold/vocabulary_reclaim_relabel.csv` contains 25 duplicate relabel rows.
 
 ## D. Reproducibility Commands
 

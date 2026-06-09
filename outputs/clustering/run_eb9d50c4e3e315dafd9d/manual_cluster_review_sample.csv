@@ -1,101 +1,101 @@
 term_id,term,cluster_id,domain,is_representative,coherence_score,domain_label_quality,representative_quality,notes
-term_28537334be6786e5aad6,Adjusted gross disposable income of households per capita in PPS,cluster_0747a3157ffb,cross-domain or other,false,,,,
-term_1f0f520b54430bc6abe1,Population connected to Wastewater Treatment,cluster_0759ac914a9e,cross-domain or other,true,,,,
-term_fc4c296a653c39b9033c,Population connected to wastewater collection and treatment systems,cluster_0759ac914a9e,cross-domain or other,true,,,,
-term_0d7a0d04c0ce32966ea7,Agricultural holdings by agricultural area,cluster_08676e4a8f67,"agriculture, forestry, and fisheries",true,,,,
-term_d2e804e762d250d07c7c,Air passenger transport - ENP-South countries,cluster_0a4bab53e5fe,transport,true,,,,
-term_962f61904b6619372cea,"Purchase price indices, total means of agricultural production",cluster_26a602793f11,cross-domain or other,true,,,,
-term_027275b4917a775d06d1,Country level - gross weight of goods transported to/from main ports,cluster_2cdcfe259942,transport,false,,,,
-term_9cedd100584c1a2e3c09,Gross weight of goods in Ro-ro units transported in short sea shipping from/to the top 5 EU ports for goods in Ro-ro units,cluster_2cdcfe259942,transport,true,,,,
-term_e6cd08c5e530a7d55c17,Gross weight of liquid bulk goods transported in short sea shipping from/to the top 5 EU ports for liquid bulk goods,cluster_2cdcfe259942,transport,true,,,,
-term_a03bdea9a2c1ac178e82,"Short sea shipping - country level - gross weight of goods transported to/from main ports, by direction",cluster_2cdcfe259942,transport,false,,,,
-term_9a3dacd0972009bf63b3,"Short sea shipping - country level - volume (in TEUs) of containers transported to/from main ports, by loading status",cluster_2cdcfe259942,transport,false,,,,
-term_5cb1785dd3f1be3b9d22,"Non-financial corporations debt, consolidated - % of GDP",cluster_310e64b58954,economy and finance,false,,,,
-term_20f0568d3084e3c66191,"Private sector credit flow: debt securities by sectors, consolidated - % of GDP",cluster_310e64b58954,economy and finance,true,,,,
-term_1718a2844b38ef2cb8e6,"Private sector debt: loans, by sectors, non-consolidated - % of GDP",cluster_310e64b58954,economy and finance,true,,,,
-term_9f55fe8d95776762c3e3,Gross domestic product at market prices - ENP-East countries,cluster_3977913ff325,economy and finance,true,,,,
-term_0fcf4e988e3ce59aa8b1,Out-of-school rate by sex and age - as % of the population of the corresponding age,cluster_436a35bf5d70,education,false,,,,
-term_0972dcd431ad96904bc3,"Pupils from age 4 to the starting age of compulsory education at primary level, by sex - as % of the population of the corresponding age group",cluster_436a35bf5d70,education,true,,,,
-term_15bfeaad968154afb48f,Pupils under the age of 3 by sex - as % of the population of the corresponding age,cluster_436a35bf5d70,education,true,,,,
-term_0bc9d7812026d642cd23,Effect of social transfers on income quintile share ratio S80/S20,cluster_506831c7dd56,cross-domain or other,false,,,,
-term_6d86dd447f76de1a4400,Income quintile share ratio - S80/S20 - ENP-South countries,cluster_506831c7dd56,cross-domain or other,true,,,,
-term_26408b77200929d0bb01,Animal output - basic and producer prices,cluster_52a711981335,cross-domain or other,true,,,,
-term_2e238609443153c1dccf,Gender differences in the relative income of elderly people (65+),cluster_55cd06be7ef5,cross-domain or other,false,,,,
-term_3de4fab0404f410eda9e,Relative median income ratio (65+),cluster_55cd06be7ef5,cross-domain or other,false,,,,
-term_558f4a8e9de234d081fa,Annual aquaculture production,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,,,,
-term_99a7a01d09d96b6d97c9,Aquaculture production by aquatic environment - ENP-South countries,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,,,,
-term_4eb46767e3553546663a,Production of milk on farms,cluster_71139f449ed0,"agriculture, forestry, and fisheries",true,,,,
-term_226172b7f9c30b7a429a,Production of sheepmeat and goat meat in slaughterhouses,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,,,,
-term_e05002e50ec575d45b7d,Retail trade volume of sales,cluster_72b5baeeb545,"industry, trade, and services",true,,,,
-term_3b7f7fbc9919a7ca04c3,Retail trade volume of sales - total,cluster_72b5baeeb545,"industry, trade, and services",true,,,,
-term_5574a85a609e8966b428,Consumer price index - ENP-East countries,cluster_743c0cdf1e67,economy and finance,false,,,,
-term_a1ec4c2cbf84309933ed,Consumer price index - ENP-South countries,cluster_743c0cdf1e67,economy and finance,false,,,,
-term_c09913cf45bdb5830bad,Graduates at doctoral level by sex and age groups - per 1000 of population aged 25-34,cluster_80edd39ddbff,education,false,,,,
-term_20d6b4a1cc5307075745,Accidents in waterway transport,cluster_84a10ec4eb87,cross-domain or other,false,,,,
-term_94b6765642dac6f6949f,"Death due to cancer, by sex",cluster_84a10ec4eb87,cross-domain or other,false,,,,
-term_eeb6980f51c7d56fc3f4,"Death due to diabetes mellitus, by sex",cluster_84a10ec4eb87,cross-domain or other,false,,,,
-term_5849d9c0db41e7b9acb9,"Death due to transport accidents, by sex",cluster_84a10ec4eb87,cross-domain or other,true,,,,
-term_92edf6d2724d27c3b16d,Deaths by sex,cluster_84a10ec4eb87,cross-domain or other,false,,,,
-term_b82538563afbccd385b6,"Barley by area, production and humidity",cluster_9391f8d593af,"agriculture, forestry, and fisheries",true,,,,
-term_084a82356f88b7f13c12,"Wheat and spelt by area, production and humidity",cluster_9391f8d593af,"agriculture, forestry, and fisheries",true,,,,
-term_523720a52ca07c570e36,Gross value added - NACE Rev. 2: - current prices,cluster_94cf800a89a5,economy and finance,true,,,,
-term_f25b3958d6da1017e631,Production in construction,cluster_99358c580dcf,"industry, trade, and services",false,,,,
-term_57dbe832a6b7457178ca,Production in industry - consumer non-durables,cluster_99358c580dcf,"industry, trade, and services",false,,,,
-term_e454da1bd3a645c5546e,Production in industry - intermediate goods,cluster_99358c580dcf,"industry, trade, and services",true,,,,
-term_de1275695e85a9ad231b,Gross value added - NACE Rev. 2: - volumes,cluster_99cbd02aba19,economy and finance,true,,,,
-term_6e80a6ca3ae0ebf52856,Expenditure on social protection by type,cluster_9f5217e9767f,cross-domain or other,true,,,,
-term_ed103e759eb80d6441c5,Employment growth (domestic concept),cluster_aedee37960c7,labour market,true,,,,
-term_5c1b156bf1e3cc20b804,"Net external debt - annual data, % of GDP",cluster_b032d77c2fcd,economy and finance,true,,,,
-term_08daf5eebc86334e6fe1,"annual data, % of GDP",cluster_b032d77c2fcd,economy and finance,true,,,,
-term_a8781b86da3b752f69bd,Goods transport by rail,cluster_b70da2ec1a1f,transport,true,,,,
-term_35f091028bedc80f3304,Road traffic: road freight transport in volume,cluster_b70da2ec1a1f,transport,false,,,,
-term_99e1529e4e89f9c36b6e,"Crude rate of birth, of dead and of population change",cluster_b79ec27e90f4,labour market,false,,,,
-term_3e78a36a740b5f059ecd,Unemployment rates by sex and age - ENP-South countries,cluster_b79ec27e90f4,labour market,true,,,,
-term_eacb2216fe4997adf92e,Consumer price index,cluster_b93f4637d15d,cross-domain or other,false,,,,
-term_0b214cfd73ab25abb7b2,Air passenger transport,cluster_c8d379cc59d5,transport,true,,,,
-term_fa38f209e4b8c386f58c,Unitisation in maritime freight transport,cluster_d0b90b2f986d,transport,true,,,,
-term_1eda2413fab212d2b53a,Unitisation in road freight transport,cluster_d0b90b2f986d,transport,false,,,,
-term_87a753574448dc6084bb,Gini coefficient of equivalised disposable income,cluster_d1e893e7c222,cross-domain or other,true,,,,
-term_577b998e77e6ecacb649,Gini coefficient of equivalised disposable income by age,cluster_d1e893e7c222,cross-domain or other,true,,,,
-term_318cf2b1f91f6cc6d9ec,Carrying capacity of the waterway transport enterprises vessels by number of vessels in enterprises,cluster_de826995d586,transport,true,,,,
-term_289d3ad56aa1ffc52628,Employment in waterways transport enterprises by sex,cluster_de826995d586,transport,false,,,,
-term_b1fb19c84fd17e2fd413,Expenditure on public educational institutions,cluster_e22df4ed8343,cross-domain or other,true,,,,
-term_90d064a0e3555d070ed8,Public expenditure on education - ENP-East countries,cluster_e22df4ed8343,cross-domain or other,true,,,,
-term_b24eebc0b3af6b6b4aa0,At risk-of-poverty rate for the population living in (quasi-)jobless households,cluster_e7d0c36b4e48,cross-domain or other,false,,,,
-term_23202d38f263756ed950,Population in jobless private households,cluster_e7d0c36b4e48,cross-domain or other,false,,,,
-term_658d47fb6d3c1b8c88df,"Share of total population having neither a bath, nor a shower in their dwelling - EU-SILC survey",cluster_e7d0c36b4e48,cross-domain or other,true,,,,
-term_5cdcf9cf1a2d52d3887b,Share of total population not having indoor flushing toilet for the sole use of their household,cluster_e7d0c36b4e48,cross-domain or other,true,,,,
-term_3c6db2dfbfb5d56d21f8,Selling prices of barley,cluster_f49b94d07c25,cross-domain or other,true,,,,
-term_1b5c2b9c0bccd1eda4f0,Selling prices of fresh eggs,cluster_f49b94d07c25,cross-domain or other,false,,,,
-term_34ee60daa9822653ce56,Regional disparities in gender employment gap (NUTS level 2),cluster_fbcb7007a26d,labour market,false,,,,
-term_a8771db3c5fdeaea7553,Aggregate propensity to consume by income quintile,unclustered,cross-domain or other,false,,,,
-term_54d9b1f4afa97eb30220,Air transport traffic: freight and passengers,unclustered,cross-domain or other,false,,,,
-term_213859f5d72fd3eaad3d,At-risk-of poverty rate for children by country of birth of their parents (population aged 0 to 17),unclustered,cross-domain or other,false,,,,
-term_0f501f4a2588acc2b10d,Average population mid-year by sex and age group - ENP-South countries,unclustered,cross-domain or other,false,,,,
-term_2d69baedc15824c81811,Buses and coaches traffic performance registered in the by transport covarage,unclustered,cross-domain or other,false,,,,
-term_c46d3ef2aa9824c586e8,"Current account transactions - primary income: credits, debits and balance",unclustered,cross-domain or other,false,,,,
-term_ca743b9337ba4d9b8d54,Employment,unclustered,cross-domain or other,false,,,,
-term_7222b4430267209c516b,Employment characteristics,unclustered,cross-domain or other,false,,,,
-term_09e1aee2eae3f6f961d2,"Ever-partnered women who have experienced violence by an intimate partner, by country of birth",unclustered,cross-domain or other,false,,,,
-term_233266d63f959636da6c,Exports of goods and services in % of GDP,unclustered,cross-domain or other,false,,,,
-term_0e3fb5e8571efdb988ec,Greenhouse gases emissions from production activities,unclustered,cross-domain or other,false,,,,
-term_b28741ef4ee8a1420a20,Health care expenditure,unclustered,cross-domain or other,false,,,,
-term_b42b72d1ef59e78b9232,House sales,unclustered,cross-domain or other,false,,,,
-term_9ada14c39440e5583682,Indicator A of the income from agricultural activity,unclustered,cross-domain or other,false,,,,
-term_3ea65693dfee62b7d7d9,Intra-mural Business Enterprise R&D Expenditures in Foreign Controlled Enterprises,unclustered,cross-domain or other,false,,,,
-term_71e8da9a79f9decbfde7,Investment share of GDP by institutional sectors,unclustered,cross-domain or other,false,,,,
-term_eb0740949292b76319ec,Maritime transport infrastructure,unclustered,cross-domain or other,false,,,,
-term_5a62747e9b2bbc98b77e,Market production,unclustered,cross-domain or other,false,,,,
-term_012b2e24a75dae7a8801,Market production - annual data,unclustered,cross-domain or other,false,,,,
-term_c81d6ee622d33c0e63b4,Modal split of freight transport,unclustered,cross-domain or other,false,,,,
-term_f32b7749e3c9ff7974e4,National passenger road transport performance by type of vehicles registered in the,unclustered,cross-domain or other,false,,,,
-term_975f92a4a6ba860bd35f,Number of accidents at work by NACE Rev. 1.1 activity and employment status,unclustered,cross-domain or other,false,,,,
-term_44182a54b9802a05ffb2,Number of enterprises carrying out cross trade by employment size class,unclustered,cross-domain or other,false,,,,
-term_4b1fd1a7f6908d2872c0,Out-of-pocket expenditure on healthcare,unclustered,cross-domain or other,false,,,,
-term_c943668852a9a733cf2d,Sea transport of goods,unclustered,cross-domain or other,false,,,,
-term_d9dc4d60cef3d7a1efdf,Share of GBARD in total general government expenditure,unclustered,cross-domain or other,false,,,,
-term_1b743ced7fa697781fea,Share of buses and trains in passenger transport,unclustered,cross-domain or other,false,,,,
-term_79bdfae6a83ca066ae99,Unemployment rate - 3 year average,unclustered,cross-domain or other,false,,,,
-term_5e60d2f1d1859714617a,Volume of passenger transport relative to GDP,unclustered,cross-domain or other,false,,,,
-term_6c398553c4d684b6aba1,per 1000 of population aged 25-34,unclustered,cross-domain or other,false,,,,
-term_783f110b27cf7b2988d8,"volume (in TEUs) of containers transported to/from main ports, by loading status",unclustered,cross-domain or other,false,,,,
+term_28537334be6786e5aad6,Adjusted gross disposable income of households per capita in PPS,cluster_0747a3157ffb,cross-domain or other,false,2,wrong,good,Coherent income and GDP-per-capita cluster; domain should be economy and finance.
+term_1f0f520b54430bc6abe1,Population connected to Wastewater Treatment,cluster_0759ac914a9e,cross-domain or other,true,2,wrong,good,Coherent water and wastewater access cluster; domain should be environment and energy.
+term_fc4c296a653c39b9033c,Population connected to wastewater collection and treatment systems,cluster_0759ac914a9e,cross-domain or other,true,2,wrong,good,Coherent water and wastewater access cluster; domain should be environment and energy.
+term_0d7a0d04c0ce32966ea7,Agricultural holdings by agricultural area,cluster_08676e4a8f67,"agriculture, forestry, and fisheries",true,2,correct,good,Coherent agricultural holdings and land-price cluster.
+term_d2e804e762d250d07c7c,Air passenger transport - ENP-South countries,cluster_0a4bab53e5fe,transport,true,1,correct,acceptable,Transport cluster is valid but mixes air passenger/freight with road freight.
+term_962f61904b6619372cea,"Purchase price indices, total means of agricultural production",cluster_26a602793f11,cross-domain or other,true,2,wrong,good,"Coherent agricultural price-weight cluster; domain should be agriculture, forestry, and fisheries."
+term_027275b4917a775d06d1,Country level - gross weight of goods transported to/from main ports,cluster_2cdcfe259942,transport,false,2,correct,good,Coherent maritime freight-weight cluster in transport.
+term_9cedd100584c1a2e3c09,Gross weight of goods in Ro-ro units transported in short sea shipping from/to the top 5 EU ports for goods in Ro-ro units,cluster_2cdcfe259942,transport,true,2,correct,good,Coherent maritime freight-weight cluster in transport.
+term_e6cd08c5e530a7d55c17,Gross weight of liquid bulk goods transported in short sea shipping from/to the top 5 EU ports for liquid bulk goods,cluster_2cdcfe259942,transport,true,2,correct,good,Coherent maritime freight-weight cluster in transport.
+term_a03bdea9a2c1ac178e82,"Short sea shipping - country level - gross weight of goods transported to/from main ports, by direction",cluster_2cdcfe259942,transport,false,2,correct,good,Coherent maritime freight-weight cluster in transport.
+term_9a3dacd0972009bf63b3,"Short sea shipping - country level - volume (in TEUs) of containers transported to/from main ports, by loading status",cluster_2cdcfe259942,transport,false,2,correct,good,Coherent maritime freight-weight cluster in transport.
+term_5cb1785dd3f1be3b9d22,"Non-financial corporations debt, consolidated - % of GDP",cluster_310e64b58954,economy and finance,false,2,correct,good,Coherent private-sector debt and credit-flow cluster.
+term_20f0568d3084e3c66191,"Private sector credit flow: debt securities by sectors, consolidated - % of GDP",cluster_310e64b58954,economy and finance,true,2,correct,good,Coherent private-sector debt and credit-flow cluster.
+term_1718a2844b38ef2cb8e6,"Private sector debt: loans, by sectors, non-consolidated - % of GDP",cluster_310e64b58954,economy and finance,true,2,correct,good,Coherent private-sector debt and credit-flow cluster.
+term_9f55fe8d95776762c3e3,Gross domestic product at market prices - ENP-East countries,cluster_3977913ff325,economy and finance,true,2,correct,good,Coherent GDP-at-market-prices cluster.
+term_0fcf4e988e3ce59aa8b1,Out-of-school rate by sex and age - as % of the population of the corresponding age,cluster_436a35bf5d70,education,false,2,correct,good,Coherent pupil and education participation cluster.
+term_0972dcd431ad96904bc3,"Pupils from age 4 to the starting age of compulsory education at primary level, by sex - as % of the population of the corresponding age group",cluster_436a35bf5d70,education,true,2,correct,good,Coherent pupil and education participation cluster.
+term_15bfeaad968154afb48f,Pupils under the age of 3 by sex - as % of the population of the corresponding age,cluster_436a35bf5d70,education,true,2,correct,good,Coherent pupil and education participation cluster.
+term_0bc9d7812026d642cd23,Effect of social transfers on income quintile share ratio S80/S20,cluster_506831c7dd56,cross-domain or other,false,2,wrong,good,Coherent income-inequality ratio cluster; domain should be social conditions and equality.
+term_6d86dd447f76de1a4400,Income quintile share ratio - S80/S20 - ENP-South countries,cluster_506831c7dd56,cross-domain or other,true,2,wrong,good,Coherent income-inequality ratio cluster; domain should be social conditions and equality.
+term_26408b77200929d0bb01,Animal output - basic and producer prices,cluster_52a711981335,cross-domain or other,true,1,partial,acceptable,Related price/output/GVA terms but mixes agriculture with general industry GVA.
+term_2e238609443153c1dccf,Gender differences in the relative income of elderly people (65+),cluster_55cd06be7ef5,cross-domain or other,false,2,wrong,good,Coherent elderly income and inequality cluster; domain should be social conditions and equality.
+term_3de4fab0404f410eda9e,Relative median income ratio (65+),cluster_55cd06be7ef5,cross-domain or other,false,2,wrong,good,Coherent elderly income and inequality cluster; domain should be social conditions and equality.
+term_558f4a8e9de234d081fa,Annual aquaculture production,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,2,correct,good,"Coherent agriculture, aquaculture, and food-production cluster."
+term_99a7a01d09d96b6d97c9,Aquaculture production by aquatic environment - ENP-South countries,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,2,correct,good,"Coherent agriculture, aquaculture, and food-production cluster."
+term_4eb46767e3553546663a,Production of milk on farms,cluster_71139f449ed0,"agriculture, forestry, and fisheries",true,2,correct,good,"Coherent agriculture, aquaculture, and food-production cluster."
+term_226172b7f9c30b7a429a,Production of sheepmeat and goat meat in slaughterhouses,cluster_71139f449ed0,"agriculture, forestry, and fisheries",false,2,correct,good,"Coherent agriculture, aquaculture, and food-production cluster."
+term_e05002e50ec575d45b7d,Retail trade volume of sales,cluster_72b5baeeb545,"industry, trade, and services",true,2,correct,good,Coherent retail trade sales-volume cluster.
+term_3b7f7fbc9919a7ca04c3,Retail trade volume of sales - total,cluster_72b5baeeb545,"industry, trade, and services",true,2,correct,good,Coherent retail trade sales-volume cluster.
+term_5574a85a609e8966b428,Consumer price index - ENP-East countries,cluster_743c0cdf1e67,economy and finance,false,2,correct,good,Coherent price-index and producer-price cluster.
+term_a1ec4c2cbf84309933ed,Consumer price index - ENP-South countries,cluster_743c0cdf1e67,economy and finance,false,2,correct,good,Coherent price-index and producer-price cluster.
+term_c09913cf45bdb5830bad,Graduates at doctoral level by sex and age groups - per 1000 of population aged 25-34,cluster_80edd39ddbff,education,false,2,correct,good,Coherent educational-attainment and education-population cluster.
+term_20d6b4a1cc5307075745,Accidents in waterway transport,cluster_84a10ec4eb87,cross-domain or other,false,1,partial,acceptable,Mostly causes/deaths but includes transport accident terms; cross-domain label is defensible.
+term_94b6765642dac6f6949f,"Death due to cancer, by sex",cluster_84a10ec4eb87,cross-domain or other,false,1,partial,acceptable,Mostly causes/deaths but includes transport accident terms; cross-domain label is defensible.
+term_eeb6980f51c7d56fc3f4,"Death due to diabetes mellitus, by sex",cluster_84a10ec4eb87,cross-domain or other,false,1,partial,acceptable,Mostly causes/deaths but includes transport accident terms; cross-domain label is defensible.
+term_5849d9c0db41e7b9acb9,"Death due to transport accidents, by sex",cluster_84a10ec4eb87,cross-domain or other,true,1,partial,acceptable,Mostly causes/deaths but includes transport accident terms; cross-domain label is defensible.
+term_92edf6d2724d27c3b16d,Deaths by sex,cluster_84a10ec4eb87,cross-domain or other,false,1,partial,acceptable,Mostly causes/deaths but includes transport accident terms; cross-domain label is defensible.
+term_b82538563afbccd385b6,"Barley by area, production and humidity",cluster_9391f8d593af,"agriculture, forestry, and fisheries",true,2,correct,good,"Coherent crop area, production, and humidity cluster."
+term_084a82356f88b7f13c12,"Wheat and spelt by area, production and humidity",cluster_9391f8d593af,"agriculture, forestry, and fisheries",true,2,correct,good,"Coherent crop area, production, and humidity cluster."
+term_523720a52ca07c570e36,Gross value added - NACE Rev. 2: - current prices,cluster_94cf800a89a5,economy and finance,true,2,correct,good,Coherent current-price gross-value-added cluster.
+term_f25b3958d6da1017e631,Production in construction,cluster_99358c580dcf,"industry, trade, and services",false,2,correct,good,Coherent industry production cluster.
+term_57dbe832a6b7457178ca,Production in industry - consumer non-durables,cluster_99358c580dcf,"industry, trade, and services",false,2,correct,good,Coherent industry production cluster.
+term_e454da1bd3a645c5546e,Production in industry - intermediate goods,cluster_99358c580dcf,"industry, trade, and services",true,2,correct,good,Coherent industry production cluster.
+term_de1275695e85a9ad231b,Gross value added - NACE Rev. 2: - volumes,cluster_99cbd02aba19,economy and finance,true,2,correct,good,Coherent volume gross-value-added cluster.
+term_6e80a6ca3ae0ebf52856,Expenditure on social protection by type,cluster_9f5217e9767f,cross-domain or other,true,1,partial,acceptable,Social protection expenditure cluster includes health-expenditure overlap.
+term_ed103e759eb80d6441c5,Employment growth (domestic concept),cluster_aedee37960c7,labour market,true,1,partial,acceptable,Mostly employment but includes unemployment rate; labour domain remains acceptable.
+term_5c1b156bf1e3cc20b804,"Net external debt - annual data, % of GDP",cluster_b032d77c2fcd,economy and finance,true,1,correct,acceptable,"Debt and investment-position terms are related, with some generic annual/quarterly fragments."
+term_08daf5eebc86334e6fe1,"annual data, % of GDP",cluster_b032d77c2fcd,economy and finance,true,1,correct,acceptable,"Debt and investment-position terms are related, with some generic annual/quarterly fragments."
+term_a8781b86da3b752f69bd,Goods transport by rail,cluster_b70da2ec1a1f,transport,true,2,correct,good,Coherent goods-transport cluster.
+term_35f091028bedc80f3304,Road traffic: road freight transport in volume,cluster_b70da2ec1a1f,transport,false,2,correct,good,Coherent goods-transport cluster.
+term_99e1529e4e89f9c36b6e,"Crude rate of birth, of dead and of population change",cluster_b79ec27e90f4,labour market,false,1,partial,acceptable,Large rate cluster mixes labour-market rates with demographic rates.
+term_3e78a36a740b5f059ecd,Unemployment rates by sex and age - ENP-South countries,cluster_b79ec27e90f4,labour market,true,1,partial,acceptable,Large rate cluster mixes labour-market rates with demographic rates.
+term_eacb2216fe4997adf92e,Consumer price index,cluster_b93f4637d15d,cross-domain or other,false,2,wrong,good,Coherent price-index cluster; domain should be economy and finance.
+term_0b214cfd73ab25abb7b2,Air passenger transport,cluster_c8d379cc59d5,transport,true,2,correct,good,Coherent transport equipment/infrastructure/passenger cluster.
+term_fa38f209e4b8c386f58c,Unitisation in maritime freight transport,cluster_d0b90b2f986d,transport,true,2,correct,good,Coherent freight unitisation cluster across transport modes.
+term_1eda2413fab212d2b53a,Unitisation in road freight transport,cluster_d0b90b2f986d,transport,false,2,correct,good,Coherent freight unitisation cluster across transport modes.
+term_87a753574448dc6084bb,Gini coefficient of equivalised disposable income,cluster_d1e893e7c222,cross-domain or other,true,2,wrong,good,Coherent Gini and income-inequality cluster; domain should be social conditions and equality.
+term_577b998e77e6ecacb649,Gini coefficient of equivalised disposable income by age,cluster_d1e893e7c222,cross-domain or other,true,2,wrong,good,Coherent Gini and income-inequality cluster; domain should be social conditions and equality.
+term_318cf2b1f91f6cc6d9ec,Carrying capacity of the waterway transport enterprises vessels by number of vessels in enterprises,cluster_de826995d586,transport,true,1,correct,acceptable,"Transport-enterprise cluster is useful but mixes capacity, employment, and enterprise counts."
+term_289d3ad56aa1ffc52628,Employment in waterways transport enterprises by sex,cluster_de826995d586,transport,false,1,correct,acceptable,"Transport-enterprise cluster is useful but mixes capacity, employment, and enterprise counts."
+term_b1fb19c84fd17e2fd413,Expenditure on public educational institutions,cluster_e22df4ed8343,cross-domain or other,true,1,partial,acceptable,Education-expenditure cluster has public-expenditure framing as well as education domain.
+term_90d064a0e3555d070ed8,Public expenditure on education - ENP-East countries,cluster_e22df4ed8343,cross-domain or other,true,1,partial,acceptable,Education-expenditure cluster has public-expenditure framing as well as education domain.
+term_b24eebc0b3af6b6b4aa0,At risk-of-poverty rate for the population living in (quasi-)jobless households,cluster_e7d0c36b4e48,cross-domain or other,false,1,partial,acceptable,Housing and living-conditions terms are related but broad.
+term_23202d38f263756ed950,Population in jobless private households,cluster_e7d0c36b4e48,cross-domain or other,false,1,partial,acceptable,Housing and living-conditions terms are related but broad.
+term_658d47fb6d3c1b8c88df,"Share of total population having neither a bath, nor a shower in their dwelling - EU-SILC survey",cluster_e7d0c36b4e48,cross-domain or other,true,1,partial,acceptable,Housing and living-conditions terms are related but broad.
+term_5cdcf9cf1a2d52d3887b,Share of total population not having indoor flushing toilet for the sole use of their household,cluster_e7d0c36b4e48,cross-domain or other,true,1,partial,acceptable,Housing and living-conditions terms are related but broad.
+term_3c6db2dfbfb5d56d21f8,Selling prices of barley,cluster_f49b94d07c25,cross-domain or other,true,2,wrong,good,"Coherent agricultural selling-price cluster; domain should be agriculture, forestry, and fisheries."
+term_1b5c2b9c0bccd1eda4f0,Selling prices of fresh eggs,cluster_f49b94d07c25,cross-domain or other,false,2,wrong,good,"Coherent agricultural selling-price cluster; domain should be agriculture, forestry, and fisheries."
+term_34ee60daa9822653ce56,Regional disparities in gender employment gap (NUTS level 2),cluster_fbcb7007a26d,labour market,false,1,correct,acceptable,Labour/NEET regional-disparity cluster is useful but includes several disparity variants.
+term_a8771db3c5fdeaea7553,Aggregate propensity to consume by income quintile,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_54d9b1f4afa97eb30220,Air transport traffic: freight and passengers,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_213859f5d72fd3eaad3d,At-risk-of poverty rate for children by country of birth of their parents (population aged 0 to 17),unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_0f501f4a2588acc2b10d,Average population mid-year by sex and age group - ENP-South countries,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_2d69baedc15824c81811,Buses and coaches traffic performance registered in the by transport covarage,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_c46d3ef2aa9824c586e8,"Current account transactions - primary income: credits, debits and balance",unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_ca743b9337ba4d9b8d54,Employment,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_7222b4430267209c516b,Employment characteristics,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_09e1aee2eae3f6f961d2,"Ever-partnered women who have experienced violence by an intimate partner, by country of birth",unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_233266d63f959636da6c,Exports of goods and services in % of GDP,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_0e3fb5e8571efdb988ec,Greenhouse gases emissions from production activities,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_b28741ef4ee8a1420a20,Health care expenditure,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_b42b72d1ef59e78b9232,House sales,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_9ada14c39440e5583682,Indicator A of the income from agricultural activity,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_3ea65693dfee62b7d7d9,Intra-mural Business Enterprise R&D Expenditures in Foreign Controlled Enterprises,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_71e8da9a79f9decbfde7,Investment share of GDP by institutional sectors,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_eb0740949292b76319ec,Maritime transport infrastructure,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_5a62747e9b2bbc98b77e,Market production,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_012b2e24a75dae7a8801,Market production - annual data,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_c81d6ee622d33c0e63b4,Modal split of freight transport,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_f32b7749e3c9ff7974e4,National passenger road transport performance by type of vehicles registered in the,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_975f92a4a6ba860bd35f,Number of accidents at work by NACE Rev. 1.1 activity and employment status,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_44182a54b9802a05ffb2,Number of enterprises carrying out cross trade by employment size class,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_4b1fd1a7f6908d2872c0,Out-of-pocket expenditure on healthcare,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_c943668852a9a733cf2d,Sea transport of goods,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_d9dc4d60cef3d7a1efdf,Share of GBARD in total general government expenditure,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_1b743ced7fa697781fea,Share of buses and trains in passenger transport,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_79bdfae6a83ca066ae99,Unemployment rate - 3 year average,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_5e60d2f1d1859714617a,Volume of passenger transport relative to GDP,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_6c398553c4d684b6aba1,per 1000 of population aged 25-34,unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.
+term_783f110b27cf7b2988d8,"volume (in TEUs) of containers transported to/from main ports, by loading status",unclustered,cross-domain or other,false,0,correct,poor,Unclustered bucket is intentionally cross-domain and not a coherent cluster.

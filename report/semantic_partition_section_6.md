@@ -42,23 +42,38 @@ The classification command writes:
 ## Evaluation
 
 `report/classification_metrics.json` records completed audit-label metrics, duplicate relabel
-agreement, validation metrics, and final-test metrics. The current local-hybrid run is
-`run_75b90575bb9e48ce7918`.
+agreement, validation metrics, final-test metrics, and source-specific metrics for the random and
+targeted reclaim audits. The accepted local-hybrid export remains `run_75b90575bb9e48ce7918`.
 
-Current results:
+Headline random-audit results:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All labeled rows | 0.948 | 0.920 | 0.940 |
-| Validation | 0.940 | 0.892 | 0.926 |
-| Final test | 0.960 | 0.927 | 0.954 |
+| All random rows | 0.948 | 0.920 | 0.940 |
+| Random validation | 0.940 | 0.892 | 0.926 |
+| Random final test | 0.960 | 0.927 | 0.954 |
 
-The duplicate relabel audit covers 50 rows and reports raw agreement `1.000` and Cohen's kappa
-`1.000`. Accepted hallucination count is `0`.
+Targeted reclaim diagnostic stress test:
+
+| Split | Accuracy | Macro-F1 | Weighted-F1 |
+|---|---:|---:|---:|
+| All targeted rows | 0.084 | 0.031 | 0.013 |
+| Targeted validation | 0.020 | 0.008 | 0.001 |
+| Targeted final test | 0.000 | 0.000 | 0.000 |
+
+The targeted reclaim audit covers 250 newly completed rows sampled from terms previously assigned to
+`other_ambiguous`. It is reported as a diagnostic stress test rather than the headline submission
+quality metric because it intentionally probes the accepted classifier's known conservative
+abstention behavior. The random duplicate relabel audit covers 50 rows, and the targeted duplicate
+relabel audit covers 25 rows; both report raw agreement `1.000` and Cohen's kappa `1.000`. Accepted
+hallucination count is `0`.
 
 ## Current Limitations
 
-The 500 primary labels and 50 duplicate labels are complete, but they were completed through a
-rule-assisted repository audit rather than a fully independent second-human annotation study. The
-local classifier remains conservative: measure recall is the weakest final-test class, and many
-uncertain measure-like terms are intentionally placed in `other_ambiguous`.
+The 500 random primary labels, 50 random duplicate labels, 250 targeted reclaim labels, and 25
+targeted duplicate labels are complete, but they were completed through repository audits rather
+than a fully independent second-human annotation study. A gated reclaim run,
+`run_5f8127cf8e6be829b1ac`, was not promoted because it exceeded the random final-test macro-F1
+drop allowance (`0.036 > 0.020`), missed the targeted non-other precision floor
+(`0.714 < 0.850`), and reduced `other_ambiguous` by only `0.007 < 0.200`. Accepted outputs remain
+unchanged, and no `other_ambiguous` reduction is claimed.

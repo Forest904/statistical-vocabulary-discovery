@@ -23,9 +23,9 @@ so the core command remains deterministic and reproducible.
 The relation command writes:
 
 - `outputs/measure_relations.csv`
-- `outputs/relations/run_1b5f0cbf1084aaa8d017/relation_candidates.csv`
-- `outputs/relations/run_1b5f0cbf1084aaa8d017/manual_relation_review_sample.csv`
-- `outputs/relations/run_1b5f0cbf1084aaa8d017/relation_summary.json`
+- `outputs/relations/run_e6e523656ea9857ecac9/relation_candidates.csv`
+- `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv`
+- `outputs/relations/run_e6e523656ea9857ecac9/relation_summary.json`
 
 ## Evaluation
 
@@ -37,26 +37,26 @@ an optional corrected type, a false-positive category, and notes. When completed
 available, the evaluator reports precision@10, precision@25, precision@50, typed accuracy, and
 false-positive taxonomy counts.
 
-The refreshed deterministic export contains 5,628 candidate relationships:
+The submitted deterministic export contains 1,719 candidate relationships:
 
 | Type | Count |
 |---|---:|
 | `broader_than` | 442 |
-| `related_to` | 5,184 |
+| `related_to` | 1,275 |
 | `variant_of` | 2 |
 
 The structural validator passes: endpoints reference known final measures, relation IDs and pairs are
 not duplicated, no self-relations are present, relation types are allowed, and evidence/confidence
 fields are populated.
 
-The refreshed manual review sample contains 100 candidates but has not yet been completed. Earlier
-pre-refresh review metrics are retained only as historical development evidence; the formal milestone
-9 report treats the refreshed graph as a structurally valid candidate output, not a fully adjudicated
-semantic graph.
+The refreshed manual review sample contains 100 completed candidates. It reports precision@10
+`1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, and typed accuracy
+`0.888`. The false-positive taxonomy is dominated by generic qualifier and denominator-fragment
+matches.
 
 ## Current Limitations
 
 The first implementation does not try to exhaustively recover every possible semantic relation.
-The current accepted export still includes many low-confidence `related_to` candidates, so it is
-broader than a precision-oriented graph. The next improvement should complete the refreshed manual
-review, filter accepted exports by confidence, and tighten hierarchy rules.
+The current accepted export still includes broad `related_to` candidates and some lexical-containment
+false positives, so the next improvement should tighten generic qualifier handling and hierarchy
+rules.

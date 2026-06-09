@@ -31,10 +31,23 @@
     "submitted_related_confidence_threshold": 0.7
   },
   "manual_review": {
-    "completed_count": 0,
+    "completed_count": 100,
+    "false_positive_taxonomy": {
+      "denominator_fragment": 2,
+      "denominator_mismatch": 1,
+      "generic_qualifier": 4,
+      "lexical_role_conflict": 1,
+      "overbroad_source": 1,
+      "semantic_drift": 2
+    },
+    "precision_at_10": 1.0,
+    "precision_at_100": 0.89,
+    "precision_at_25": 1.0,
+    "precision_at_50": 0.96,
     "review_sample": "outputs\\relations\\run_e6e523656ea9857ecac9\\manual_relation_review_sample.csv",
     "sample_count": 100,
-    "status": "pending"
+    "status": "available",
+    "typed_accuracy": 0.8876404494382022
   },
   "relation_count": 1719,
   "relation_type_distribution": {

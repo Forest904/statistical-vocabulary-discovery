@@ -26,7 +26,10 @@ def _write_json(payload: dict[str, Any], path: Path) -> Path:
 
 
 def _latest_summary(config: AppConfig) -> dict[str, Any] | None:
-    candidates = sorted((config.paths.outputs_dir / "clustering").glob("*/clustering_summary.json"))
+    candidates = sorted(
+        (config.paths.outputs_dir / "clustering").glob("*/clustering_summary.json"),
+        key=lambda path: path.stat().st_mtime,
+    )
     if not candidates:
         return None
     return cast(dict[str, Any], json.loads(candidates[-1].read_text(encoding="utf-8")))
@@ -34,7 +37,8 @@ def _latest_summary(config: AppConfig) -> dict[str, Any] | None:
 
 def _manual_review_status(config: AppConfig) -> dict[str, Any]:
     candidates = sorted(
-        (config.paths.outputs_dir / "clustering").glob("*/manual_cluster_review_sample.csv")
+        (config.paths.outputs_dir / "clustering").glob("*/manual_cluster_review_sample.csv"),
+        key=lambda path: path.stat().st_mtime,
     )
     if not candidates:
         return {"status": "pending", "message": "Manual cluster review sample is not available."}
