@@ -6,11 +6,14 @@ import pytest
 from statvocab.artifact_validation import validate_artifacts
 from statvocab.config import AppConfig, load_config
 from statvocab.full_corpus import (
+    ResumeValidationError,
     _run_stage,
     artifact_info,
+    audit_full_corpus_resume,
     disk_preflight,
     run_full_corpus,
 )
+from statvocab.run_metadata import run_environment
 
 
 def _full_config(tmp_path: Path, *, expected_count: int = 1) -> AppConfig:
@@ -53,6 +56,18 @@ def test_disk_preflight_allows_exact_extracted_cache_without_archive(tmp_path: P
     assert payload["archive_exists"] is False
     assert payload["extracted_csv_count"] == 2
     assert payload["warnings"]
+
+
+def test_full_config_paths_are_isolated_from_core_paths() -> None:
+    core = load_config("configs/core.yaml")
+    full = load_config("configs/full.yaml")
+
+    assert full.paths.raw_dir == core.paths.raw_dir
+    assert full.paths.external_dir == core.paths.external_dir
+    assert full.paths.processed_dir != core.paths.processed_dir
+    assert full.paths.outputs_dir != core.paths.outputs_dir
+    assert full.paths.reports_dir != core.paths.reports_dir
+    assert str(full.paths.outputs_dir).replace("\\", "/") == "outputs/full"
 
 
 def test_artifact_info_records_size_and_checksum_for_small_file(tmp_path: Path) -> None:
@@ -188,6 +203,7 @@ def test_full_corpus_resume_reuses_completed_checkpoints(
                     "failure_message": "",
                     "last_valid_checkpoint": "none",
                     "diagnostics": {},
+                    "environment": run_environment(config),
                 }
             ],
             indent=2,
@@ -224,3 +240,144 @@ def test_full_corpus_resume_reuses_completed_checkpoints(
     checkpoints = json.loads((checkpoint_dir / "stage_checkpoints.json").read_text())
     assert checkpoints[0]["stage"] == "disk-preflight"
     assert checkpoints[1]["stage"] == "acquire"
+
+
+def test_full_corpus_resume_rejects_changed_config_fingerprint(tmp_path: Path) -> None:
+    config = _full_config(tmp_path)
+    run_id = "run_stale_config"
+    checkpoint_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    checkpoint_dir.mkdir(parents=True)
+    environment = run_environment(config)
+    environment["config_fingerprint"] = "cfg_stale"
+    (checkpoint_dir / "stage_checkpoints.json").write_text(
+        json.dumps(
+            [
+                {
+                    "stage": "disk-preflight",
+                    "status": "succeeded",
+                    "optional": False,
+                    "started_at": "2026-06-05T00:00:00+00:00",
+                    "finished_at": "2026-06-05T00:00:01+00:00",
+                    "wall_clock_seconds": 1.0,
+                    "peak_rss_bytes": None,
+                    "disk_before": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "disk_after": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "run_id": None,
+                    "manifest_path": "",
+                    "artifacts": [],
+                    "failure_message": "",
+                    "last_valid_checkpoint": "none",
+                    "diagnostics": {},
+                    "environment": environment,
+                }
+            ],
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ResumeValidationError, match="config fingerprint mismatch"):
+        run_full_corpus(config, run_id=run_id, resume=True)
+
+
+def test_full_corpus_resume_rejects_missing_artifact(tmp_path: Path) -> None:
+    config = _full_config(tmp_path)
+    run_id = "run_missing_artifact"
+    checkpoint_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    checkpoint_dir.mkdir(parents=True)
+    (checkpoint_dir / "stage_checkpoints.json").write_text(
+        json.dumps(
+            [
+                {
+                    "stage": "disk-preflight",
+                    "status": "succeeded",
+                    "optional": False,
+                    "started_at": "2026-06-05T00:00:00+00:00",
+                    "finished_at": "2026-06-05T00:00:01+00:00",
+                    "wall_clock_seconds": 1.0,
+                    "peak_rss_bytes": None,
+                    "disk_before": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "disk_after": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+                    "run_id": None,
+                    "manifest_path": "",
+                    "artifacts": [
+                        {
+                            "path": str(tmp_path / "missing.txt"),
+                            "exists": True,
+                            "kind": "file",
+                            "size_bytes": 10,
+                            "md5": None,
+                        }
+                    ],
+                    "failure_message": "",
+                    "last_valid_checkpoint": "none",
+                    "diagnostics": {},
+                    "environment": run_environment(config),
+                }
+            ],
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ResumeValidationError, match="missing artifact"):
+        run_full_corpus(config, run_id=run_id, resume=True)
+
+
+def test_resume_audit_reports_reusable_and_invalid_stages(tmp_path: Path) -> None:
+    config = _full_config(tmp_path)
+    run_id = "run_audit"
+    checkpoint_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    checkpoint_dir.mkdir(parents=True)
+    artifact = _touch(tmp_path / "artifact.txt", "ok\n")
+    checkpoints = [
+        {
+            "stage": "disk-preflight",
+            "status": "succeeded",
+            "optional": False,
+            "started_at": "2026-06-05T00:00:00+00:00",
+            "finished_at": "2026-06-05T00:00:01+00:00",
+            "wall_clock_seconds": 1.0,
+            "peak_rss_bytes": None,
+            "disk_before": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+            "disk_after": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+            "run_id": None,
+            "manifest_path": "",
+            "artifacts": [artifact_info(artifact)],
+            "failure_message": "",
+            "last_valid_checkpoint": "none",
+            "diagnostics": {},
+            "environment": run_environment(config),
+        },
+        {
+            "stage": "acquire",
+            "status": "failed",
+            "optional": False,
+            "started_at": "2026-06-05T00:00:01+00:00",
+            "finished_at": "2026-06-05T00:00:02+00:00",
+            "wall_clock_seconds": 1.0,
+            "peak_rss_bytes": None,
+            "disk_before": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+            "disk_after": {"free_bytes": 100, "used_bytes": 0, "total_bytes": 100},
+            "run_id": None,
+            "manifest_path": "",
+            "artifacts": [],
+            "failure_message": "blocked",
+            "last_valid_checkpoint": "disk-preflight",
+            "diagnostics": {},
+            "environment": run_environment(config),
+        },
+    ]
+    (checkpoint_dir / "stage_checkpoints.json").write_text(
+        json.dumps(checkpoints, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    payload = audit_full_corpus_resume(config, run_id=run_id)
+
+    assert payload["stages"][0]["reusable"] is True
+    assert payload["stages"][1]["reusable"] is False
+    assert "acquire" in payload["would_execute"]
+    assert "ingest" in payload["would_execute"]

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from hashlib import blake2b
 from pathlib import Path
 from typing import Any, Literal
 
@@ -173,6 +175,28 @@ class AppConfig(BaseModel):
     @property
     def config_id_parts(self) -> tuple[str, str, int]:
         return (self.config_name, self.corpus.name, self.random_seed)
+
+    @property
+    def config_summary(self) -> dict[str, str | int]:
+        """Return the short human-readable run identity."""
+
+        return {
+            "config_name": self.config_name,
+            "corpus": self.corpus.name,
+            "random_seed": self.random_seed,
+        }
+
+    @property
+    def config_fingerprint(self) -> str:
+        """Return a stable fingerprint over the complete normalized config."""
+
+        payload = json.dumps(
+            self.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        digest = blake2b(payload.encode("utf-8"), digest_size=16).hexdigest()
+        return f"cfg_{digest}"
 
 
 def load_config(path: str | Path) -> AppConfig:

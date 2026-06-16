@@ -27,6 +27,7 @@ from statvocab.resources import (
     write_resource_manifest,
 )
 from statvocab.retrieval_evaluate import evaluate_retrieval
+from statvocab.run_metadata import run_environment
 from statvocab.search.documents import build_search_documents
 from statvocab.search.engine import build_search_index
 from statvocab.search.lexical import build_lexical_index
@@ -48,6 +49,10 @@ STAGE_SEQUENCE = (
     "build-search-index",
     "evaluate-retrieval",
 )
+
+
+class ResumeValidationError(RuntimeError):
+    """Raised when a completed checkpoint is unsafe to reuse."""
 
 
 class PeakMemorySampler:
@@ -266,11 +271,87 @@ def _load_checkpoints(path: Path) -> list[dict[str, Any]]:
     return cast(list[dict[str, Any]], json.loads(path.read_text(encoding="utf-8")))
 
 
-def _completed_prefix(checkpoints: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _checkpoint_environment(config: AppConfig) -> dict[str, Any]:
+    return run_environment(config)
+
+
+def _artifact_validation_failures(artifact: dict[str, Any]) -> list[str]:
+    path = Path(str(artifact.get("path") or ""))
+    failures: list[str] = []
+    if not path.exists():
+        return [f"missing artifact {path}"]
+    expected_size = int(artifact.get("size_bytes") or 0)
+    if expected_size:
+        actual_size = directory_size(path) if path.is_dir() else path.stat().st_size
+        if actual_size != expected_size:
+            failures.append(
+                f"artifact size changed for {path}: expected {expected_size}, found {actual_size}"
+            )
+    expected_md5 = artifact.get("md5")
+    if expected_md5 and path.is_file() and file_md5(path) != expected_md5:
+        failures.append(f"artifact checksum changed for {path}")
+    return failures
+
+
+def validate_checkpoint_reuse(
+    checkpoint: dict[str, Any],
+    *,
+    stage: str,
+    config: AppConfig,
+) -> list[str]:
+    """Return reasons a completed checkpoint cannot be reused."""
+
+    failures: list[str] = []
+    if checkpoint.get("stage") != stage:
+        failures.append(f"stage mismatch: expected {stage}, found {checkpoint.get('stage')}")
+    if checkpoint.get("status") != "succeeded":
+        failures.append(f"status is {checkpoint.get('status')}, not succeeded")
+    environment = cast(dict[str, Any], checkpoint.get("environment") or {})
+    if not environment:
+        failures.append("checkpoint has no environment metadata")
+    elif environment.get("config_fingerprint") != config.config_fingerprint:
+        failures.append(
+            "config fingerprint mismatch: "
+            f"expected {config.config_fingerprint}, found {environment.get('config_fingerprint')}"
+        )
+    corpus = cast(dict[str, Any], environment.get("corpus") or {})
+    if corpus:
+        for key, expected in (
+            ("name", config.corpus.name),
+            ("archive_name", config.corpus.archive_name or ""),
+            ("expected_table_count", config.corpus.expected_table_count),
+            ("expected_md5", config.corpus.expected_md5 or ""),
+        ):
+            if corpus.get(key) != expected:
+                failures.append(
+                    f"corpus {key} mismatch: expected {expected}, found {corpus.get(key)}"
+                )
+    else:
+        failures.append("checkpoint has no corpus metadata")
+    for artifact in checkpoint.get("artifacts", []):
+        failures.extend(_artifact_validation_failures(cast(dict[str, Any], artifact)))
+    return failures
+
+
+def _completed_prefix(
+    checkpoints: list[dict[str, Any]],
+    *,
+    config: AppConfig,
+) -> list[dict[str, Any]]:
     completed: list[dict[str, Any]] = []
     for checkpoint in checkpoints:
         if checkpoint.get("status") != "succeeded":
             break
+        failures = validate_checkpoint_reuse(
+            checkpoint,
+            stage=str(checkpoint.get("stage") or ""),
+            config=config,
+        )
+        if failures:
+            stage = str(checkpoint.get("stage") or "<unknown>")
+            raise ResumeValidationError(
+                f"Cannot reuse checkpoint {stage}: " + "; ".join(failures)
+            )
         completed.append(checkpoint)
     return completed
 
@@ -288,9 +369,16 @@ def _checkpoint_for_stage(
 def _completed_checkpoint(
     checkpoints: list[dict[str, Any]],
     stage: str,
+    *,
+    config: AppConfig,
 ) -> dict[str, Any] | None:
     checkpoint = _checkpoint_for_stage(checkpoints, stage)
     if checkpoint and checkpoint.get("status") == "succeeded":
+        failures = validate_checkpoint_reuse(checkpoint, stage=stage, config=config)
+        if failures:
+            raise ResumeValidationError(
+                f"Cannot reuse checkpoint {stage}: " + "; ".join(failures)
+            )
         return checkpoint
     return None
 
@@ -328,6 +416,7 @@ def _run_stage(
 
     finished_at = _now_iso()
     artifact_paths = _stage_artifact_paths(result)
+    environment = _checkpoint_environment(config)
     checkpoint = {
         "stage": name,
         "status": status,
@@ -344,6 +433,7 @@ def _run_stage(
         "failure_message": failure_message,
         "last_valid_checkpoint": _last_valid_checkpoint(checkpoints) or "none",
         "diagnostics": result.get("diagnostics", {}),
+        "environment": environment,
     }
     checkpoints.append(checkpoint)
     if checkpoint_path is not None:
@@ -368,6 +458,7 @@ def skipped_checkpoint(
     if progress_callback is not None:
         progress_callback(name, "started", {})
     snapshot = disk_snapshot(config.paths.data_dir)
+    environment = _checkpoint_environment(config)
     checkpoint = {
         "stage": name,
         "status": "skipped",
@@ -384,6 +475,7 @@ def skipped_checkpoint(
         "failure_message": reason,
         "last_valid_checkpoint": _last_valid_checkpoint(checkpoints) or "none",
         "diagnostics": {},
+        "environment": environment,
     }
     checkpoints.append(checkpoint)
     if checkpoint_path is not None:
@@ -396,11 +488,12 @@ def skipped_checkpoint(
 def resumed_checkpoint(
     checkpoints: list[dict[str, Any]],
     stage: str,
+    config: AppConfig,
     progress_callback: ProgressCallback | None = None,
 ) -> dict[str, Any] | None:
     """Return a completed checkpoint and emit a progress event for resumed stages."""
 
-    checkpoint = _completed_checkpoint(checkpoints, stage)
+    checkpoint = _completed_checkpoint(checkpoints, stage, config=config)
     if checkpoint is not None and progress_callback is not None:
         progress_callback(stage, "resumed", checkpoint)
     return checkpoint
@@ -616,6 +709,7 @@ def _write_full_manifest(
         "deliverables": {name: str(path) for name, path in deliverables.items()},
         "stage_checkpoints": str(deliverables["stage_checkpoints"]),
         "resource_measurements": str(deliverables["resource_measurements"]),
+        "environment": run_environment(config),
     }
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -629,6 +723,7 @@ def _write_run_state(
     output_dir: Path,
     checkpoints: list[dict[str, Any]],
     current_stage: str,
+    progress: dict[str, Any] | None = None,
 ) -> Path:
     dataset_path = config.paths.raw_dir / (config.corpus.archive_name or "").removesuffix(".tgz")
     payload = {
@@ -642,11 +737,54 @@ def _write_run_state(
         "stage_checkpoints": str(output_dir / "stage_checkpoints.json"),
         "partial_extract_dir": str(config.paths.processed_dir / "full_extract_partial" / run_id),
         "updated_at": _now_iso(),
+        "environment": run_environment(config),
+        "progress": progress or {},
     }
     path = output_dir / "run_state.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
+
+
+def audit_full_corpus_resume(config: AppConfig, *, run_id: str) -> dict[str, Any]:
+    """Report whether checkpointed stages are reusable without executing stages."""
+
+    output_dir = config.paths.outputs_dir / "full_corpus" / run_id
+    checkpoints_path = output_dir / "stage_checkpoints.json"
+    checkpoints = _load_checkpoints(checkpoints_path)
+    stage_reports: list[dict[str, Any]] = []
+    reusable_stages: set[str] = set()
+    for checkpoint in checkpoints:
+        stage = str(checkpoint.get("stage") or "")
+        failures = validate_checkpoint_reuse(checkpoint, stage=stage, config=config)
+        reusable = checkpoint.get("status") == "succeeded" and not failures
+        if reusable:
+            reusable_stages.add(stage)
+        stage_reports.append(
+            {
+                "stage": stage,
+                "status": checkpoint.get("status"),
+                "reusable": reusable,
+                "failures": failures,
+                "artifact_paths": [
+                    str(artifact.get("path") or "")
+                    for artifact in checkpoint.get("artifacts", [])
+                ],
+            }
+        )
+    return {
+        "run_id": run_id,
+        "checkpoint_path": str(checkpoints_path),
+        "checkpoint_count": len(checkpoints),
+        "config_fingerprint": config.config_fingerprint,
+        "environment": run_environment(config),
+        "stages": stage_reports,
+        "would_execute": [
+            stage
+            for stage in STAGE_SEQUENCE
+            if stage not in reusable_stages
+        ],
+    }
 
 
 def run_full_corpus(
@@ -666,7 +804,11 @@ def run_full_corpus(
     output_dir = config.paths.outputs_dir / "full_corpus" / actual_run_id
     checkpoints_path = output_dir / "stage_checkpoints.json"
     measurements_path = output_dir / "resource_measurements.csv"
-    checkpoints = _completed_prefix(_load_checkpoints(checkpoints_path)) if resume else []
+    checkpoints = (
+        _completed_prefix(_load_checkpoints(checkpoints_path), config=config)
+        if resume
+        else []
+    )
     if resume and checkpoints:
         _write_checkpoints(checkpoints, checkpoints_path)
     resources: tuple[ResourceRecord, ...] = ()
@@ -680,12 +822,14 @@ def run_full_corpus(
     external_progress_callback = progress_callback
 
     def record_progress(stage: str, event: ProgressEvent, checkpoint: dict[str, Any]) -> None:
+        progress_payload = checkpoint if event == "progress" else {}
         _write_run_state(
             config=config,
             run_id=actual_run_id,
             output_dir=output_dir,
             checkpoints=checkpoints,
             current_stage=stage,
+            progress=progress_payload,
         )
         if external_progress_callback is not None:
             external_progress_callback(stage, event, checkpoint)
@@ -695,6 +839,7 @@ def run_full_corpus(
     preflight_checkpoint = resumed_checkpoint(
         checkpoints,
         "disk-preflight",
+        config,
         progress_callback,
     )
     if preflight_checkpoint is None:
@@ -708,7 +853,7 @@ def run_full_corpus(
         )
 
     if preflight_checkpoint["status"] == "succeeded":
-        acquire_checkpoint = resumed_checkpoint(checkpoints, "acquire", progress_callback)
+        acquire_checkpoint = resumed_checkpoint(checkpoints, "acquire", config, progress_callback)
         if acquire_checkpoint is not None:
             acquire_result = None
         else:
@@ -721,7 +866,7 @@ def run_full_corpus(
                 progress_callback=progress_callback,
             )
     else:
-        acquire_checkpoint = resumed_checkpoint(checkpoints, "acquire", progress_callback)
+        acquire_checkpoint = resumed_checkpoint(checkpoints, "acquire", config, progress_callback)
         if acquire_checkpoint is None:
             acquire_checkpoint = skipped_checkpoint(
                 name="acquire",
@@ -745,7 +890,7 @@ def run_full_corpus(
         == config.corpus.expected_table_count
     )
     if can_ingest:
-        ingest_checkpoint = resumed_checkpoint(checkpoints, "ingest", progress_callback)
+        ingest_checkpoint = resumed_checkpoint(checkpoints, "ingest", config, progress_callback)
         if ingest_checkpoint is None:
             ingest_checkpoint, _ingest_result = _run_stage(
                 name="ingest",
@@ -756,7 +901,7 @@ def run_full_corpus(
                 progress_callback=progress_callback,
             )
     else:
-        ingest_checkpoint = resumed_checkpoint(checkpoints, "ingest", progress_callback)
+        ingest_checkpoint = resumed_checkpoint(checkpoints, "ingest", config, progress_callback)
         if ingest_checkpoint is None:
             ingest_checkpoint = skipped_checkpoint(
                 name="ingest",
@@ -768,7 +913,7 @@ def run_full_corpus(
             )
 
     if ingest_checkpoint["status"] == "succeeded":
-        extract_checkpoint = resumed_checkpoint(checkpoints, "extract", progress_callback)
+        extract_checkpoint = resumed_checkpoint(checkpoints, "extract", config, progress_callback)
         if extract_checkpoint is None:
             _write_run_state(
                 config=config,
@@ -804,7 +949,7 @@ def run_full_corpus(
                 progress_callback=progress_callback,
             )
     else:
-        extract_checkpoint = resumed_checkpoint(checkpoints, "extract", progress_callback)
+        extract_checkpoint = resumed_checkpoint(checkpoints, "extract", config, progress_callback)
         if extract_checkpoint is None:
             extract_checkpoint = skipped_checkpoint(
                 name="extract",
@@ -817,7 +962,12 @@ def run_full_corpus(
 
     classify_stage = f"classify-{classification_variant}"
     if extract_checkpoint["status"] == "succeeded":
-        classify_checkpoint = resumed_checkpoint(checkpoints, classify_stage, progress_callback)
+        classify_checkpoint = resumed_checkpoint(
+            checkpoints,
+            classify_stage,
+            config,
+            progress_callback,
+        )
         if classify_checkpoint is None:
             classify_checkpoint, _classify_result = _run_stage(
                 name=classify_stage,
@@ -832,7 +982,12 @@ def run_full_corpus(
                 progress_callback=progress_callback,
             )
     else:
-        classify_checkpoint = resumed_checkpoint(checkpoints, classify_stage, progress_callback)
+        classify_checkpoint = resumed_checkpoint(
+            checkpoints,
+            classify_stage,
+            config,
+            progress_callback,
+        )
         if classify_checkpoint is None:
             classify_checkpoint = skipped_checkpoint(
                 name=classify_stage,
@@ -844,7 +999,12 @@ def run_full_corpus(
             )
 
     if classify_checkpoint["status"] == "succeeded":
-        cluster_checkpoint = resumed_checkpoint(checkpoints, "cluster-measures", progress_callback)
+        cluster_checkpoint = resumed_checkpoint(
+            checkpoints,
+            "cluster-measures",
+            config,
+            progress_callback,
+        )
         if cluster_checkpoint is None:
             cluster_checkpoint, _cluster_result = _run_stage(
                 name="cluster-measures",
@@ -854,7 +1014,12 @@ def run_full_corpus(
                 checkpoint_path=checkpoints_path,
                 progress_callback=progress_callback,
             )
-        relations_checkpoint = resumed_checkpoint(checkpoints, "relations", progress_callback)
+        relations_checkpoint = resumed_checkpoint(
+            checkpoints,
+            "relations",
+            config,
+            progress_callback,
+        )
         if relations_checkpoint is None:
             relations_checkpoint, _relations_result = _run_stage(
                 name="relations",
@@ -864,7 +1029,12 @@ def run_full_corpus(
                 checkpoint_path=checkpoints_path,
                 progress_callback=progress_callback,
             )
-        search_checkpoint = resumed_checkpoint(checkpoints, "build-search-index", progress_callback)
+        search_checkpoint = resumed_checkpoint(
+            checkpoints,
+            "build-search-index",
+            config,
+            progress_callback,
+        )
         if search_checkpoint is None:
             search_checkpoint, _search_result = _run_stage(
                 name="build-search-index",
@@ -879,6 +1049,7 @@ def run_full_corpus(
             retrieval_checkpoint = resumed_checkpoint(
                 checkpoints,
                 "evaluate-retrieval",
+                config,
                 progress_callback,
             )
             if retrieval_checkpoint is None:
@@ -895,6 +1066,7 @@ def run_full_corpus(
             retrieval_checkpoint = resumed_checkpoint(
                 checkpoints,
                 "evaluate-retrieval",
+                config,
                 progress_callback,
             )
             if retrieval_checkpoint is None:
@@ -915,7 +1087,7 @@ def run_full_corpus(
             "build-search-index",
             "evaluate-retrieval",
         ):
-            existing = resumed_checkpoint(checkpoints, stage_name, progress_callback)
+            existing = resumed_checkpoint(checkpoints, stage_name, config, progress_callback)
             if existing is not None:
                 continue
             skipped_checkpoint(

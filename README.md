@@ -162,4 +162,8 @@ The supplementary knowledge graph stage materializes table, term, category, clus
 - Step-6 labels were completed through a rule-assisted repository audit; the duplicate relabel file is filled and agreement is reported, but it is not a fully independent second-human annotation study.
 - The local classifier is conservative: many uncertain measure-like terms are placed in `other_ambiguous`. The 250-row targeted reclaim audit is now labeled, but the latest gated classifier attempt did not satisfy the promotion gate and remains in a proposed run directory.
 - The refreshed clustering and relationship exports are structurally validated, and their 100-row manual review samples are completed in the current report metrics.
-- The 7,605-table full-corpus scale experiment is not yet attempted in this milestone.
+- The 7,605-table full-corpus scale experiment has been started as an operational
+  hardening exercise, but no full-scale semantic results are claimed. The full archive
+  and extracted CSV cache are present locally, and ingestion has a completed checkpoint;
+  extraction and downstream scale stages remain pending until the hardened resume audit
+  passes.

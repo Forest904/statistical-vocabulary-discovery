@@ -6,7 +6,7 @@ date: "2026-06-09"
 
 # Repository Details & Overview
 
-This report follows the numbering of the STAR statistical-vocabulary assignment and documents the current implementation on the 2,000-table Eurostat STAR subset. All quantitative results in the main report are from `configs/core.yaml`, whose configured corpus is `eurostat_2000_tables.tgz` with expected table count 2,000. The larger 7,605-table corpus is treated as pending scale work and is not used for the reported figures.
+This report follows the numbering of the STAR statistical-vocabulary assignment and documents the current implementation on the 2,000-table Eurostat STAR subset. All quantitative results in the main report are from `configs/core.yaml`, whose configured corpus is `eurostat_2000_tables.tgz` with expected table count 2,000. The larger 7,605-table corpus is treated as scale work and is not used for the reported figures.
 
 Repository link: `https://github.com/Forest904/statistical-vocabulary-discovery`
 
@@ -270,4 +270,4 @@ docker compose up --build
 
 ## F. Full-Scale Run Status
 
-The full-scale 7,605-table run is pending and no full-scale results are claimed in this report. The 2,000-table subset is the completed, validated submission target. Full-scale figures and bottleneck analysis should be added only after the large run finishes and its artifacts are validated.
+The full-scale 7,605-table run has an operational history but no completed semantic result set is claimed in this report. The full archive and extracted table cache are present locally, and a previous full-corpus orchestration attempt produced a completed ingestion checkpoint after an earlier ingestion failure. Extraction, classification, clustering, relationships, and full-scale search remain pending until the hardened resume audit passes. The 2,000-table subset is the completed, validated submission target. Full-scale figures and bottleneck analysis should be added only after the large run finishes and its artifacts are validated.

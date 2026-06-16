@@ -636,7 +636,10 @@ class ApiState:
         ranked.sort(key=lambda item: (-item[0], item[2]["node_type"], item[1], item[2]["node_id"]))
         items = []
         for score, _label_key, node in ranked[:page_size]:
-            properties = node.get("properties") if isinstance(node.get("properties"), dict) else {}
+            raw_properties = node.get("properties")
+            properties: dict[str, Any] = (
+                raw_properties if isinstance(raw_properties, dict) else {}
+            )
             metadata = {
                 key: properties.get(key)
                 for key in ("category", "domain", "cluster_id", "table_count", "occurrence_count")

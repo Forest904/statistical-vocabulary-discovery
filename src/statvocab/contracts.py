@@ -233,6 +233,8 @@ class RunManifest(ContractModel):
     pipeline_stage: str = Field(..., min_length=1)
     resources: tuple[str, ...] = Field(default_factory=tuple)
     artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    config_summary: dict[str, Any] = Field(default_factory=dict)
+    environment: dict[str, Any] = Field(default_factory=dict)
 
 
 class ResourceRecord(ContractModel):

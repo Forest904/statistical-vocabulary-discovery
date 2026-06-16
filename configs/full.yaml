@@ -9,11 +9,11 @@ paths:
   data_dir: data
   raw_dir: data/raw
   external_dir: data/external
-  processed_dir: data/processed
-  outputs_dir: outputs
-  reports_dir: report
+  processed_dir: data/processed_full
+  outputs_dir: outputs/full
+  reports_dir: report/full
   prompts_dir: prompts
-  cache_dir: .cache/statvocab
+  cache_dir: .cache/statvocab_full
 evaluation:
   fixture_corpus: data/fixtures/eurostat_star_edge_cases
   random_seed: 42

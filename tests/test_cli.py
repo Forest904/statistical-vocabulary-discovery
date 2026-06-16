@@ -184,3 +184,56 @@ def test_run_all_cli_invokes_full_corpus_runner(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "run_full_test" in result.output
+
+
+def test_run_all_cli_audit_resume_does_not_run(monkeypatch) -> None:
+    import statvocab.cli as cli
+
+    def fake_audit(config, *, run_id):
+        return {"run_id": run_id, "config": config.config_name, "stages": []}
+
+    def fail_run(*_args, **_kwargs):
+        raise AssertionError("audit mode must not execute run_full_corpus")
+
+    monkeypatch.setattr(cli, "audit_full_corpus_resume", fake_audit)
+    monkeypatch.setattr(cli, "run_full_corpus", fail_run)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "run-all",
+            "--config",
+            "configs/full.yaml",
+            "--resume-run-id",
+            "run_test",
+            "--audit-resume",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "run_test" in result.output
+
+
+def test_core_release_cli_commands(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    monkeypatch.setattr(
+        cli,
+        "write_core_release_manifest",
+        lambda config: Path("report/core_release_manifest.json"),
+    )
+    monkeypatch.setattr(
+        cli,
+        "validate_core_release_manifest",
+        lambda config: {"validated": True, "file_count": 1},
+    )
+
+    freeze = CliRunner().invoke(app, ["freeze-core-release", "--config", "configs/core.yaml"])
+    validate = CliRunner().invoke(app, ["validate-core-release", "--config", "configs/core.yaml"])
+
+    assert freeze.exit_code == 0
+    assert "core_release_manifest" in freeze.output
+    assert validate.exit_code == 0
+    assert "validated" in validate.output

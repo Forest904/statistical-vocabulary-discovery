@@ -222,8 +222,10 @@ AGENT.md
 data/raw/
 data/external/
 data/processed/
+data/processed_full/
 data/downloads/
 data/indexes/
+outputs/full/
 outputs/runs/
 outputs/manifests/
 outputs/full_corpus/
@@ -234,6 +236,7 @@ outputs/**/*.faiss
 outputs/**/*.pkl
 outputs/**/*.joblib
 !outputs/.gitkeep
+report/full/
 report/full_corpus_scalability.md
 
 # Model and API caches

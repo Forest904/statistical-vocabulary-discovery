@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -59,17 +59,18 @@ def create_app(*, load_on_startup: bool = True) -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_error_handler(_request: Request, exc: HTTPException) -> JSONResponse:
-        if isinstance(exc.detail, dict) and "code" in exc.detail:
+        detail = cast(Any, exc.detail)
+        if isinstance(detail, dict) and "code" in detail:
             return _error_response(
                 exc.status_code,
-                code=str(exc.detail["code"]),
-                message=str(exc.detail.get("message", exc.detail["code"])),
-                details=dict(exc.detail.get("details") or {}),
+                code=str(detail["code"]),
+                message=str(detail.get("message", detail["code"])),
+                details=dict(detail.get("details") or {}),
             )
         return _error_response(
             exc.status_code,
             code="http_error",
-            message=str(exc.detail),
+            message=str(detail),
         )
 
     @app.exception_handler(RequestValidationError)

@@ -11,7 +11,13 @@ from rich.console import Console
 from typer.models import OptionInfo
 
 from statvocab import __version__
-from statvocab.artifact_validation import validate_artifacts as run_artifact_validation
+from statvocab.artifact_validation import (
+    validate_artifacts as run_artifact_validation,
+)
+from statvocab.artifact_validation import (
+    validate_core_release_manifest,
+    write_core_release_manifest,
+)
 from statvocab.classification import run_classification
 from statvocab.classification_evaluate import evaluate_classification
 from statvocab.cluster_measures import run_measure_clustering
@@ -19,7 +25,7 @@ from statvocab.clustering_evaluate import evaluate_clustering
 from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
-from statvocab.full_corpus import run_full_corpus
+from statvocab.full_corpus import audit_full_corpus_resume, run_full_corpus
 from statvocab.ingest import run_ingestion
 from statvocab.knowledge_graph import run_knowledge_graph
 from statvocab.logging import configure_logging
@@ -358,10 +364,19 @@ def run_all(
         str | None,
         typer.Option("--resume-run-id", help="Resume a checkpointed full-corpus run ID."),
     ] = None,
+    audit_resume: Annotated[
+        bool,
+        typer.Option("--audit-resume", help="Inspect checkpoint reuse without executing stages."),
+    ] = False,
 ) -> None:
     """Run the instrumented full-corpus scale attempt."""
 
     loaded = load_config(config)
+    if audit_resume:
+        if resume_run_id is None:
+            raise typer.BadParameter("--audit-resume requires --resume-run-id")
+        console.print(audit_full_corpus_resume(loaded, run_id=resume_run_id))
+        return
     payload = run_full_corpus(
         loaded,
         run_id=resume_run_id,
@@ -380,3 +395,24 @@ def validate_artifacts(
     loaded = load_config(config)
     payload = run_artifact_validation(loaded, run_id=run_id)
     console.print(payload)
+
+
+@app.command("freeze-core-release")
+def freeze_core_release(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Write a checksum manifest for the current core release artifacts."""
+
+    loaded = load_config(config)
+    path = write_core_release_manifest(loaded)
+    console.print({"core_release_manifest": str(path)})
+
+
+@app.command("validate-core-release")
+def validate_core_release(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Validate the frozen core release artifact manifest."""
+
+    loaded = load_config(config)
+    console.print(validate_core_release_manifest(loaded))

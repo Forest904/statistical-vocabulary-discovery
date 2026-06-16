@@ -1,11 +1,13 @@
+import json
 from pathlib import Path
 
 import pyarrow.parquet as pq
+import pytest
 
 from statvocab.config import AppConfig, load_config
 from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.ingest import run_ingestion
-from statvocab.vocabulary import run_extraction
+from statvocab.vocabulary import FragmentValidationError, run_extraction
 
 
 def _fixture_config(tmp_path: Path) -> AppConfig:
@@ -123,6 +125,55 @@ def test_partial_extraction_resume_reuses_table_fragments(
 
     assert first == second
     assert any(event.get("resumed") is True for event in events)
+
+
+def test_partial_extraction_resume_rejects_mismatched_config(tmp_path: Path) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config, partial_run_id="run_partial", resume_partials=True)
+    fragment = next(
+        (config.paths.processed_dir / "full_extract_partial" / "run_partial" / "tables").glob(
+            "*.json"
+        )
+    )
+    payload = json.loads(fragment.read_text(encoding="utf-8"))
+    payload["fragment_metadata"]["config_fingerprint"] = "cfg_stale"
+    fragment.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+
+    with pytest.raises(FragmentValidationError, match="config_fingerprint"):
+        run_extraction(config, partial_run_id="run_partial", resume_partials=True)
+
+
+def test_partial_extraction_resume_rejects_mismatched_source_checksum(tmp_path: Path) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config, partial_run_id="run_partial", resume_partials=True)
+    fragment = next(
+        (config.paths.processed_dir / "full_extract_partial" / "run_partial" / "tables").glob(
+            "*.json"
+        )
+    )
+    payload = json.loads(fragment.read_text(encoding="utf-8"))
+    payload["fragment_metadata"]["source_file_md5"] = "stale"
+    fragment.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+
+    with pytest.raises(FragmentValidationError, match="source_file_md5"):
+        run_extraction(config, partial_run_id="run_partial", resume_partials=True)
+
+
+def test_partial_extraction_resume_rejects_corrupt_fragment(tmp_path: Path) -> None:
+    config = _fixture_config(tmp_path)
+    run_ingestion(config)
+    run_extraction(config, partial_run_id="run_partial", resume_partials=True)
+    fragment = next(
+        (config.paths.processed_dir / "full_extract_partial" / "run_partial" / "tables").glob(
+            "*.json"
+        )
+    )
+    fragment.write_text("{not json", encoding="utf-8")
+
+    with pytest.raises(FragmentValidationError, match="corrupt JSON"):
+        run_extraction(config, partial_run_id="run_partial", resume_partials=True)
 
 
 def test_extraction_evaluation_uses_fixture_gold_labels(tmp_path: Path) -> None:

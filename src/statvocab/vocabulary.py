@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
@@ -23,10 +24,12 @@ from statvocab.geo_extract import (
 from statvocab.ingest import _read_csv_rows
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
 from statvocab.normalize import is_numeric_like, normalize_display, normalize_matching_key
+from statvocab.run_metadata import run_environment
 from statvocab.time_extract import TimeOccurrence, extract_header_times, extract_title_times
 from statvocab.title_extract import TitleTerm, extract_title_terms
 
 MISSING_MARKERS = {"", ":"}
+EXTRACTION_FRAGMENT_SCHEMA_VERSION = 1
 EXTRACTION_ROW_KEYS = (
     "time_rows",
     "string_rows",
@@ -35,6 +38,10 @@ EXTRACTION_ROW_KEYS = (
     "term_occurrences",
 )
 ExtractionProgressCallback = Callable[[dict[str, Any]], None]
+
+
+class FragmentValidationError(RuntimeError):
+    """Raised when a saved extraction fragment is unsafe to reuse."""
 
 
 def _read_tables(path: Path) -> list[dict[str, Any]]:
@@ -85,12 +92,61 @@ def _fragment_path(config: AppConfig, run_id: str, table_id: str) -> Path:
     return _partial_paths(config, run_id)["fragments"] / _safe_fragment_name(table_id)
 
 
-def _load_fragment(path: Path) -> dict[str, Any] | None:
+def _fragment_metadata(
+    config: AppConfig,
+    *,
+    table_row: dict[str, Any],
+    artifact_run_id: str,
+) -> dict[str, Any]:
+    return {
+        "schema_version": EXTRACTION_FRAGMENT_SCHEMA_VERSION,
+        "table_id": _row_string(table_row["table_id"]),
+        "source_file_md5": _row_string(table_row.get("parsed_file_md5")),
+        "source_file_size": int(table_row.get("size_bytes") or 0),
+        "config_fingerprint": config.config_fingerprint,
+        "artifact_run_id": artifact_run_id,
+        "environment": run_environment(config),
+    }
+
+
+def _validate_fragment_metadata(
+    payload: dict[str, Any],
+    *,
+    path: Path,
+    expected: dict[str, Any],
+) -> None:
+    metadata = payload.get("fragment_metadata")
+    if not isinstance(metadata, dict):
+        raise FragmentValidationError(f"Fragment {path} has no fragment_metadata")
+    for key in (
+        "schema_version",
+        "table_id",
+        "source_file_md5",
+        "source_file_size",
+        "config_fingerprint",
+        "artifact_run_id",
+    ):
+        if metadata.get(key) != expected.get(key):
+            raise FragmentValidationError(
+                f"Fragment {path} metadata mismatch for {key}: "
+                f"expected {expected.get(key)!r}, found {metadata.get(key)!r}"
+            )
+
+
+def _load_fragment(
+    path: Path,
+    *,
+    expected_metadata: dict[str, Any],
+) -> dict[str, Any] | None:
     if not path.exists():
         return None
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise FragmentValidationError(f"Fragment {path} is corrupt JSON: {exc}") from exc
     if payload.get("status") != "succeeded":
         return None
+    _validate_fragment_metadata(payload, path=path, expected=expected_metadata)
     return cast(dict[str, Any], payload)
 
 
@@ -110,6 +166,11 @@ def _write_partial_state(
     completed_tables: int,
     failed_tables: int,
     current_table_id: str | None,
+    resumed_tables: int = 0,
+    fragment_count: int = 0,
+    fragment_bytes: int = 0,
+    tables_per_minute: float | None = None,
+    eta_seconds: float | None = None,
 ) -> Path:
     paths = _partial_paths(config, run_id)
     dataset_path = config.paths.raw_dir / (config.corpus.archive_name or "").removesuffix(".tgz")
@@ -121,10 +182,16 @@ def _write_partial_state(
         "total_tables": total_tables,
         "completed_tables": completed_tables,
         "failed_tables": failed_tables,
+        "resumed_tables": resumed_tables,
+        "fragment_count": fragment_count,
+        "fragment_bytes": fragment_bytes,
+        "tables_per_minute": tables_per_minute,
+        "eta_seconds": eta_seconds,
         "current_table_id": current_table_id,
         "partial_artifact_dir": str(paths["root"]),
         "table_fragment_dir": str(paths["fragments"]),
         "table_progress_ledger": str(paths["ledger"]),
+        "updated_at": _now_iso(),
     }
     return _write_json(payload, paths["state"])
 
@@ -610,6 +677,28 @@ def run_extraction(
     failed_tables = 0
     partial_artifact_paths = _partial_paths(config, partial_run_id) if partial_run_id else None
     total_tables = len(table_rows)
+    started_perf = time.perf_counter()
+    fragment_count = 0
+    fragment_bytes = 0
+
+    def progress_snapshot(current_table_id: str | None) -> dict[str, Any]:
+        elapsed = max(time.perf_counter() - started_perf, 0.0)
+        tables_per_minute = (completed_tables / elapsed * 60.0) if elapsed else None
+        remaining = max(total_tables - completed_tables, 0)
+        eta_seconds = (
+            (remaining / (completed_tables / elapsed)) if elapsed and completed_tables else None
+        )
+        return {
+            "total_tables": total_tables,
+            "completed_tables": completed_tables,
+            "failed_tables": failed_tables,
+            "resumed_tables": resumed_tables,
+            "fragment_count": fragment_count,
+            "fragment_bytes": fragment_bytes,
+            "tables_per_minute": tables_per_minute,
+            "eta_seconds": eta_seconds,
+            "current_table_id": current_table_id,
+        }
 
     for position, table_row in enumerate(
         sorted(table_rows, key=lambda row: str(row["table_id"])),
@@ -620,7 +709,16 @@ def run_extraction(
         fragment_path = (
             _fragment_path(config, partial_run_id, table_id) if partial_run_id is not None else None
         )
-        fragment = _load_fragment(fragment_path) if resume_partials and fragment_path else None
+        expected_fragment_metadata = _fragment_metadata(
+            config,
+            table_row=table_row,
+            artifact_run_id=artifact_run_id,
+        )
+        fragment = (
+            _load_fragment(fragment_path, expected_metadata=expected_fragment_metadata)
+            if resume_partials and fragment_path
+            else None
+        )
         try:
             if fragment is None:
                 fragment = _extract_table_rows(
@@ -634,6 +732,7 @@ def run_extraction(
                 fragment["table_id"] = table_id
                 fragment["status"] = "succeeded"
                 fragment["artifact_run_id"] = artifact_run_id
+                fragment["fragment_metadata"] = expected_fragment_metadata
                 if fragment_path is not None:
                     _write_fragment(fragment, fragment_path)
                     fragment["fragment_path"] = str(fragment_path)
@@ -641,6 +740,9 @@ def run_extraction(
             else:
                 resumed = True
                 resumed_tables += 1
+            if fragment_path is not None and fragment_path.exists():
+                fragment_count += 1
+                fragment_bytes += fragment_path.stat().st_size
 
             row_count = _extend_extraction_rows(rows_by_artifact, fragment)
             malformed_rows_skipped += int(fragment.get("malformed_rows_skipped") or 0)
@@ -659,6 +761,7 @@ def run_extraction(
                     "fragment_path": str(fragment_path) if fragment_path else "",
                 }
                 _append_jsonl(ledger_payload, partial_artifact_paths["ledger"])
+                snapshot = progress_snapshot(table_id)
                 _write_partial_state(
                     config=config,
                     run_id=partial_run_id,
@@ -666,19 +769,22 @@ def run_extraction(
                     completed_tables=completed_tables,
                     failed_tables=failed_tables,
                     current_table_id=table_id,
+                    resumed_tables=resumed_tables,
+                    fragment_count=fragment_count,
+                    fragment_bytes=fragment_bytes,
+                    tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
+                    eta_seconds=cast(float | None, snapshot["eta_seconds"]),
                 )
             if progress_callback is not None:
+                snapshot = progress_snapshot(table_id)
                 progress_callback(
                     {
                         "event": "table_finished",
                         "table_id": table_id,
                         "current_table": position,
-                        "total_tables": total_tables,
-                        "completed_tables": completed_tables,
-                        "failed_tables": failed_tables,
-                        "resumed_tables": resumed_tables,
                         "resumed": resumed,
                         "row_count": row_count,
+                        **snapshot,
                     }
                 )
         except Exception as exc:
@@ -697,6 +803,7 @@ def run_extraction(
                     },
                     partial_artifact_paths["ledger"],
                 )
+                snapshot = progress_snapshot(table_id)
                 _write_partial_state(
                     config=config,
                     run_id=partial_run_id,
@@ -704,6 +811,11 @@ def run_extraction(
                     completed_tables=completed_tables,
                     failed_tables=failed_tables,
                     current_table_id=table_id,
+                    resumed_tables=resumed_tables,
+                    fragment_count=fragment_count,
+                    fragment_bytes=fragment_bytes,
+                    tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
+                    eta_seconds=cast(float | None, snapshot["eta_seconds"]),
                 )
             if progress_callback is not None:
                 progress_callback(
@@ -787,6 +899,8 @@ def run_extraction(
         "malformed_rows_skipped": malformed_rows_skipped,
         "geography_variant_for_vocabulary": config.extraction.geography_variant,
         "artifact_run_id": artifact_run_id,
+        "fragment_count": fragment_count,
+        "fragment_bytes": fragment_bytes,
     }
     if partial_run_id is not None and partial_artifact_paths is not None:
         diagnostics["partial_run_id"] = partial_run_id
@@ -801,6 +915,11 @@ def run_extraction(
             completed_tables=completed_tables,
             failed_tables=failed_tables,
             current_table_id=None,
+            resumed_tables=resumed_tables,
+            fragment_count=fragment_count,
+            fragment_bytes=fragment_bytes,
+            tables_per_minute=cast(float | None, progress_snapshot(None)["tables_per_minute"]),
+            eta_seconds=cast(float | None, progress_snapshot(None)["eta_seconds"]),
         )
         artifacts["partial_extract_state"] = partial_artifact_paths["state"]
         artifacts["partial_extract_ledger"] = partial_artifact_paths["ledger"]
