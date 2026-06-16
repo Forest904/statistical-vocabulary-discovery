@@ -16,23 +16,31 @@
     }
   },
   "area": "classification",
-  "config_name": "core",
-  "corpus": "core",
+  "category_counts": {
+    "dimension_name": 359,
+    "dimension_value": 607,
+    "measure": 2894,
+    "other_ambiguous": 9114,
+    "unit": 261
+  },
+  "config_name": "evaluation",
+  "corpus": "fixture",
+  "evaluated_prediction_source": "current_category_exports",
   "final_test_metrics": {
-    "accuracy": 0.64,
+    "accuracy": 0.6533333333333333,
     "confusion_matrix": {
       "dimension_name": {
-        "dimension_name": 19,
+        "dimension_name": 18,
         "dimension_value": 0,
         "measure": 0,
-        "other_ambiguous": 0,
+        "other_ambiguous": 1,
         "unit": 0
       },
       "dimension_value": {
         "dimension_name": 0,
-        "dimension_value": 5,
+        "dimension_value": 10,
         "measure": 0,
-        "other_ambiguous": 32,
+        "other_ambiguous": 27,
         "unit": 0
       },
       "measure": {
@@ -44,33 +52,33 @@
       },
       "other_ambiguous": {
         "dimension_name": 0,
-        "dimension_value": 0,
+        "dimension_value": 2,
         "measure": 0,
-        "other_ambiguous": 66,
+        "other_ambiguous": 64,
         "unit": 0
       },
       "unit": {
         "dimension_name": 0,
-        "dimension_value": 0,
+        "dimension_value": 2,
         "measure": 0,
-        "other_ambiguous": 8,
+        "other_ambiguous": 6,
         "unit": 2
       }
     },
     "gold_count": 150,
-    "macro_f1": 0.5289484708839548,
+    "macro_f1": 0.5562401312566547,
     "missing_predictions": [],
     "per_class": {
       "dimension_name": {
-        "f1": 1.0,
+        "f1": 0.972972972972973,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.9473684210526315,
         "support": 19
       },
       "dimension_value": {
-        "f1": 0.2380952380952381,
-        "precision": 1.0,
-        "recall": 0.13513513513513514,
+        "f1": 0.39215686274509803,
+        "precision": 0.7142857142857143,
+        "recall": 0.2702702702702703,
         "support": 37
       },
       "measure": {
@@ -80,9 +88,9 @@
         "support": 18
       },
       "other_ambiguous": {
-        "f1": 0.7096774193548387,
-        "precision": 0.55,
-        "recall": 1.0,
+        "f1": 0.7191011235955056,
+        "precision": 0.5714285714285714,
+        "recall": 0.9696969696969697,
         "support": 66
       },
       "unit": {
@@ -93,78 +101,77 @@
       }
     },
     "scored_count": 150,
-    "weighted_f1": 0.5635134757715403
+    "weighted_f1": 0.6022383496276424
   },
   "gold_labels": "data\\gold\\vocabulary_gold_labels.csv",
   "gold_relabel": "data\\gold\\vocabulary_gold_relabel.csv",
   "gold_sample": "data\\gold\\vocabulary_gold_sample.csv",
   "gold_status": "available",
-  "headline_metrics_source": "random_sample",
   "metrics": {
-    "accuracy": 0.66,
+    "accuracy": 0.6786666666666666,
     "confusion_matrix": {
       "dimension_name": {
-        "dimension_name": 86,
+        "dimension_name": 84,
         "dimension_value": 0,
         "measure": 0,
-        "other_ambiguous": 0,
+        "other_ambiguous": 2,
         "unit": 0
       },
       "dimension_value": {
         "dimension_name": 0,
-        "dimension_value": 26,
+        "dimension_value": 58,
         "measure": 0,
-        "other_ambiguous": 104,
+        "other_ambiguous": 72,
         "unit": 0
       },
       "measure": {
         "dimension_name": 0,
         "dimension_value": 0,
-        "measure": 23,
-        "other_ambiguous": 133,
+        "measure": 22,
+        "other_ambiguous": 134,
         "unit": 0
       },
       "other_ambiguous": {
         "dimension_name": 0,
-        "dimension_value": 0,
+        "dimension_value": 15,
         "measure": 0,
-        "other_ambiguous": 341,
+        "other_ambiguous": 326,
         "unit": 0
       },
       "unit": {
         "dimension_name": 0,
-        "dimension_value": 0,
+        "dimension_value": 8,
         "measure": 0,
-        "other_ambiguous": 18,
+        "other_ambiguous": 10,
         "unit": 19
       }
     },
     "gold_count": 750,
-    "macro_f1": 0.5993485716102769,
+    "macro_f1": 0.6400967861884388,
     "missing_predictions": [],
     "per_class": {
       "dimension_name": {
-        "f1": 1.0,
+        "f1": 0.988235294117647,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.9767441860465116,
         "support": 86
       },
       "dimension_value": {
-        "f1": 0.33333333333333337,
-        "precision": 1.0,
-        "recall": 0.2,
+        "f1": 0.5497630331753554,
+        "precision": 0.7160493827160493,
+        "recall": 0.4461538461538462,
         "support": 130
       },
       "measure": {
-        "f1": 0.2569832402234637,
+        "f1": 0.24719101123595508,
         "precision": 1.0,
-        "recall": 0.14743589743589744,
+        "recall": 0.14102564102564102,
         "support": 156
       },
       "other_ambiguous": {
-        "f1": 0.727854855923159,
-        "precision": 0.5721476510067114,
-        "recall": 1.0,
+        "f1": 0.7367231638418079,
+        "precision": 0.5992647058823529,
+        "recall": 0.9560117302052786,
         "support": 341
       },
       "unit": {
@@ -175,18 +182,25 @@
       }
     },
     "scored_count": 750,
-    "weighted_f1": 0.590304490046845
+    "weighted_f1": 0.6284652921158962
+  },
+  "promotion_gate_summary": {
+    "random_final_macro_f1": 0.8842242242242243,
+    "status": "available",
+    "targeted_final_macro_f1": 0.05128205128205129,
+    "targeted_measure_recall": 0.0,
+    "targeted_non_other_precision": 0.7142857142857143
   },
   "source_metrics": {
     "random_sample": {
       "final_test_metrics": {
-        "accuracy": 0.96,
+        "accuracy": 0.93,
         "confusion_matrix": {
           "dimension_name": {
-            "dimension_name": 19,
+            "dimension_name": 18,
             "dimension_value": 0,
             "measure": 0,
-            "other_ambiguous": 0,
+            "other_ambiguous": 1,
             "unit": 0
           },
           "dimension_value": {
@@ -205,9 +219,9 @@
           },
           "other_ambiguous": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 2,
             "measure": 0,
-            "other_ambiguous": 66,
+            "other_ambiguous": 64,
             "unit": 0
           },
           "unit": {
@@ -219,18 +233,18 @@
           }
         },
         "gold_count": 100,
-        "macro_f1": 0.9274509803921568,
+        "macro_f1": 0.8842242242242243,
         "missing_predictions": [],
         "per_class": {
           "dimension_name": {
-            "f1": 1.0,
+            "f1": 0.972972972972973,
             "precision": 1.0,
-            "recall": 1.0,
+            "recall": 0.9473684210526315,
             "support": 19
           },
           "dimension_value": {
-            "f1": 1.0,
-            "precision": 1.0,
+            "f1": 0.8333333333333333,
+            "precision": 0.7142857142857143,
             "recall": 1.0,
             "support": 5
           },
@@ -241,9 +255,9 @@
             "support": 8
           },
           "other_ambiguous": {
-            "f1": 0.9705882352941176,
-            "precision": 0.9428571428571428,
-            "recall": 1.0,
+            "f1": 0.9481481481481481,
+            "precision": 0.927536231884058,
+            "recall": 0.9696969696969697,
             "support": 66
           },
           "unit": {
@@ -254,17 +268,17 @@
           }
         },
         "scored_count": 100,
-        "weighted_f1": 0.9539215686274509
+        "weighted_f1": 0.9256426426426426
       },
-      "final_test_non_other_precision": 1.0,
+      "final_test_non_other_precision": 0.9354838709677419,
       "metrics": {
-        "accuracy": 0.948,
+        "accuracy": 0.916,
         "confusion_matrix": {
           "dimension_name": {
-            "dimension_name": 86,
+            "dimension_name": 84,
             "dimension_value": 0,
             "measure": 0,
-            "other_ambiguous": 0,
+            "other_ambiguous": 2,
             "unit": 0
           },
           "dimension_value": {
@@ -277,15 +291,15 @@
           "measure": {
             "dimension_name": 0,
             "dimension_value": 0,
-            "measure": 23,
-            "other_ambiguous": 26,
+            "measure": 22,
+            "other_ambiguous": 27,
             "unit": 0
           },
           "other_ambiguous": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 13,
             "measure": 0,
-            "other_ambiguous": 320,
+            "other_ambiguous": 307,
             "unit": 0
           },
           "unit": {
@@ -297,31 +311,31 @@
           }
         },
         "gold_count": 500,
-        "macro_f1": 0.9199699699699699,
+        "macro_f1": 0.8687858427465798,
         "missing_predictions": [],
         "per_class": {
           "dimension_name": {
-            "f1": 1.0,
+            "f1": 0.988235294117647,
             "precision": 1.0,
-            "recall": 1.0,
+            "recall": 0.9767441860465116,
             "support": 86
           },
           "dimension_value": {
-            "f1": 1.0,
-            "precision": 1.0,
+            "f1": 0.8,
+            "precision": 0.6666666666666666,
             "recall": 1.0,
             "support": 26
           },
           "measure": {
-            "f1": 0.6388888888888888,
+            "f1": 0.6197183098591549,
             "precision": 1.0,
-            "recall": 0.46938775510204084,
+            "recall": 0.4489795918367347,
             "support": 49
           },
           "other_ambiguous": {
-            "f1": 0.960960960960961,
-            "precision": 0.9248554913294798,
-            "recall": 1.0,
+            "f1": 0.9359756097560976,
+            "precision": 0.9136904761904762,
+            "recall": 0.959375,
             "support": 320
           },
           "unit": {
@@ -332,16 +346,16 @@
           }
         },
         "scored_count": 500,
-        "weighted_f1": 0.9396261261261261
+        "weighted_f1": 0.9093332551983349
       },
       "validation_metrics": {
-        "accuracy": 0.94,
+        "accuracy": 0.93,
         "confusion_matrix": {
           "dimension_name": {
-            "dimension_name": 11,
+            "dimension_name": 10,
             "dimension_value": 0,
             "measure": 0,
-            "other_ambiguous": 0,
+            "other_ambiguous": 1,
             "unit": 0
           },
           "dimension_value": {
@@ -374,13 +388,13 @@
           }
         },
         "gold_count": 100,
-        "macro_f1": 0.8916666666666666,
+        "macro_f1": 0.8808210180623973,
         "missing_predictions": [],
         "per_class": {
           "dimension_name": {
-            "f1": 1.0,
+            "f1": 0.9523809523809523,
             "precision": 1.0,
-            "recall": 1.0,
+            "recall": 0.9090909090909091,
             "support": 11
           },
           "dimension_value": {
@@ -396,8 +410,8 @@
             "support": 9
           },
           "other_ambiguous": {
-            "f1": 0.9583333333333334,
-            "precision": 0.92,
+            "f1": 0.9517241379310345,
+            "precision": 0.9078947368421053,
             "recall": 1.0,
             "support": 69
           },
@@ -409,13 +423,13 @@
           }
         },
         "scored_count": 100,
-        "weighted_f1": 0.92625
+        "weighted_f1": 0.9164515599343186
       },
       "validation_non_other_precision": 1.0
     },
     "targeted_reclaim": {
       "final_test_metrics": {
-        "accuracy": 0.0,
+        "accuracy": 0.1,
         "confusion_matrix": {
           "dimension_name": {
             "dimension_name": 0,
@@ -426,9 +440,9 @@
           },
           "dimension_value": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 5,
             "measure": 0,
-            "other_ambiguous": 32,
+            "other_ambiguous": 27,
             "unit": 0
           },
           "measure": {
@@ -447,14 +461,14 @@
           },
           "unit": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 2,
             "measure": 0,
-            "other_ambiguous": 8,
+            "other_ambiguous": 6,
             "unit": 0
           }
         },
         "gold_count": 50,
-        "macro_f1": 0.0,
+        "macro_f1": 0.05128205128205129,
         "missing_predictions": [],
         "per_class": {
           "dimension_name": {
@@ -464,9 +478,9 @@
             "support": 0
           },
           "dimension_value": {
-            "f1": 0.0,
-            "precision": 0.0,
-            "recall": 0.0,
+            "f1": 0.25641025641025644,
+            "precision": 0.7142857142857143,
+            "recall": 0.15625,
             "support": 32
           },
           "measure": {
@@ -489,11 +503,11 @@
           }
         },
         "scored_count": 50,
-        "weighted_f1": 0.0
+        "weighted_f1": 0.16410256410256413
       },
-      "final_test_non_other_precision": null,
+      "final_test_non_other_precision": 0.7142857142857143,
       "metrics": {
-        "accuracy": 0.084,
+        "accuracy": 0.204,
         "confusion_matrix": {
           "dimension_name": {
             "dimension_name": 0,
@@ -504,9 +518,9 @@
           },
           "dimension_value": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 32,
             "measure": 0,
-            "other_ambiguous": 104,
+            "other_ambiguous": 72,
             "unit": 0
           },
           "measure": {
@@ -518,21 +532,21 @@
           },
           "other_ambiguous": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 2,
             "measure": 0,
-            "other_ambiguous": 21,
+            "other_ambiguous": 19,
             "unit": 0
           },
           "unit": {
             "dimension_name": 0,
-            "dimension_value": 0,
+            "dimension_value": 8,
             "measure": 0,
-            "other_ambiguous": 18,
+            "other_ambiguous": 10,
             "unit": 0
           }
         },
         "gold_count": 250,
-        "macro_f1": 0.030996309963099634,
+        "macro_f1": 0.12085900580247652,
         "missing_predictions": [],
         "per_class": {
           "dimension_name": {
@@ -542,9 +556,9 @@
             "support": 0
           },
           "dimension_value": {
-            "f1": 0.0,
-            "precision": 0.0,
-            "recall": 0.0,
+            "f1": 0.4383561643835617,
+            "precision": 0.7619047619047619,
+            "recall": 0.3076923076923077,
             "support": 104
           },
           "measure": {
@@ -554,9 +568,9 @@
             "support": 107
           },
           "other_ambiguous": {
-            "f1": 0.15498154981549817,
-            "precision": 0.084,
-            "recall": 1.0,
+            "f1": 0.16593886462882096,
+            "precision": 0.09134615384615384,
+            "recall": 0.9047619047619048,
             "support": 21
           },
           "unit": {
@@ -567,7 +581,7 @@
           }
         },
         "scored_count": 250,
-        "weighted_f1": 0.013018450184501847
+        "weighted_f1": 0.19629502901238263
       },
       "validation_metrics": {
         "accuracy": 0.02,
@@ -649,15 +663,249 @@
       "validation_non_other_precision": null
     }
   },
-  "stress_test_source": "targeted_reclaim",
+  "targeted_reclaim_metrics": {
+    "final_test_metrics": {
+      "accuracy": 0.1,
+      "confusion_matrix": {
+        "dimension_name": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        },
+        "dimension_value": {
+          "dimension_name": 0,
+          "dimension_value": 5,
+          "measure": 0,
+          "other_ambiguous": 27,
+          "unit": 0
+        },
+        "measure": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 10,
+          "unit": 0
+        },
+        "other_ambiguous": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        },
+        "unit": {
+          "dimension_name": 0,
+          "dimension_value": 2,
+          "measure": 0,
+          "other_ambiguous": 6,
+          "unit": 0
+        }
+      },
+      "gold_count": 50,
+      "macro_f1": 0.05128205128205129,
+      "missing_predictions": [],
+      "per_class": {
+        "dimension_name": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        },
+        "dimension_value": {
+          "f1": 0.25641025641025644,
+          "precision": 0.7142857142857143,
+          "recall": 0.15625,
+          "support": 32
+        },
+        "measure": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 10
+        },
+        "other_ambiguous": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        },
+        "unit": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 8
+        }
+      },
+      "scored_count": 50,
+      "weighted_f1": 0.16410256410256413
+    },
+    "final_test_non_other_precision": 0.7142857142857143,
+    "metrics": {
+      "accuracy": 0.204,
+      "confusion_matrix": {
+        "dimension_name": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        },
+        "dimension_value": {
+          "dimension_name": 0,
+          "dimension_value": 32,
+          "measure": 0,
+          "other_ambiguous": 72,
+          "unit": 0
+        },
+        "measure": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 107,
+          "unit": 0
+        },
+        "other_ambiguous": {
+          "dimension_name": 0,
+          "dimension_value": 2,
+          "measure": 0,
+          "other_ambiguous": 19,
+          "unit": 0
+        },
+        "unit": {
+          "dimension_name": 0,
+          "dimension_value": 8,
+          "measure": 0,
+          "other_ambiguous": 10,
+          "unit": 0
+        }
+      },
+      "gold_count": 250,
+      "macro_f1": 0.12085900580247652,
+      "missing_predictions": [],
+      "per_class": {
+        "dimension_name": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        },
+        "dimension_value": {
+          "f1": 0.4383561643835617,
+          "precision": 0.7619047619047619,
+          "recall": 0.3076923076923077,
+          "support": 104
+        },
+        "measure": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 107
+        },
+        "other_ambiguous": {
+          "f1": 0.16593886462882096,
+          "precision": 0.09134615384615384,
+          "recall": 0.9047619047619048,
+          "support": 21
+        },
+        "unit": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 18
+        }
+      },
+      "scored_count": 250,
+      "weighted_f1": 0.19629502901238263
+    },
+    "validation_metrics": {
+      "accuracy": 0.02,
+      "confusion_matrix": {
+        "dimension_name": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        },
+        "dimension_value": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        },
+        "measure": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 49,
+          "unit": 0
+        },
+        "other_ambiguous": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 1,
+          "unit": 0
+        },
+        "unit": {
+          "dimension_name": 0,
+          "dimension_value": 0,
+          "measure": 0,
+          "other_ambiguous": 0,
+          "unit": 0
+        }
+      },
+      "gold_count": 50,
+      "macro_f1": 0.00784313725490196,
+      "missing_predictions": [],
+      "per_class": {
+        "dimension_name": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        },
+        "dimension_value": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        },
+        "measure": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 49
+        },
+        "other_ambiguous": {
+          "f1": 0.0392156862745098,
+          "precision": 0.02,
+          "recall": 1.0,
+          "support": 1
+        },
+        "unit": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 0
+        }
+      },
+      "scored_count": 50,
+      "weighted_f1": 0.000784313725490196
+    },
+    "validation_non_other_precision": null
+  },
   "validation_metrics": {
-    "accuracy": 0.6333333333333333,
+    "accuracy": 0.6266666666666667,
     "confusion_matrix": {
       "dimension_name": {
-        "dimension_name": 11,
+        "dimension_name": 10,
         "dimension_value": 0,
         "measure": 0,
-        "other_ambiguous": 0,
+        "other_ambiguous": 1,
         "unit": 0
       },
       "dimension_value": {
@@ -690,13 +938,13 @@
       }
     },
     "gold_count": 150,
-    "macro_f1": 0.7632618747372846,
+    "macro_f1": 0.7530054644808744,
     "missing_predictions": [],
     "per_class": {
       "dimension_name": {
-        "f1": 1.0,
+        "f1": 0.9523809523809523,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.9090909090909091,
         "support": 11
       },
       "dimension_value": {
@@ -712,8 +960,8 @@
         "support": 58
       },
       "other_ambiguous": {
-        "f1": 0.717948717948718,
-        "precision": 0.56,
+        "f1": 0.7142857142857143,
+        "precision": 0.5555555555555556,
         "recall": 1.0,
         "support": 70
       },
@@ -725,7 +973,6 @@
       }
     },
     "scored_count": 150,
-    "weighted_f1": 0.5197421885946476
-  },
-  "variant": "accepted-local-hybrid-exports"
+    "weighted_f1": 0.5145407233931824
+  }
 }

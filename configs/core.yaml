@@ -27,6 +27,8 @@ extraction:
   nuts_2024_path: data/external/NUTS_AT_2024.csv
   eurostat_geo_codelist_path: data/external/eurostat_geo_codelist.xml
   eurostat_geo_codelist_version: GEO 14.0
+  parallel_workers: 4
+  parallel_chunk_size: 25
 classification:
   gold_sample_size: 500
   blind_relabel_fraction: 0.10
@@ -37,6 +39,12 @@ classification:
   pearl_revision: 0d29fb4a61ec2a11b60e8b078664389eb915286b
   embedding_batch_size: 64
   abstention_threshold: 0.55
+  semantic_neighbor_k: 5
+  semantic_hybrid_enabled: true
+  threshold_objective: macro_f1_with_recall_bonus
+  min_non_other_precision: 0.85
+  min_measure_recall_for_promotion: 0.35
+  min_other_reduction_fraction: 0.20
 clustering:
   hdbscan_min_cluster_size: 5
   hdbscan_min_samples: 2
@@ -45,6 +53,11 @@ clustering:
   agglomerative_linkage: average
   domain_similarity_threshold: 0.35
   domain_similarity_margin: 0.03
+  contextual_features_enabled: true
+  contextual_embedding_weight: 0.65
+  contextual_table_context_weight: 0.20
+  contextual_lexical_weight: 0.15
+  min_domain_assignment_score: 0.35
   representative_count: 5
   manual_review_sample_size: 100
 relations:
@@ -52,6 +65,7 @@ relations:
   related_similarity_threshold: 0.72
   containment_min_extra_tokens: 1
   max_candidates_per_measure: 25
+  semantic_neighbor_k: 50
   manual_review_sample_size: 100
   llm_adjudication_enabled: false
   llm_confidence_threshold: 0.65

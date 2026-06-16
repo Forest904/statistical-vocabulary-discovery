@@ -1,0 +1,33 @@
+{
+  "build_seconds": 40.916222800000014,
+  "corpus": "core",
+  "document_count": 2000,
+  "embedding_dimension": 384,
+  "files": {
+    "lexical_index": {
+      "md5": "9abd960d32bcad38f65c3905625ac332",
+      "path": "outputs\\search\\run_391c6ea54050920593d9\\lexical.sqlite",
+      "size_bytes": 4292608
+    },
+    "search_documents": {
+      "md5": "106db1b51f18cf76358edf78e957d18d",
+      "path": "data\\processed\\search_documents.parquet",
+      "size_bytes": 43452450
+    },
+    "semantic_index": {
+      "md5": "2450a4882b866af0693e1abd5ba95f06",
+      "path": "outputs\\search\\run_391c6ea54050920593d9\\semantic.faiss",
+      "size_bytes": 3072045
+    },
+    "semantic_metadata": {
+      "md5": "27a2b16453e8310e83886dbd631f2b2c",
+      "path": "outputs\\search\\run_391c6ea54050920593d9\\semantic_metadata.parquet",
+      "size_bytes": 148863
+    }
+  },
+  "pearl_model": "Lihuchen/pearl_small",
+  "pearl_revision": "0d29fb4a61ec2a11b60e8b078664389eb915286b",
+  "rss_bytes": 2089689088,
+  "run_id": "run_391c6ea54050920593d9",
+  "total_index_size_bytes": 50965966
+}

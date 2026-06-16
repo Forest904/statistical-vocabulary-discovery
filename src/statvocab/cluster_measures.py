@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
 import random
+import re
+import sys
 from collections import Counter
 from importlib import import_module
 from pathlib import Path
@@ -83,6 +86,7 @@ REVIEW_FIELDNAMES = [
 def _read_csv(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         raise FileNotFoundError(f"Missing {path}; run `statvocab classify` first.")
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
@@ -111,6 +115,108 @@ def _measure_rows(config: AppConfig) -> list[dict[str, str]]:
     rows = _read_csv(config.paths.outputs_dir / "measures.csv")
     rows.sort(key=lambda row: (row["canonical_term"].casefold(), row["term_id"]))
     return rows
+
+
+def _hash_index(value: str, size: int) -> int:
+    digest = hashlib.blake2b(value.encode("utf-8"), digest_size=4).digest()
+    return int.from_bytes(digest, "big") % size
+
+
+def _normalize_vector(values: list[float]) -> list[float]:
+    norm = math.sqrt(sum(value * value for value in values))
+    if norm == 0.0:
+        return values
+    return [value / norm for value in values]
+
+
+def _tokens(term: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", term.casefold()))
+
+
+def _term_categories(config: AppConfig) -> dict[str, str]:
+    categories: dict[str, str] = {}
+    for category, filename in (
+        ("measure", "measures.csv"),
+        ("dimension_name", "dimension_names.csv"),
+        ("dimension_value", "dimension_values.csv"),
+        ("unit", "units.csv"),
+        ("other_ambiguous", "other_ambiguous.csv"),
+    ):
+        path = config.paths.outputs_dir / filename
+        if not path.exists():
+            continue
+        for row in _read_csv(path):
+            term_id = row.get("term_id", "").strip()
+            if term_id:
+                categories[term_id] = category
+    return categories
+
+
+def _context_vectors(
+    config: AppConfig,
+    measures: list[dict[str, str]],
+    *,
+    table_bins: int = 32,
+    lexical_bins: int = 16,
+) -> dict[str, list[float]]:
+    categories = _term_categories(config)
+    measure_ids = {row["term_id"] for row in measures}
+    table_vocabulary_path = config.paths.processed_dir / "table_vocabulary.parquet"
+    table_context: dict[str, set[str]] = {term_id: set() for term_id in measure_ids}
+    if table_vocabulary_path.exists():
+        rows = read_parquet_rows(table_vocabulary_path)
+        by_table: dict[str, list[dict[str, Any]]] = {}
+        for row in rows:
+            by_table.setdefault(str(row["table_id"]), []).append(row)
+        for table_id, table_rows in by_table.items():
+            context_terms = {
+                str(row["matching_key"])
+                for row in table_rows
+                if categories.get(str(row["term_id"])) in {"dimension_name", "dimension_value"}
+            }
+            for row in table_rows:
+                term_id = str(row["term_id"])
+                if term_id in measure_ids:
+                    table_context[term_id].add(f"table:{table_id}")
+                    table_context[term_id].update(f"context:{term}" for term in context_terms)
+
+    vectors: dict[str, list[float]] = {}
+    for row in measures:
+        context_values = [0.0] * table_bins
+        for value in table_context.get(row["term_id"], set()):
+            context_values[_hash_index(value, table_bins)] += 1.0
+        lexical_values = [0.0] * lexical_bins
+        for token in _tokens(row["canonical_term"]):
+            lexical_values[_hash_index(token, lexical_bins)] += 1.0
+        context_scaled = [
+            value * config.clustering.contextual_table_context_weight
+            for value in _normalize_vector(context_values)
+        ]
+        lexical_scaled = [
+            value * config.clustering.contextual_lexical_weight
+            for value in _normalize_vector(lexical_values)
+        ]
+        vectors[row["term_id"]] = [*context_scaled, *lexical_scaled]
+    return vectors
+
+
+def _combined_vectors(
+    config: AppConfig,
+    measures: list[dict[str, str]],
+    vectors_by_term: dict[str, list[float]],
+) -> dict[str, list[float]]:
+    if not config.clustering.contextual_features_enabled:
+        return vectors_by_term
+    context_by_term = _context_vectors(config, measures)
+    combined: dict[str, list[float]] = {}
+    for row in measures:
+        term_id = row["term_id"]
+        embedding = [
+            value * config.clustering.contextual_embedding_weight
+            for value in _normalize_vector(vectors_by_term[term_id])
+        ]
+        combined[term_id] = [*embedding, *context_by_term.get(term_id, [])]
+    return combined
 
 
 def _ensure_embeddings(config: AppConfig, measures: list[dict[str, str]]) -> dict[str, list[float]]:
@@ -214,7 +320,11 @@ def _label_clusters(
         best_domain, best_score = ordered[0] if ordered else (CROSS_DOMAIN, 0.0)
         second_score = ordered[1][1] if len(ordered) > 1 else 0.0
         if (
-            best_score >= config.clustering.domain_similarity_threshold
+            best_score
+            >= max(
+                config.clustering.domain_similarity_threshold,
+                config.clustering.min_domain_assignment_score,
+            )
             and best_score - second_score >= config.clustering.domain_similarity_margin
         ):
             domain = best_domain
@@ -388,6 +498,9 @@ def _summary(
     baseline_labels: list[int],
     probabilities: list[float],
     silhouette: float | None,
+    *,
+    raw_labels: list[int] | None = None,
+    cluster_domains: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     cluster_counts = Counter(str(row["cluster_id"]) for row in rows)
     domain_counts = Counter(str(row["domain"]) for row in rows)
@@ -396,6 +509,14 @@ def _summary(
         float(value)
         for value in probabilities
         if not math.isnan(float(value))
+    ]
+    raw_non_noise = sum(1 for label in raw_labels or labels if label >= 0)
+    raw_count = len(raw_labels or labels)
+    raw_coverage = raw_non_noise / raw_count if raw_count else 0.0
+    domain_confidences = [
+        max((info.get("domain_scores") or {}).values(), default=0.0)
+        for info in (cluster_domains or {}).values()
+        if info.get("domain") != CROSS_DOMAIN
     ]
     return {
         "measure_count": len(rows),
@@ -408,11 +529,51 @@ def _summary(
         "hdbscan_stability_proxy": (
             sum(persistence_values) / len(persistence_values) if persistence_values else None
         ),
+        "contextual_features_enabled": bool(raw_labels is not None),
+        "cluster_coverage_delta": (non_noise / len(rows) if rows else 0.0) - raw_coverage,
+        "unclustered_count_delta": (len(rows) - non_noise) - (raw_count - raw_non_noise),
+        "domain_assignment_confidence": (
+            sum(domain_confidences) / len(domain_confidences) if domain_confidences else None
+        ),
         "baseline": {
             "method": "agglomerative",
             "cluster_count": len(set(baseline_labels)),
             "distance_threshold": "configured",
         },
+    }
+
+
+def _coverage_from_rows(rows: list[dict[str, str]]) -> float:
+    if not rows:
+        return 0.0
+    clustered = sum(1 for row in rows if row.get("cluster_id") != "unclustered")
+    return clustered / len(rows)
+
+
+def _clustering_gate(
+    *,
+    config: AppConfig,
+    candidate_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    existing_path = config.paths.outputs_dir / "measure_clusters.csv"
+    if not existing_path.exists():
+        return {"accepted": True, "reasons": ["no existing cluster export to protect"]}
+    existing_rows = _read_csv(existing_path)
+    existing_coverage = _coverage_from_rows(existing_rows)
+    candidate_coverage = _coverage_from_rows(
+        [{key: str(value) for key, value in row.items()} for row in candidate_rows]
+    )
+    reasons: list[str] = []
+    if candidate_coverage < existing_coverage:
+        reasons.append(
+            "candidate coverage "
+            f"{candidate_coverage:.3f} below existing {existing_coverage:.3f}"
+        )
+    return {
+        "accepted": not reasons,
+        "reasons": reasons,
+        "existing_coverage": existing_coverage,
+        "candidate_coverage": candidate_coverage,
     }
 
 
@@ -464,8 +625,26 @@ def run_measure_clustering(
         )
         return artifacts, manifest_path, summary
 
-    vectors_by_term = _ensure_embeddings(config, measures)
+    raw_vectors_by_term = _ensure_embeddings(config, measures)
+    vectors_by_term = _combined_vectors(config, measures, raw_vectors_by_term)
     matrix = numpy.array([vectors_by_term[row["term_id"]] for row in measures], dtype=float)
+    raw_labels: list[int] | None = None
+    if config.clustering.contextual_features_enabled:
+        raw_matrix = numpy.array(
+            [raw_vectors_by_term[row["term_id"]] for row in measures],
+            dtype=float,
+        )
+        raw_model = hdbscan.HDBSCAN(
+            min_cluster_size=min(config.clustering.hdbscan_min_cluster_size, len(measures)),
+            min_samples=min(
+                config.clustering.hdbscan_min_samples,
+                min(config.clustering.hdbscan_min_cluster_size, len(measures)),
+            ),
+            metric=config.clustering.hdbscan_metric,
+            prediction_data=False,
+        )
+        raw_model.fit(raw_matrix)
+        raw_labels = _hdbscan_labels(raw_model)
     min_cluster_size = min(config.clustering.hdbscan_min_cluster_size, len(measures))
     model = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
@@ -490,7 +669,7 @@ def run_measure_clustering(
     domain_vectors = _domain_embeddings(config, len(measures))
     cluster_domains = _label_clusters(
         config,
-        _cluster_vectors(measures, labels, vectors_by_term),
+        _cluster_vectors(measures, labels, raw_vectors_by_term),
         domain_vectors,
     )
     rows = _cluster_rows(measures, labels, probabilities, representative_ids, cluster_domains)
@@ -502,6 +681,8 @@ def run_measure_clustering(
         baseline_labels,
         probabilities,
         _silhouette(silhouette_score, matrix, labels),
+        raw_labels=raw_labels,
+        cluster_domains=cluster_domains,
     )
     summary["run_id"] = manifest.run_id
     summary["labeling"] = {
@@ -509,11 +690,19 @@ def run_measure_clustering(
         "similarity_threshold": config.clustering.domain_similarity_threshold,
         "similarity_margin": config.clustering.domain_similarity_margin,
     }
+    gate = _clustering_gate(config=config, candidate_rows=rows)
+    summary["acceptance_gate"] = gate
+    summary["exports_promoted"] = bool(gate["accepted"])
+    measure_clusters_path = (
+        config.paths.outputs_dir / "measure_clusters.csv"
+        if bool(gate["accepted"])
+        else output_dir / "proposed_measure_clusters.csv"
+    )
 
     artifacts = {
         "measure_clusters": write_csv_rows(
             rows,
-            config.paths.outputs_dir / "measure_clusters.csv",
+            measure_clusters_path,
             MEASURE_CLUSTER_FIELDNAMES,
         ),
         "baseline_assignments": write_csv_rows(

@@ -1,0 +1,219 @@
+{
+  "area": "retrieval",
+  "config_name": "evaluation",
+  "corpus": "fixture",
+  "index": {
+    "build_seconds": 40.916222800000014,
+    "corpus": "core",
+    "document_count": 2000,
+    "embedding_dimension": 384,
+    "files": {
+      "lexical_index": {
+        "md5": "9abd960d32bcad38f65c3905625ac332",
+        "path": "outputs\\search\\run_391c6ea54050920593d9\\lexical.sqlite",
+        "size_bytes": 4292608
+      },
+      "search_documents": {
+        "md5": "106db1b51f18cf76358edf78e957d18d",
+        "path": "data\\processed\\search_documents.parquet",
+        "size_bytes": 43452450
+      },
+      "semantic_index": {
+        "md5": "2450a4882b866af0693e1abd5ba95f06",
+        "path": "outputs\\search\\run_391c6ea54050920593d9\\semantic.faiss",
+        "size_bytes": 3072045
+      },
+      "semantic_metadata": {
+        "md5": "27a2b16453e8310e83886dbd631f2b2c",
+        "path": "outputs\\search\\run_391c6ea54050920593d9\\semantic_metadata.parquet",
+        "size_bytes": 148863
+      }
+    },
+    "pearl_model": "Lihuchen/pearl_small",
+    "pearl_revision": "0d29fb4a61ec2a11b60e8b078664389eb915286b",
+    "rss_bytes": 2089689088,
+    "run_id": "run_391c6ea54050920593d9",
+    "total_index_size_bytes": 50965966
+  },
+  "predictions": "outputs\\retrieval\\run_25cbe2c81e0142ce2757\\retrieval_predictions.csv",
+  "question_count": 200,
+  "question_row_split_counts": {
+    "development": 120,
+    "final_test": 40,
+    "validation": 40
+  },
+  "run_id": "run_25cbe2c81e0142ce2757",
+  "systems": {
+    "all_vocabulary_bm25": {
+      "original": {
+        "HitRate@1": 0.55,
+        "HitRate@10": 0.95,
+        "HitRate@5": 0.95,
+        "MRR": 0.9225,
+        "Relevance@1": 0.75,
+        "Relevance@5": 0.975,
+        "p50_latency_ms": 164.47379999999612,
+        "p95_latency_ms": 339.0973999999005,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.25,
+        "HitRate@10": 0.6,
+        "HitRate@5": 0.55,
+        "MRR": 0.6876984126984127,
+        "Relevance@1": 0.425,
+        "Relevance@5": 0.675,
+        "p50_latency_ms": 166.7075999998815,
+        "p95_latency_ms": 334.81250000022555,
+        "question_count": 20
+      }
+    },
+    "fused": {
+      "original": {
+        "HitRate@1": 0.5,
+        "HitRate@10": 0.95,
+        "HitRate@5": 0.9,
+        "MRR": 0.9375,
+        "Relevance@1": 0.8,
+        "Relevance@5": 0.95,
+        "p50_latency_ms": 407.78769999997166,
+        "p95_latency_ms": 555.7078000001638,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.35,
+        "HitRate@10": 0.8,
+        "HitRate@5": 0.75,
+        "MRR": 0.9,
+        "Relevance@1": 0.7,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 372.35899999996036,
+        "p95_latency_ms": 586.9349999998121,
+        "question_count": 20
+      }
+    },
+    "pearl_semantic": {
+      "original": {
+        "HitRate@1": 0.6,
+        "HitRate@10": 0.85,
+        "HitRate@5": 0.8,
+        "MRR": 0.875,
+        "Relevance@1": 0.8,
+        "Relevance@5": 0.875,
+        "p50_latency_ms": 235.4045000001861,
+        "p95_latency_ms": 399.00319999969724,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.5,
+        "HitRate@10": 0.85,
+        "HitRate@5": 0.7,
+        "MRR": 0.8805555555555555,
+        "Relevance@1": 0.75,
+        "Relevance@5": 0.85,
+        "p50_latency_ms": 236.30659999980708,
+        "p95_latency_ms": 399.7724000000744,
+        "question_count": 20
+      }
+    },
+    "title_bm25": {
+      "original": {
+        "HitRate@1": 0.55,
+        "HitRate@10": 0.75,
+        "HitRate@5": 0.75,
+        "MRR": 0.9125,
+        "Relevance@1": 0.725,
+        "Relevance@5": 0.875,
+        "p50_latency_ms": 160.89169999986552,
+        "p95_latency_ms": 333.02039999989574,
+        "question_count": 20
+      },
+      "reformulated": {
+        "HitRate@1": 0.25,
+        "HitRate@10": 0.4,
+        "HitRate@5": 0.3,
+        "MRR": 0.5972222222222222,
+        "Relevance@1": 0.375,
+        "Relevance@5": 0.5,
+        "p50_latency_ms": 168.83529999995517,
+        "p95_latency_ms": 333.230199999889,
+        "question_count": 20
+      }
+    }
+  },
+  "tuning": {
+    "presets": {
+      "geography_time_heavy": {
+        "HitRate@1": 0.4,
+        "HitRate@10": 0.8,
+        "HitRate@5": 0.75,
+        "MRR": 0.7916666666666667,
+        "Relevance@1": 0.6,
+        "Relevance@5": 0.8,
+        "p50_latency_ms": 399.1351999998187,
+        "p95_latency_ms": 582.3959000003924,
+        "question_count": 20
+      },
+      "lexical_heavy": {
+        "HitRate@1": 0.35,
+        "HitRate@10": 0.65,
+        "HitRate@5": 0.45,
+        "MRR": 0.6696428571428571,
+        "Relevance@1": 0.475,
+        "Relevance@5": 0.6,
+        "p50_latency_ms": 416.03810000015073,
+        "p95_latency_ms": 527.9921999999715,
+        "question_count": 20
+      },
+      "prd_default": {
+        "HitRate@1": 0.4,
+        "HitRate@10": 0.75,
+        "HitRate@5": 0.65,
+        "MRR": 0.7666666666666667,
+        "Relevance@1": 0.55,
+        "Relevance@5": 0.775,
+        "p50_latency_ms": 424.02329999958965,
+        "p95_latency_ms": 575.09170000003,
+        "question_count": 20
+      },
+      "semantic_heavy": {
+        "HitRate@1": 0.4,
+        "HitRate@10": 0.7,
+        "HitRate@5": 0.65,
+        "MRR": 0.8666666666666666,
+        "Relevance@1": 0.65,
+        "Relevance@5": 0.8,
+        "p50_latency_ms": 390.4128999997738,
+        "p95_latency_ms": 567.6846999999725,
+        "question_count": 20
+      },
+      "structured_heavy": {
+        "HitRate@1": 0.25,
+        "HitRate@10": 0.45,
+        "HitRate@5": 0.35,
+        "MRR": 0.6117857142857143,
+        "Relevance@1": 0.4,
+        "Relevance@5": 0.6,
+        "p50_latency_ms": 382.592399999794,
+        "p95_latency_ms": 576.1600000000726,
+        "question_count": 20
+      }
+    },
+    "question_set": "reformulated",
+    "selected_preset": "geography_time_heavy",
+    "selected_weights": {
+      "dimension_weight": 0.1,
+      "geography_weight": 0.25,
+      "lexical_weight": 0.2,
+      "measure_weight": 0.1,
+      "semantic_weight": 0.25,
+      "time_weight": 0.1
+    },
+    "split": "validation"
+  },
+  "unique_question_id_split_counts": {
+    "development": 60,
+    "final_test": 20,
+    "validation": 20
+  }
+}

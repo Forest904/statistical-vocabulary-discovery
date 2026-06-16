@@ -1,0 +1,76 @@
+{
+  "acceptance_gate": {
+    "accepted": false,
+    "candidate_coverage": 0.5506329113924051,
+    "existing_coverage": 0.5743670886075949,
+    "reasons": [
+      "candidate coverage 0.551 below existing 0.574"
+    ]
+  },
+  "baseline": {
+    "cluster_count": 58,
+    "distance_threshold": "configured",
+    "method": "agglomerative"
+  },
+  "cluster_count": 31,
+  "cluster_coverage_delta": -0.023734177215189778,
+  "cluster_size_distribution": {
+    "cluster_0747a3157ffb": 15,
+    "cluster_0759ac914a9e": 6,
+    "cluster_08676e4a8f67": 19,
+    "cluster_0a4bab53e5fe": 9,
+    "cluster_2cdcfe259942": 12,
+    "cluster_310e64b58954": 14,
+    "cluster_436a35bf5d70": 12,
+    "cluster_506831c7dd56": 9,
+    "cluster_55cd06be7ef5": 13,
+    "cluster_71139f449ed0": 7,
+    "cluster_72b5baeeb545": 7,
+    "cluster_80edd39ddbff": 8,
+    "cluster_84a10ec4eb87": 13,
+    "cluster_9391f8d593af": 8,
+    "cluster_94cf800a89a5": 7,
+    "cluster_99358c580dcf": 33,
+    "cluster_99cbd02aba19": 13,
+    "cluster_9f5217e9767f": 7,
+    "cluster_aedee37960c7": 9,
+    "cluster_b032d77c2fcd": 12,
+    "cluster_b70da2ec1a1f": 12,
+    "cluster_b79ec27e90f4": 9,
+    "cluster_b93f4637d15d": 7,
+    "cluster_c8d379cc59d5": 5,
+    "cluster_d0b90b2f986d": 5,
+    "cluster_d1e893e7c222": 11,
+    "cluster_de826995d586": 13,
+    "cluster_e22df4ed8343": 8,
+    "cluster_e7d0c36b4e48": 23,
+    "cluster_f49b94d07c25": 13,
+    "cluster_fbcb7007a26d": 9,
+    "unclustered": 284
+  },
+  "contextual_features_enabled": true,
+  "coverage": 0.5506329113924051,
+  "domain_assignment_confidence": 0.7460570773408872,
+  "domain_distribution": {
+    "agriculture, forestry, and fisheries": 23,
+    "cross-domain or other": 390,
+    "economy and finance": 68,
+    "education": 22,
+    "industry, trade, and services": 16,
+    "labour market": 40,
+    "population and demography": 23,
+    "transport": 50
+  },
+  "exports_promoted": false,
+  "hdbscan_stability_proxy": 0.5240270630795755,
+  "labeling": {
+    "controlled_domain_count": 14,
+    "similarity_margin": 0.03,
+    "similarity_threshold": 0.35
+  },
+  "measure_count": 632,
+  "run_id": "run_363d4e2cb90e4443b1fa",
+  "silhouette": null,
+  "unclustered_count": 284,
+  "unclustered_count_delta": 15
+}

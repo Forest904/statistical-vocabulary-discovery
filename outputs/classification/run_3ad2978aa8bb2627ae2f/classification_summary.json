@@ -1,0 +1,38 @@
+{
+  "acceptance_gate": {
+    "accepted": false,
+    "baseline_other_ambiguous": 9114,
+    "baseline_random_final_macro_f1": 0.8842242242242243,
+    "baseline_targeted_final_macro_f1": 0.05128205128205129,
+    "baseline_targeted_measure_recall": 0.0,
+    "candidate_other_ambiguous": 6861,
+    "candidate_random_final_macro_f1": 0.8572539752867622,
+    "candidate_targeted_final_macro_f1": 0.1037037037037037,
+    "candidate_targeted_measure_recall": 0.7,
+    "other_reduction_fraction": 0.24720210664911127,
+    "reasons": [
+      "random final-test macro-F1 drop 0.027 exceeds 0.020",
+      "targeted final-test non-other precision 0.4117647058823529 below 0.85"
+    ],
+    "source_metrics_available": true,
+    "targeted_final_non_other_precision": 0.4117647058823529
+  },
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 359,
+    "dimension_value": 549,
+    "measure": 5205,
+    "other_ambiguous": 6861,
+    "unit": 261
+  },
+  "exports_promoted": false,
+  "metrics_status": "available",
+  "model_selection": {
+    "reason": "default threshold used",
+    "semantic_features_enabled": true,
+    "threshold": 0.55
+  },
+  "prediction_count": 13235,
+  "run_id": "run_3ad2978aa8bb2627ae2f",
+  "variant": "semantic-hybrid"
+}

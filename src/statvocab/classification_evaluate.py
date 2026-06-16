@@ -8,12 +8,20 @@ from pathlib import Path
 from typing import Any
 
 from statvocab.classification_features import (
-    CATEGORY_VALUES,
+CATEGORY_VALUES,
     completed_gold_labels,
     ensure_gold_templates,
     read_csv_rows,
 )
 from statvocab.config import AppConfig
+
+CATEGORY_EXPORTS = {
+    "measure": "measures.csv",
+    "dimension_name": "dimension_names.csv",
+    "dimension_value": "dimension_values.csv",
+    "unit": "units.csv",
+    "other_ambiguous": "other_ambiguous.csv",
+}
 
 
 def _write_json(payload: dict[str, Any], path: Path) -> Path:
@@ -187,6 +195,47 @@ def _score_source_splits(
     return payload
 
 
+def _category_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        category = str(row.get("category") or "")
+        if category:
+            counts[category] = counts.get(category, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _load_current_export_predictions(config: AppConfig) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for category, filename in CATEGORY_EXPORTS.items():
+        for row in read_csv_rows(config.paths.outputs_dir / filename):
+            row["category"] = category
+            rows.append(row)
+    return rows
+
+
+def _promotion_gate_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    source_metrics = payload.get("source_metrics")
+    if not isinstance(source_metrics, dict):
+        return {"status": "not_available"}
+    random_metrics = source_metrics.get("random_sample")
+    targeted_metrics = source_metrics.get("targeted_reclaim")
+    if not isinstance(random_metrics, dict) or not isinstance(targeted_metrics, dict):
+        return {"status": "not_available"}
+    targeted_final = targeted_metrics.get("final_test_metrics") or {}
+    targeted_per_class = targeted_final.get("per_class") or {}
+    return {
+        "status": "available",
+        "random_final_macro_f1": (random_metrics.get("final_test_metrics") or {}).get(
+            "macro_f1"
+        ),
+        "targeted_final_macro_f1": targeted_final.get("macro_f1"),
+        "targeted_measure_recall": (
+            targeted_per_class.get("measure") or {}
+        ).get("recall"),
+        "targeted_non_other_precision": targeted_metrics.get("final_test_non_other_precision"),
+    }
+
+
 def evaluate_classification(
     config: AppConfig,
     *,
@@ -210,14 +259,26 @@ def evaluate_classification(
     }
     if variant is not None:
         payload["variant"] = variant
+    evaluated_prediction_source = "provided_predictions" if prediction_rows is not None else ""
+    if prediction_rows is None:
+        export_rows = _load_current_export_predictions(config)
+        if export_rows:
+            prediction_rows = export_rows
+            evaluated_prediction_source = "current_category_exports"
     if prediction_rows is not None and gold_rows:
+        payload["evaluated_prediction_source"] = evaluated_prediction_source
+        payload["category_counts"] = _category_counts(prediction_rows)
         payload["metrics"] = _score_rows(gold_rows, prediction_rows)
         final_test_gold = [row for row in gold_rows if row.get("split") == "final_test"]
         validation_gold = [row for row in gold_rows if row.get("split") == "validation"]
         payload["validation_metrics"] = _score_rows(validation_gold, prediction_rows)
         payload["final_test_metrics"] = _score_rows(final_test_gold, prediction_rows)
         payload["source_metrics"] = _score_source_splits(gold_rows, prediction_rows)
+        payload["targeted_reclaim_metrics"] = payload["source_metrics"].get("targeted_reclaim")
+        payload["promotion_gate_summary"] = _promotion_gate_summary(payload)
     elif prediction_rows is not None:
+        payload["evaluated_prediction_source"] = evaluated_prediction_source
+        payload["category_counts"] = _category_counts(prediction_rows)
         payload["metrics_status"] = "pending_gold_labels"
         payload["message"] = "Classification predictions exist, but gold labels are pending."
     else:

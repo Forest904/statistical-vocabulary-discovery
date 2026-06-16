@@ -315,7 +315,8 @@ def evaluate(
                 "area": "classification",
                 "metrics": str(metrics_path),
                 "gold_status": payload["gold_status"],
-                "metrics_status": payload.get("metrics_status", "pending_predictions"),
+                "metrics_status": payload.get("metrics_status", "available"),
+                "evaluated_prediction_source": payload.get("evaluated_prediction_source", ""),
             }
         )
         return

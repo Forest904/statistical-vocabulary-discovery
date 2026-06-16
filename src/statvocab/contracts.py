@@ -98,6 +98,7 @@ class ExtractionSourceArea(StrEnum):
     METADATA_VALUE = "metadata_value"
     TITLE_FULL = "title_full"
     TITLE_CLAUSE = "title_clause"
+    TITLE_KEYPHRASE = "title_keyphrase"
 
 
 class GeographyVariant(StrEnum):

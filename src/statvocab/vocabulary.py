@@ -7,6 +7,7 @@ import json
 import time
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -38,6 +39,7 @@ EXTRACTION_ROW_KEYS = (
     "term_occurrences",
 )
 ExtractionProgressCallback = Callable[[dict[str, Any]], None]
+_PARALLEL_WORKER_STATE: dict[str, Any] = {}
 
 
 class FragmentValidationError(RuntimeError):
@@ -628,6 +630,47 @@ def _extract_table_rows(
     }
 
 
+def _init_parallel_extraction_worker(
+    config: AppConfig,
+    artifact_run_id: str,
+    allow_fixture_fallback: bool,
+) -> None:
+    nuts_matcher = build_geography_matcher(
+        config.extraction,
+        variant="nuts",
+        allow_fixture_fallback=allow_fixture_fallback,
+    )
+    enhanced_matcher = build_geography_matcher(
+        config.extraction,
+        variant="enhanced",
+        allow_fixture_fallback=allow_fixture_fallback,
+    )
+    active_matcher = (
+        enhanced_matcher if config.extraction.geography_variant == "enhanced" else nuts_matcher
+    )
+    _PARALLEL_WORKER_STATE.clear()
+    _PARALLEL_WORKER_STATE.update(
+        {
+            "config": config,
+            "artifact_run_id": artifact_run_id,
+            "nuts_matcher": nuts_matcher,
+            "enhanced_matcher": enhanced_matcher,
+            "active_matcher": active_matcher,
+        }
+    )
+
+
+def _extract_table_rows_parallel_worker(table_row: dict[str, Any]) -> dict[str, Any]:
+    return _extract_table_rows(
+        table_row,
+        config=cast(AppConfig, _PARALLEL_WORKER_STATE["config"]),
+        artifact_run_id=str(_PARALLEL_WORKER_STATE["artifact_run_id"]),
+        nuts_matcher=_PARALLEL_WORKER_STATE["nuts_matcher"],
+        enhanced_matcher=_PARALLEL_WORKER_STATE["enhanced_matcher"],
+        active_matcher=_PARALLEL_WORKER_STATE["active_matcher"],
+    )
+
+
 def _extend_extraction_rows(
     target: dict[str, list[dict[str, Any]]],
     payload: dict[str, Any],
@@ -700,136 +743,249 @@ def run_extraction(
             "current_table_id": current_table_id,
         }
 
-    for position, table_row in enumerate(
-        sorted(table_rows, key=lambda row: str(row["table_id"])),
-        start=1,
-    ):
-        table_id = _row_string(table_row["table_id"])
-        started_at = _now_iso()
-        fragment_path = (
-            _fragment_path(config, partial_run_id, table_id) if partial_run_id is not None else None
-        )
-        expected_fragment_metadata = _fragment_metadata(
-            config,
-            table_row=table_row,
-            artifact_run_id=artifact_run_id,
-        )
-        fragment = (
-            _load_fragment(fragment_path, expected_metadata=expected_fragment_metadata)
-            if resume_partials and fragment_path
-            else None
-        )
-        try:
-            if fragment is None:
-                fragment = _extract_table_rows(
-                    table_row,
-                    config=config,
-                    artifact_run_id=artifact_run_id,
-                    nuts_matcher=nuts_matcher,
-                    enhanced_matcher=enhanced_matcher,
-                    active_matcher=active_matcher,
-                )
-                fragment["table_id"] = table_id
-                fragment["status"] = "succeeded"
-                fragment["artifact_run_id"] = artifact_run_id
-                fragment["fragment_metadata"] = expected_fragment_metadata
-                if fragment_path is not None:
-                    _write_fragment(fragment, fragment_path)
-                    fragment["fragment_path"] = str(fragment_path)
-                resumed = False
-            else:
-                resumed = True
-                resumed_tables += 1
-            if fragment_path is not None and fragment_path.exists():
-                fragment_count += 1
-                fragment_bytes += fragment_path.stat().st_size
+    sorted_table_rows = sorted(table_rows, key=lambda row: str(row["table_id"]))
 
-            row_count = _extend_extraction_rows(rows_by_artifact, fragment)
-            malformed_rows_skipped += int(fragment.get("malformed_rows_skipped") or 0)
-            completed_tables += 1
-            if partial_run_id is not None and partial_artifact_paths is not None:
-                ledger_payload = {
+    def record_success(
+        *,
+        fragment: dict[str, Any],
+        table_id: str,
+        position: int,
+        started_at: str,
+        fragment_path: Path | None,
+        resumed: bool,
+    ) -> None:
+        nonlocal completed_tables, resumed_tables, fragment_count, fragment_bytes
+        nonlocal malformed_rows_skipped
+        if resumed:
+            resumed_tables += 1
+        if fragment_path is not None and fragment_path.exists():
+            fragment_count += 1
+            fragment_bytes += fragment_path.stat().st_size
+
+        row_count = _extend_extraction_rows(rows_by_artifact, fragment)
+        malformed_rows_skipped += int(fragment.get("malformed_rows_skipped") or 0)
+        completed_tables += 1
+        if partial_run_id is not None and partial_artifact_paths is not None:
+            ledger_payload = {
+                "table_id": table_id,
+                "status": "succeeded",
+                "position": position,
+                "total_tables": total_tables,
+                "resumed": resumed,
+                "started_at": started_at,
+                "finished_at": _now_iso(),
+                "row_count": row_count,
+                "malformed_rows_skipped": int(fragment.get("malformed_rows_skipped") or 0),
+                "fragment_path": str(fragment_path) if fragment_path else "",
+            }
+            _append_jsonl(ledger_payload, partial_artifact_paths["ledger"])
+            snapshot = progress_snapshot(table_id)
+            _write_partial_state(
+                config=config,
+                run_id=partial_run_id,
+                total_tables=total_tables,
+                completed_tables=completed_tables,
+                failed_tables=failed_tables,
+                current_table_id=table_id,
+                resumed_tables=resumed_tables,
+                fragment_count=fragment_count,
+                fragment_bytes=fragment_bytes,
+                tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
+                eta_seconds=cast(float | None, snapshot["eta_seconds"]),
+            )
+        if progress_callback is not None:
+            snapshot = progress_snapshot(table_id)
+            progress_callback(
+                {
+                    "event": "table_finished",
                     "table_id": table_id,
-                    "status": "succeeded",
+                    "current_table": position,
+                    "resumed": resumed,
+                    "row_count": row_count,
+                    **snapshot,
+                }
+            )
+
+    def record_failure(
+        *,
+        table_id: str,
+        position: int,
+        started_at: str,
+        fragment_path: Path | None,
+        exc: Exception,
+    ) -> None:
+        nonlocal failed_tables
+        failed_tables += 1
+        if partial_run_id is not None and partial_artifact_paths is not None:
+            _append_jsonl(
+                {
+                    "table_id": table_id,
+                    "status": "failed",
                     "position": position,
                     "total_tables": total_tables,
-                    "resumed": resumed,
                     "started_at": started_at,
                     "finished_at": _now_iso(),
-                    "row_count": row_count,
-                    "malformed_rows_skipped": int(fragment.get("malformed_rows_skipped") or 0),
+                    "failure_message": str(exc),
                     "fragment_path": str(fragment_path) if fragment_path else "",
+                },
+                partial_artifact_paths["ledger"],
+            )
+            snapshot = progress_snapshot(table_id)
+            _write_partial_state(
+                config=config,
+                run_id=partial_run_id,
+                total_tables=total_tables,
+                completed_tables=completed_tables,
+                failed_tables=failed_tables,
+                current_table_id=table_id,
+                resumed_tables=resumed_tables,
+                fragment_count=fragment_count,
+                fragment_bytes=fragment_bytes,
+                tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
+                eta_seconds=cast(float | None, snapshot["eta_seconds"]),
+            )
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "event": "table_failed",
+                    "table_id": table_id,
+                    "current_table": position,
+                    "total_tables": total_tables,
+                    "completed_tables": completed_tables,
+                    "failed_tables": failed_tables,
+                    "failure_message": str(exc),
                 }
-                _append_jsonl(ledger_payload, partial_artifact_paths["ledger"])
-                snapshot = progress_snapshot(table_id)
-                _write_partial_state(
-                    config=config,
-                    run_id=partial_run_id,
-                    total_tables=total_tables,
-                    completed_tables=completed_tables,
-                    failed_tables=failed_tables,
-                    current_table_id=table_id,
-                    resumed_tables=resumed_tables,
-                    fragment_count=fragment_count,
-                    fragment_bytes=fragment_bytes,
-                    tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
-                    eta_seconds=cast(float | None, snapshot["eta_seconds"]),
+            )
+
+    if config.extraction.parallel_workers > 1 and sorted_table_rows:
+        futures: dict[Any, tuple[dict[str, Any], str, int, str, Path | None, dict[str, Any]]] = {}
+        with ProcessPoolExecutor(
+            max_workers=config.extraction.parallel_workers,
+            initializer=_init_parallel_extraction_worker,
+            initargs=(config, artifact_run_id, allow_fixture_fallback),
+        ) as executor:
+            for position, table_row in enumerate(sorted_table_rows, start=1):
+                table_id = _row_string(table_row["table_id"])
+                started_at = _now_iso()
+                fragment_path = (
+                    _fragment_path(config, partial_run_id, table_id)
+                    if partial_run_id is not None
+                    else None
                 )
-            if progress_callback is not None:
-                snapshot = progress_snapshot(table_id)
-                progress_callback(
-                    {
-                        "event": "table_finished",
-                        "table_id": table_id,
-                        "current_table": position,
-                        "resumed": resumed,
-                        "row_count": row_count,
-                        **snapshot,
-                    }
+                expected_fragment_metadata = _fragment_metadata(
+                    config,
+                    table_row=table_row,
+                    artifact_run_id=artifact_run_id,
                 )
-        except Exception as exc:
-            failed_tables += 1
-            if partial_run_id is not None and partial_artifact_paths is not None:
-                _append_jsonl(
-                    {
-                        "table_id": table_id,
-                        "status": "failed",
-                        "position": position,
-                        "total_tables": total_tables,
-                        "started_at": started_at,
-                        "finished_at": _now_iso(),
-                        "failure_message": str(exc),
-                        "fragment_path": str(fragment_path) if fragment_path else "",
-                    },
-                    partial_artifact_paths["ledger"],
+                fragment = (
+                    _load_fragment(fragment_path, expected_metadata=expected_fragment_metadata)
+                    if resume_partials and fragment_path
+                    else None
                 )
-                snapshot = progress_snapshot(table_id)
-                _write_partial_state(
-                    config=config,
-                    run_id=partial_run_id,
-                    total_tables=total_tables,
-                    completed_tables=completed_tables,
-                    failed_tables=failed_tables,
-                    current_table_id=table_id,
-                    resumed_tables=resumed_tables,
-                    fragment_count=fragment_count,
-                    fragment_bytes=fragment_bytes,
-                    tables_per_minute=cast(float | None, snapshot["tables_per_minute"]),
-                    eta_seconds=cast(float | None, snapshot["eta_seconds"]),
+                if fragment is not None:
+                    record_success(
+                        fragment=fragment,
+                        table_id=table_id,
+                        position=position,
+                        started_at=started_at,
+                        fragment_path=fragment_path,
+                        resumed=True,
+                    )
+                    continue
+                future = executor.submit(_extract_table_rows_parallel_worker, table_row)
+                futures[future] = (
+                    table_row,
+                    table_id,
+                    position,
+                    started_at,
+                    fragment_path,
+                    expected_fragment_metadata,
                 )
-            if progress_callback is not None:
-                progress_callback(
-                    {
-                        "event": "table_failed",
-                        "table_id": table_id,
-                        "current_table": position,
-                        "total_tables": total_tables,
-                        "completed_tables": completed_tables,
-                        "failed_tables": failed_tables,
-                        "failure_message": str(exc),
-                    }
+            for future in as_completed(futures):
+                table_row, table_id, position, started_at, fragment_path, metadata = futures[future]
+                _ = table_row
+                try:
+                    fragment = future.result()
+                    fragment["table_id"] = table_id
+                    fragment["status"] = "succeeded"
+                    fragment["artifact_run_id"] = artifact_run_id
+                    fragment["fragment_metadata"] = metadata
+                    if fragment_path is not None:
+                        _write_fragment(fragment, fragment_path)
+                        fragment["fragment_path"] = str(fragment_path)
+                    record_success(
+                        fragment=fragment,
+                        table_id=table_id,
+                        position=position,
+                        started_at=started_at,
+                        fragment_path=fragment_path,
+                        resumed=False,
+                    )
+                except Exception as exc:
+                    record_failure(
+                        table_id=table_id,
+                        position=position,
+                        started_at=started_at,
+                        fragment_path=fragment_path,
+                        exc=exc,
+                    )
+                    raise
+    else:
+        for position, table_row in enumerate(sorted_table_rows, start=1):
+            table_id = _row_string(table_row["table_id"])
+            started_at = _now_iso()
+            fragment_path = (
+                _fragment_path(config, partial_run_id, table_id)
+                if partial_run_id is not None
+                else None
+            )
+            expected_fragment_metadata = _fragment_metadata(
+                config,
+                table_row=table_row,
+                artifact_run_id=artifact_run_id,
+            )
+            fragment = (
+                _load_fragment(fragment_path, expected_metadata=expected_fragment_metadata)
+                if resume_partials and fragment_path
+                else None
+            )
+            try:
+                if fragment is None:
+                    fragment = _extract_table_rows(
+                        table_row,
+                        config=config,
+                        artifact_run_id=artifact_run_id,
+                        nuts_matcher=nuts_matcher,
+                        enhanced_matcher=enhanced_matcher,
+                        active_matcher=active_matcher,
+                    )
+                    fragment["table_id"] = table_id
+                    fragment["status"] = "succeeded"
+                    fragment["artifact_run_id"] = artifact_run_id
+                    fragment["fragment_metadata"] = expected_fragment_metadata
+                    if fragment_path is not None:
+                        _write_fragment(fragment, fragment_path)
+                        fragment["fragment_path"] = str(fragment_path)
+                    resumed = False
+                else:
+                    resumed = True
+                record_success(
+                    fragment=fragment,
+                    table_id=table_id,
+                    position=position,
+                    started_at=started_at,
+                    fragment_path=fragment_path,
+                    resumed=resumed,
                 )
-            raise
+            except Exception as exc:
+                record_failure(
+                    table_id=table_id,
+                    position=position,
+                    started_at=started_at,
+                    fragment_path=fragment_path,
+                    exc=exc,
+                )
+                raise
 
     time_rows = rows_by_artifact["time_rows"]
     string_rows = rows_by_artifact["string_rows"]

@@ -1,0 +1,44 @@
+{
+  "acceptance_gate": {
+    "accepted": false,
+    "baseline_other_ambiguous": 7812,
+    "baseline_random_final_macro_f1": 0.9274509803921568,
+    "baseline_targeted_final_macro_f1": 0.0,
+    "baseline_targeted_measure_recall": 0.0,
+    "candidate_other_ambiguous": 9114,
+    "candidate_random_final_macro_f1": 0.8842242242242243,
+    "candidate_targeted_final_macro_f1": 0.05128205128205129,
+    "candidate_targeted_measure_recall": 0.0,
+    "other_reduction_fraction": -0.16666666666666666,
+    "reasons": [
+      "random final-test macro-F1 drop 0.043 exceeds 0.020",
+      "targeted final-test non-other precision 0.7142857142857143 below 0.85",
+      "other_ambiguous reduction -0.167 below 0.200",
+      "targeted measure recall 0.000 below 0.350",
+      "targeted measure recall did not improve baseline=0.000 candidate=0.000"
+    ],
+    "source_metrics_available": true,
+    "targeted_final_non_other_precision": 0.7142857142857143
+  },
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 359,
+    "dimension_value": 607,
+    "measure": 2894,
+    "other_ambiguous": 9114,
+    "unit": 261
+  },
+  "exports_promoted": false,
+  "metrics_status": "available",
+  "model_selection": {
+    "reason": "selected on validation macro-F1 with non-other precision floor",
+    "semantic_features_enabled": false,
+    "threshold": 0.45,
+    "validation_macro_f1": 0.7530054644808744,
+    "validation_non_other_precision": 1.0,
+    "validation_objective_score": 0.9239824759751273
+  },
+  "prediction_count": 13235,
+  "run_id": "run_5b166f4404c56c81d329",
+  "variant": "local-hybrid"
+}

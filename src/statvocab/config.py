@@ -62,6 +62,8 @@ class ExtractionConfig(BaseModel):
     nuts_2024_path: Path = Path("data/external/NUTS_AT_2024.csv")
     eurostat_geo_codelist_path: Path = Path("data/external/eurostat_geo_codelist.xml")
     eurostat_geo_codelist_version: str = "GEO 14.0"
+    parallel_workers: int = Field(default=1, gt=0)
+    parallel_chunk_size: int = Field(default=25, gt=0)
 
 
 class ClassificationConfig(BaseModel):
@@ -78,6 +80,11 @@ class ClassificationConfig(BaseModel):
     pearl_revision: str = "0d29fb4a61ec2a11b60e8b078664389eb915286b"
     embedding_batch_size: int = Field(default=64, gt=0)
     abstention_threshold: float = Field(default=0.55, ge=0.0, le=1.0)
+    semantic_neighbor_k: int = Field(default=5, gt=0)
+    semantic_hybrid_enabled: bool = True
+    threshold_objective: Literal["macro_f1", "macro_f1_with_recall_bonus"] = (
+        "macro_f1_with_recall_bonus"
+    )
     classifier_max_iter: int = Field(default=5000, gt=0)
     balance_class_weight: bool = True
     targeted_reclaim_sample_size: int = Field(default=250, gt=0)
@@ -86,8 +93,10 @@ class ClassificationConfig(BaseModel):
     targeted_validation_count: int = Field(default=50, ge=0)
     targeted_final_test_count: int = Field(default=50, ge=0)
     non_other_precision_floor: float = Field(default=0.85, ge=0.0, le=1.0)
+    min_non_other_precision: float = Field(default=0.85, ge=0.0, le=1.0)
     acceptance_final_macro_drop: float = Field(default=0.02, ge=0.0, le=1.0)
     min_other_reduction_fraction: float = Field(default=0.20, ge=0.0, le=1.0)
+    min_measure_recall_for_promotion: float = Field(default=0.35, ge=0.0, le=1.0)
 
 
 class ClusteringConfig(BaseModel):
@@ -102,6 +111,11 @@ class ClusteringConfig(BaseModel):
     agglomerative_linkage: str = "average"
     domain_similarity_threshold: float = Field(default=0.35, ge=0.0, le=1.0)
     domain_similarity_margin: float = Field(default=0.03, ge=0.0, le=1.0)
+    contextual_features_enabled: bool = True
+    contextual_embedding_weight: float = Field(default=0.65, ge=0.0, le=1.0)
+    contextual_table_context_weight: float = Field(default=0.20, ge=0.0, le=1.0)
+    contextual_lexical_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+    min_domain_assignment_score: float = Field(default=0.35, ge=0.0, le=1.0)
     representative_count: int = Field(default=5, gt=0)
     manual_review_sample_size: int = Field(default=100, gt=0)
 
@@ -115,6 +129,7 @@ class RelationsConfig(BaseModel):
     related_similarity_threshold: float = Field(default=0.72, ge=0.0, le=1.0)
     containment_min_extra_tokens: int = Field(default=1, gt=0)
     max_candidates_per_measure: int = Field(default=25, gt=0)
+    semantic_neighbor_k: int = Field(default=50, gt=0)
     manual_review_sample_size: int = Field(default=100, gt=0)
     llm_adjudication_enabled: bool = False
     llm_confidence_threshold: float = Field(default=0.65, ge=0.0, le=1.0)

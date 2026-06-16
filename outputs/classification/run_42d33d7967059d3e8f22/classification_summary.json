@@ -1,0 +1,31 @@
+{
+  "acceptance_gate": {
+    "accepted": true,
+    "baseline_compatible": false,
+    "reasons": [
+      "existing submitted exports are incompatible with current vocabulary (3664 missing, 0 extra term IDs)",
+      "local-hybrid bootstrap accepted"
+    ]
+  },
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 359,
+    "dimension_value": 607,
+    "measure": 2894,
+    "other_ambiguous": 9114,
+    "unit": 261
+  },
+  "exports_promoted": true,
+  "metrics_status": "available",
+  "model_selection": {
+    "reason": "selected on validation macro-F1 with non-other precision floor",
+    "semantic_features_enabled": false,
+    "threshold": 0.45,
+    "validation_macro_f1": 0.7530054644808744,
+    "validation_non_other_precision": 1.0,
+    "validation_objective_score": 0.9239824759751273
+  },
+  "prediction_count": 13235,
+  "run_id": "run_42d33d7967059d3e8f22",
+  "variant": "local-hybrid"
+}

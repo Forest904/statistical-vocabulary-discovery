@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any, cast
@@ -15,6 +16,7 @@ from statvocab.contracts import RelationType
 def _read_csv(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
@@ -30,6 +32,9 @@ def _latest_review_path(config: AppConfig) -> Path | None:
         (config.paths.outputs_dir / "relations").glob("*/manual_relation_review_sample.csv"),
         key=lambda path: path.stat().st_mtime,
     )
+    for path in reversed(candidates):
+        if any(row.get("is_valid_relation", "").strip() for row in _read_csv(path)):
+            return path
     return candidates[-1] if candidates else None
 
 

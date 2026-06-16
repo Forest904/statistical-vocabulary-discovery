@@ -66,6 +66,33 @@ def test_clustering_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
     assert "clustering" in result.output
 
 
+def test_classification_evaluate_cli_reports_export_source(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_evaluate(config):
+        _ = config
+        return (
+            Path("report/classification_metrics.json"),
+            {
+                "gold_status": "available",
+                "evaluated_prediction_source": "current_category_exports",
+            },
+        )
+
+    monkeypatch.setattr(cli, "evaluate_classification", fake_evaluate)
+
+    result = CliRunner().invoke(
+        app,
+        ["evaluate", "--area", "classification", "--config", "configs/evaluation.yaml"],
+    )
+
+    assert result.exit_code == 0
+    assert "available" in result.output
+    assert "current_category_exports" in result.output
+
+
 def test_relations_cli_invokes_runner(monkeypatch) -> None:
     from pathlib import Path
 

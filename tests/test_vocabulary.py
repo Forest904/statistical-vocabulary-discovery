@@ -7,6 +7,7 @@ import pytest
 from statvocab.config import AppConfig, load_config
 from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.ingest import run_ingestion
+from statvocab.title_extract import extract_title_terms
 from statvocab.vocabulary import FragmentValidationError, run_extraction
 
 
@@ -84,6 +85,45 @@ def test_fixture_extraction_is_deterministic_for_vocabulary_artifacts(tmp_path: 
     second = pq.read_table(config.paths.processed_dir / "vocabulary.parquet").to_pylist()
 
     assert first == second
+
+
+def test_parallel_fixture_extraction_matches_serial_artifacts(tmp_path: Path) -> None:
+    serial_config = _fixture_config(tmp_path / "serial")
+    parallel_config = _fixture_config(tmp_path / "parallel")
+    parallel_config = parallel_config.model_copy(
+        update={
+            "extraction": parallel_config.extraction.model_copy(
+                update={"parallel_workers": 2, "parallel_chunk_size": 2}
+            )
+        }
+    )
+    run_ingestion(serial_config)
+    run_ingestion(parallel_config)
+
+    run_extraction(serial_config)
+    run_extraction(parallel_config)
+
+    def comparable(config: AppConfig) -> list[dict[str, object]]:
+        rows = pq.read_table(config.paths.processed_dir / "vocabulary.parquet").to_pylist()
+        return [{key: value for key, value in row.items() if key != "run_id"} for row in rows]
+
+    serial = comparable(serial_config)
+    parallel = comparable(parallel_config)
+    assert serial == parallel
+
+
+def test_title_keyphrase_extraction_adds_grounded_statistical_candidates() -> None:
+    _cleaned, terms = extract_title_terms(
+        "table_a",
+        "Population by sex and age - annual data",
+        [],
+    )
+
+    keyphrases = [term for term in terms if term.source_area == "title_keyphrase"]
+    assert keyphrases
+    assert any(term.normalized_term == "Population by sex" for term in keyphrases)
+    assert all(term.occurrence_id.startswith("occ_") for term in keyphrases)
+    assert all(term.extraction_rule == "title_keyphrase_statistical_head" for term in keyphrases)
 
 
 def test_partial_extraction_resume_reuses_table_fragments(

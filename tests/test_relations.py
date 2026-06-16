@@ -8,7 +8,9 @@ from statvocab.config import AppConfig, load_config
 from statvocab.contracts import RelationType
 from statvocab.relations import (
     _Candidate,
+    _candidate_pairs,
     _dedupe,
+    _Measure,
     run_measure_relations,
 )
 from statvocab.relations_evaluate import evaluate_relations
@@ -336,6 +338,24 @@ def test_relation_dedupe_rejects_self_and_duplicate_pairs() -> None:
     assert accepted[0].source_term_id == "term_b"
     assert rejections[0] == "self_relation"
     assert rejections[1] == "duplicate_lower_confidence"
+
+
+def test_relation_candidate_pairs_match_all_pairs_for_small_inputs(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    measures = [
+        _Measure("term_a", "population", frozenset({"population"}), ()),
+        _Measure("term_b", "urban population", frozenset({"urban", "population"}), ()),
+        _Measure("term_c", "price index", frozenset({"price", "index"}), ()),
+    ]
+    vectors = {
+        "term_a": [1.0, 0.0],
+        "term_b": [0.9, 0.1],
+        "term_c": [0.0, 1.0],
+    }
+
+    pairs = _candidate_pairs(measures, vectors, config)
+
+    assert {(left, right) for left, right, _score in pairs} == {(0, 1), (0, 2), (1, 2)}
 
 
 def test_empty_measure_input_writes_empty_artifacts(tmp_path: Path) -> None:

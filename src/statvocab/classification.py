@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
 from importlib import import_module
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from statvocab.classification_evaluate import _score_rows, evaluate_classification
 from statvocab.classification_features import (
@@ -13,6 +14,7 @@ from statvocab.classification_features import (
     ensure_gold_templates,
     feature_rows,
     read_csv_rows,
+    read_parquet_rows,
     write_classification_features,
     write_csv_rows,
     write_parquet_rows,
@@ -23,7 +25,13 @@ from statvocab.config import AppConfig
 from statvocab.contracts import ClassificationPrediction, ResourceRecord, VocabularyCategory
 from statvocab.manifests import complete_manifest, create_manifest, write_manifest
 
-SUPPORTED_VARIANTS = {"rule-only", "embedding-enhanced", "local-hybrid", "paid-adjudicated"}
+SUPPORTED_VARIANTS = {
+    "rule-only",
+    "embedding-enhanced",
+    "local-hybrid",
+    "semantic-hybrid",
+    "paid-adjudicated",
+}
 CSV_BY_CATEGORY = {
     VocabularyCategory.MEASURE: "measures.csv",
     VocabularyCategory.DIMENSION_NAME: "dimension_names.csv",
@@ -118,8 +126,11 @@ def _import_sklearn() -> tuple[Any, Any, Any]:
     )
 
 
-def _model_feature_dict(row: dict[str, Any]) -> dict[str, object]:
-    return {
+def _model_feature_dict(
+    row: dict[str, Any],
+    semantic_features: dict[str, object] | None = None,
+) -> dict[str, object]:
+    features: dict[str, object] = {
         "source_roles": row["source_roles"],
         "frequency_bin": row["frequency_bin"],
         "table_count_bin": row["table_count_bin"],
@@ -137,6 +148,182 @@ def _model_feature_dict(row: dict[str, Any]) -> dict[str, object]:
         "log_occurrence_count": min(int(row["occurrence_count"]), 1000),
         "log_table_count": min(int(row["table_count"]), 1000),
     }
+    if semantic_features:
+        features.update(semantic_features)
+    return features
+
+
+def _dot(left: list[float], right: list[float]) -> float:
+    return sum(a * b for a, b in zip(left, right, strict=True))
+
+
+def _normalized(vector: list[float]) -> list[float]:
+    norm = math.sqrt(sum(value * value for value in vector))
+    if norm == 0.0:
+        return vector
+    return [value / norm for value in vector]
+
+
+def _centroid(vectors: list[list[float]]) -> list[float]:
+    if not vectors:
+        return []
+    size = len(vectors[0])
+    return _normalized(
+        [sum(vector[index] for vector in vectors) / len(vectors) for index in range(size)]
+    )
+
+
+def _load_term_embeddings(config: AppConfig) -> dict[str, list[float]]:
+    path = config.paths.processed_dir / "term_embeddings.parquet"
+    if not path.exists():
+        return {}
+    rows = read_parquet_rows(path)
+    return {
+        str(row["term_id"]): _normalized(
+            [float(value) for value in cast(list[Any], row["embedding"])]
+        )
+        for row in rows
+        if row.get("model") == config.classification.pearl_model
+        and row.get("revision") == config.classification.pearl_revision
+    }
+
+
+def semantic_feature_rows(
+    config: AppConfig,
+    rows: list[dict[str, Any]],
+    labels: list[dict[str, str]],
+    embeddings: dict[str, list[float]] | None = None,
+) -> dict[str, dict[str, object]]:
+    """Build interpretable semantic features from labeled embedding neighborhoods."""
+
+    vectors_by_term = embeddings if embeddings is not None else _load_term_embeddings(config)
+    train_labels = [row for row in labels if row.get("split") == "train_dev"]
+    labeled: list[tuple[str, str, list[float]]] = []
+    by_category: dict[str, list[list[float]]] = {
+        category.value: [] for category in VocabularyCategory
+    }
+    for label in train_labels:
+        term_id = str(label["term_id"])
+        category = str(label["category"])
+        vector = vectors_by_term.get(term_id)
+        if vector is None:
+            continue
+        labeled.append((term_id, category, vector))
+        by_category.setdefault(category, []).append(vector)
+
+    centroids = {
+        category: _centroid(vectors)
+        for category, vectors in by_category.items()
+        if vectors
+    }
+    category_values = [category.value for category in VocabularyCategory]
+    features_by_term: dict[str, dict[str, object]] = {}
+    for row in rows:
+        term_id = str(row["term_id"])
+        vector = vectors_by_term.get(term_id)
+        features: dict[str, object] = {
+            "semantic_best_centroid_class": "none",
+            "semantic_best_centroid_score": 0.0,
+            "semantic_centroid_margin": 0.0,
+            "semantic_neighbor_best_class": "none",
+            "semantic_neighbor_best_vote": 0.0,
+        }
+        for category in category_values:
+            features[f"semantic_centroid_{category}"] = 0.0
+            features[f"semantic_neighbor_vote_{category}"] = 0.0
+            features[f"semantic_neighbor_confidence_{category}"] = 0.0
+        if vector is None:
+            features_by_term[term_id] = features
+            continue
+
+        centroid_scores = {
+            category: _dot(vector, centroid)
+            for category, centroid in centroids.items()
+            if centroid
+        }
+        for category, score in centroid_scores.items():
+            features[f"semantic_centroid_{category}"] = score
+        ordered_centroids = sorted(
+            centroid_scores.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        if ordered_centroids:
+            best_category, best_score = ordered_centroids[0]
+            second_score = ordered_centroids[1][1] if len(ordered_centroids) > 1 else 0.0
+            features["semantic_best_centroid_class"] = best_category
+            features["semantic_best_centroid_score"] = best_score
+            features["semantic_centroid_margin"] = best_score - second_score
+
+        neighbors = sorted(
+            (
+                (category, _dot(vector, label_vector))
+                for label_term_id, category, label_vector in labeled
+                if label_term_id != term_id
+            ),
+            key=lambda item: item[1],
+            reverse=True,
+        )[: config.classification.semantic_neighbor_k]
+        if neighbors:
+            counts: dict[str, int] = {}
+            confidence_sum: dict[str, float] = {}
+            for category, score in neighbors:
+                counts[category] = counts.get(category, 0) + 1
+                confidence_sum[category] = confidence_sum.get(category, 0.0) + max(score, 0.0)
+            best_neighbor_category, best_count = sorted(
+                counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )[0]
+            features["semantic_neighbor_best_class"] = best_neighbor_category
+            features["semantic_neighbor_best_vote"] = best_count / len(neighbors)
+            for category in category_values:
+                features[f"semantic_neighbor_vote_{category}"] = counts.get(category, 0) / len(
+                    neighbors
+                )
+                features[f"semantic_neighbor_confidence_{category}"] = confidence_sum.get(
+                    category,
+                    0.0,
+                ) / len(neighbors)
+        features_by_term[term_id] = features
+    return features_by_term
+
+
+def _recall_bonus(scored: dict[str, Any]) -> float:
+    per_class = cast(dict[str, dict[str, float | int]], scored.get("per_class") or {})
+    measure = float(per_class.get(VocabularyCategory.MEASURE.value, {}).get("recall", 0.0))
+    dimension_value = float(
+        per_class.get(VocabularyCategory.DIMENSION_VALUE.value, {}).get("recall", 0.0)
+    )
+    unit = float(per_class.get(VocabularyCategory.UNIT.value, {}).get("recall", 0.0))
+    return (measure + dimension_value + unit) / 3.0
+
+
+def _selection_score(config: AppConfig, scored: dict[str, Any]) -> float:
+    macro_f1 = float(scored["macro_f1"])
+    if config.classification.threshold_objective == "macro_f1_with_recall_bonus":
+        return macro_f1 + (0.25 * _recall_bonus(scored))
+    return macro_f1
+
+
+def _semantic_measure_override(semantic_features: dict[str, object] | None) -> float | None:
+    if not semantic_features:
+        return None
+    best_class = str(semantic_features.get("semantic_best_centroid_class") or "")
+    neighbor_class = str(semantic_features.get("semantic_neighbor_best_class") or "")
+    measure_score = float(semantic_features.get("semantic_centroid_measure") or 0.0)
+    other_score = float(semantic_features.get("semantic_centroid_other_ambiguous") or 0.0)
+    dimension_score = float(semantic_features.get("semantic_centroid_dimension_value") or 0.0)
+    neighbor_vote = float(semantic_features.get("semantic_neighbor_vote_measure") or 0.0)
+    margin = measure_score - max(other_score, dimension_score)
+    if best_class == VocabularyCategory.MEASURE.value and measure_score >= 0.72 and margin >= 0.015:
+        return min(0.95, measure_score)
+    if (
+        neighbor_class == VocabularyCategory.MEASURE.value
+        and neighbor_vote >= 0.60
+        and measure_score >= 0.70
+    ):
+        return min(0.92, max(measure_score, neighbor_vote))
+    return None
 
 
 def _hybrid_predictions(
@@ -156,6 +343,11 @@ def _hybrid_predictions(
         return fallback_predictions, {"threshold": config.classification.abstention_threshold}
 
     generate_term_embeddings(config, rows)
+    semantic_features = (
+        semantic_feature_rows(config, rows, labels)
+        if variant == "semantic-hybrid" and config.classification.semantic_hybrid_enabled
+        else {}
+    )
     dict_vectorizer, logistic_regression, calibrated_classifier_cv = _import_sklearn()
     row_by_term = {str(row["term_id"]): row for row in rows}
     train_labels = [row for row in labels if row.get("split") == "train_dev"]
@@ -167,7 +359,13 @@ def _hybrid_predictions(
 
     vectorizer = dict_vectorizer(sparse=True)
     train_x = vectorizer.fit_transform(
-        [_model_feature_dict(row_by_term[row["term_id"]]) for row in train_labels]
+        [
+            _model_feature_dict(
+                row_by_term[row["term_id"]],
+                semantic_features.get(str(row["term_id"])),
+            )
+            for row in train_labels
+        ]
     )
     train_y = [row["category"] for row in train_labels]
     base = logistic_regression(
@@ -179,7 +377,9 @@ def _hybrid_predictions(
     model.fit(train_x, train_y)
 
     rule_rows = _rule_predictions(rows, variant=variant, run_id=run_id)
-    all_x = vectorizer.transform([_model_feature_dict(row) for row in rows])
+    all_x = vectorizer.transform(
+        [_model_feature_dict(row, semantic_features.get(str(row["term_id"]))) for row in rows]
+    )
     probabilities = model.predict_proba(all_x)
     classes = [str(value) for value in model.classes_]
 
@@ -189,10 +389,20 @@ def _hybrid_predictions(
             if bool(rule_row["protected"]):
                 predictions.append(rule_row)
                 continue
+            row_semantic_features = semantic_features.get(str(row["term_id"]))
             best_index = max(range(len(classes)), key=lambda index: float(probs[index]))
             confidence = float(probs[best_index])
             best_class = classes[best_index]
-            if best_class != VocabularyCategory.OTHER_AMBIGUOUS.value:
+            semantic_measure_confidence = (
+                _semantic_measure_override(row_semantic_features)
+                if variant == "semantic-hybrid"
+                else None
+            )
+            if semantic_measure_confidence is not None:
+                category = VocabularyCategory.MEASURE
+                confidence = max(confidence, semantic_measure_confidence)
+                evidence = "semantic centroid/neighbor measure fallback"
+            elif best_class != VocabularyCategory.OTHER_AMBIGUOUS.value:
                 if confidence < non_other_threshold:
                     category = VocabularyCategory.OTHER_AMBIGUOUS
                     evidence = "local classifier abstained below validation threshold"
@@ -234,17 +444,19 @@ def _hybrid_predictions(
             and non_other_precision < config.classification.non_other_precision_floor
         ):
             continue
-        score = float(scored["macro_f1"])
+        score = _selection_score(config, scored)
         if score > best_score:
             best_score = score
             selected_threshold = threshold
             selected_payload = {
                 "reason": "selected on validation macro-F1 with non-other precision floor",
-                "validation_macro_f1": score,
+                "validation_macro_f1": float(scored["macro_f1"]),
+                "validation_objective_score": score,
                 "validation_non_other_precision": non_other_precision,
             }
     predictions = build_predictions(selected_threshold)
     selected_payload["threshold"] = selected_threshold
+    selected_payload["semantic_features_enabled"] = bool(semantic_features)
     return predictions, selected_payload
 
 
@@ -305,6 +517,7 @@ def _category_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
 def _gate_exports(
     *,
     config: AppConfig,
+    variant: str,
     existing_predictions: list[dict[str, Any]],
     candidate_predictions: list[dict[str, Any]],
     metrics_payload: dict[str, Any],
@@ -325,6 +538,26 @@ def _gate_exports(
     reasons: list[str] = []
     if not existing_predictions:
         return {"accepted": True, "reasons": ["no existing submitted exports to protect"]}
+    existing_ids = {str(row["term_id"]) for row in existing_predictions}
+    candidate_ids = {str(row["term_id"]) for row in candidate_predictions}
+    if existing_ids != candidate_ids:
+        missing = len(candidate_ids - existing_ids)
+        extra = len(existing_ids - candidate_ids)
+        reason = (
+            "existing submitted exports are incompatible with current vocabulary "
+            f"({missing} missing, {extra} extra term IDs)"
+        )
+        if variant == "local-hybrid":
+            return {
+                "accepted": True,
+                "reasons": [reason, "local-hybrid bootstrap accepted"],
+                "baseline_compatible": False,
+            }
+        return {
+            "accepted": False,
+            "reasons": [reason, "run local-hybrid before promoting semantic-hybrid"],
+            "baseline_compatible": False,
+        }
     if not targeted_final:
         return {
             "accepted": False,
@@ -343,12 +576,21 @@ def _gate_exports(
     targeted_precision = _non_other_precision(targeted_final, candidate_predictions)
     if (
         targeted_precision is None
-        or targeted_precision < config.classification.non_other_precision_floor
+        or targeted_precision < config.classification.min_non_other_precision
     ):
         reasons.append(
             "targeted final-test non-other precision "
             f"{targeted_precision if targeted_precision is not None else 'n/a'} below "
-            f"{config.classification.non_other_precision_floor:.2f}"
+            f"{config.classification.min_non_other_precision:.2f}"
+        )
+
+    existing_targeted = _score_rows(targeted_final, existing_predictions)
+    candidate_targeted = _score_rows(targeted_final, candidate_predictions)
+    if float(candidate_targeted["macro_f1"]) <= float(existing_targeted["macro_f1"]):
+        reasons.append(
+            "targeted reclaim macro-F1 did not improve "
+            f"baseline={existing_targeted['macro_f1']:.3f} "
+            f"candidate={candidate_targeted['macro_f1']:.3f}"
         )
 
     existing_counts = _category_counts(existing_predictions)
@@ -362,12 +604,37 @@ def _gate_exports(
             f"{reduction:.3f} below {config.classification.min_other_reduction_fraction:.3f}"
         )
 
+    candidate_per_class = cast(dict[str, dict[str, float | int]], candidate_targeted["per_class"])
+    candidate_measure_recall = float(
+        candidate_per_class.get(VocabularyCategory.MEASURE.value, {}).get("recall", 0.0)
+    )
+    existing_measure_recall = float(
+        cast(dict[str, dict[str, float | int]], existing_targeted["per_class"])
+        .get(VocabularyCategory.MEASURE.value, {})
+        .get("recall", 0.0)
+    )
+    if candidate_measure_recall < config.classification.min_measure_recall_for_promotion:
+        reasons.append(
+            "targeted measure recall "
+            f"{candidate_measure_recall:.3f} below "
+            f"{config.classification.min_measure_recall_for_promotion:.3f}"
+        )
+    if candidate_measure_recall <= existing_measure_recall:
+        reasons.append(
+            "targeted measure recall did not improve "
+            f"baseline={existing_measure_recall:.3f} candidate={candidate_measure_recall:.3f}"
+        )
+
     return {
         "accepted": not reasons,
         "reasons": reasons,
         "baseline_random_final_macro_f1": existing_random["macro_f1"],
         "candidate_random_final_macro_f1": candidate_random["macro_f1"],
         "targeted_final_non_other_precision": targeted_precision,
+        "baseline_targeted_final_macro_f1": existing_targeted["macro_f1"],
+        "candidate_targeted_final_macro_f1": candidate_targeted["macro_f1"],
+        "baseline_targeted_measure_recall": existing_measure_recall,
+        "candidate_targeted_measure_recall": candidate_measure_recall,
         "baseline_other_ambiguous": existing_other,
         "candidate_other_ambiguous": candidate_other,
         "other_reduction_fraction": reduction,
@@ -444,11 +711,12 @@ def run_classification(
     gate = (
         _gate_exports(
             config=config,
+            variant=variant,
             existing_predictions=existing_exports,
             candidate_predictions=predictions,
             metrics_payload=metrics_payload,
         )
-        if variant == "local-hybrid"
+        if variant in {"local-hybrid", "semantic-hybrid"}
         else {"accepted": True, "reasons": ["gate not applied to this variant"]}
     )
     export_dir = config.paths.outputs_dir if bool(gate["accepted"]) else output_dir / "proposed"

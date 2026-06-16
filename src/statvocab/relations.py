@@ -7,8 +7,10 @@ import json
 import math
 import random
 import re
+import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from importlib import import_module
 from pathlib import Path
 from typing import Any, cast
 
@@ -111,6 +113,7 @@ def _read_csv(path: Path, *, required: bool = False) -> list[dict[str, str]]:
         if required:
             raise FileNotFoundError(f"Missing {path}; run the previous pipeline stage first.")
         return []
+    csv.field_size_limit(min(sys.maxsize, 2_147_483_647))
     with path.open("r", encoding="utf-8-sig", newline="") as file:
         return [dict(row) for row in csv.DictReader(file)]
 
@@ -434,20 +437,105 @@ def _relation_row(
     }
 
 
+def _candidate_pairs(
+    measures: list[_Measure],
+    vectors_by_term: dict[str, list[float]],
+    config: AppConfig,
+) -> list[tuple[int, int, float]]:
+    if len(measures) <= 1:
+        return []
+    top_k = min(config.relations.semantic_neighbor_k, len(measures) - 1)
+    if len(measures) <= top_k + 1:
+        return [
+            (
+                left_index,
+                right_index,
+                _cosine(
+                    vectors_by_term[measures[left_index].term_id],
+                    vectors_by_term[measures[right_index].term_id],
+                ),
+            )
+            for left_index in range(len(measures))
+            for right_index in range(left_index + 1, len(measures))
+        ]
+    lexical_pairs: dict[tuple[int, int], float] = {}
+    for left_index in range(len(measures)):
+        left = measures[left_index]
+        for right_index in range(left_index + 1, len(measures)):
+            right = measures[right_index]
+            normalized_match = (
+                _normalized(left.term) == _normalized(right.term)
+                and left.term.casefold() != right.term.casefold()
+            )
+            containment = (
+                bool(left.tokens)
+                and bool(right.tokens)
+                and (left.tokens < right.tokens or right.tokens < left.tokens)
+            )
+            if normalized_match or containment:
+                lexical_pairs[(left_index, right_index)] = _cosine(
+                    vectors_by_term[left.term_id],
+                    vectors_by_term[right.term_id],
+                )
+    try:
+        numpy = import_module("numpy")
+    except ModuleNotFoundError:
+        return [
+            (
+                left_index,
+                right_index,
+                _cosine(
+                    vectors_by_term[measures[left_index].term_id],
+                    vectors_by_term[measures[right_index].term_id],
+                ),
+            )
+            for left_index in range(len(measures))
+            for right_index in range(left_index + 1, len(measures))
+        ]
+
+    matrix = numpy.array([vectors_by_term[measure.term_id] for measure in measures], dtype=float)
+    similarities = matrix @ matrix.T
+    pairs: dict[tuple[int, int], float] = {}
+    for left_index in range(len(measures)):
+        row = similarities[left_index]
+        neighbor_indexes = numpy.argpartition(row, -(top_k + 1))[-(top_k + 1) :]
+        for right_index_raw in neighbor_indexes:
+            right_index = int(right_index_raw)
+            if right_index == left_index:
+                continue
+            key = (min(left_index, right_index), max(left_index, right_index))
+            pairs[key] = max(float(row[right_index]), pairs.get(key, -1.0))
+    pairs.update(lexical_pairs)
+    return [
+        (left_index, right_index, similarity)
+        for (left_index, right_index), similarity in sorted(pairs.items())
+    ]
+
+
+def _adjudicate_candidates(
+    candidates: list[_Candidate],
+    config: AppConfig,
+) -> list[_Candidate]:
+    """Placeholder for optional grounded LLM relation adjudication."""
+
+    _ = config
+    return candidates
+
+
 def _generate_candidates(
     measures: list[_Measure],
     vectors_by_term: dict[str, list[float]],
     config: AppConfig,
 ) -> list[_Candidate]:
     candidates_by_measure: dict[str, list[_Candidate]] = defaultdict(list)
-    for left_index, left in enumerate(measures):
-        for right in measures[left_index + 1 :]:
-            similarity = _cosine(vectors_by_term[left.term_id], vectors_by_term[right.term_id])
-            candidate = _pair_candidate(left, right, similarity, config)
-            if candidate is None:
-                continue
-            candidates_by_measure[candidate.source_term_id].append(candidate)
-            candidates_by_measure[candidate.target_term_id].append(candidate)
+    for left_index, right_index, similarity in _candidate_pairs(measures, vectors_by_term, config):
+        left = measures[left_index]
+        right = measures[right_index]
+        candidate = _pair_candidate(left, right, similarity, config)
+        if candidate is None:
+            continue
+        candidates_by_measure[candidate.source_term_id].append(candidate)
+        candidates_by_measure[candidate.target_term_id].append(candidate)
 
     selected: dict[tuple[str, str, RelationType], _Candidate] = {}
     for term_candidates in candidates_by_measure.values():
@@ -461,7 +549,7 @@ def _generate_candidates(
             current = selected.get(key)
             if current is None or candidate.confidence > current.confidence:
                 selected[key] = candidate
-    return list(selected.values())
+    return _adjudicate_candidates(list(selected.values()), config)
 
 
 def _review_rows(rows: list[dict[str, Any]], config: AppConfig) -> list[dict[str, Any]]:
@@ -507,6 +595,7 @@ def _summary(
     run_id: str,
     *,
     full_accepted_count: int | None = None,
+    llm_adjudication_enabled: bool = False,
 ) -> dict[str, Any]:
     type_counts = Counter(str(row["relation_type"]) for row in rows)
     method_counts: Counter[str] = Counter()
@@ -535,7 +624,7 @@ def _summary(
         "generation_method_distribution": dict(sorted(method_counts.items())),
         "rejection_distribution": dict(sorted(rejection_counts.items())),
         "confidence_bands": dict(sorted(confidence_bands.items())),
-        "llm_adjudication_enabled": False,
+        "llm_adjudication_enabled": llm_adjudication_enabled,
     }
 
 
@@ -583,6 +672,7 @@ def run_measure_relations(
         candidate_rows,
         run_id,
         full_accepted_count=len(full_relation_rows),
+        llm_adjudication_enabled=config.relations.llm_adjudication_enabled,
     )
     summary["submitted_related_confidence_threshold"] = (
         config.relations.submitted_related_confidence_threshold
