@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    "data\\processed\\classification_features.parquet",
+    "data\\gold\\vocabulary_gold_sample.csv",
+    "data\\gold\\vocabulary_gold_labels.csv",
+    "data\\gold\\vocabulary_gold_relabel.csv",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\local-hybrid_predictions.parquet",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\classification_metrics.json",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\classification_summary.json",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\proposed\\measures.csv",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\proposed\\dimension_names.csv",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\proposed\\dimension_values.csv",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\proposed\\units.csv",
+    "outputs\\classification\\run_2b1f232c08e3f03b0deb\\proposed\\other_ambiguous.csv"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-09T15:32:09.524344Z",
+  "pipeline_stage": "classify-local-hybrid",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_2b1f232c08e3f03b0deb",
+  "started_at": "2026-06-09T15:31:30.833199Z",
+  "state": "succeeded"
+}

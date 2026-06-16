@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    "data\\processed\\classification_features.parquet",
+    "data\\gold\\vocabulary_gold_sample.csv",
+    "data\\gold\\vocabulary_gold_labels.csv",
+    "data\\gold\\vocabulary_gold_relabel.csv",
+    "outputs\\classification\\run_75b90575bb9e48ce7918\\local-hybrid_predictions.parquet",
+    "outputs\\classification\\run_75b90575bb9e48ce7918\\classification_metrics.json",
+    "outputs\\classification\\run_75b90575bb9e48ce7918\\classification_summary.json",
+    "outputs\\measures.csv",
+    "outputs\\dimension_names.csv",
+    "outputs\\dimension_values.csv",
+    "outputs\\units.csv",
+    "outputs\\other_ambiguous.csv"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-05T00:16:24.904389Z",
+  "pipeline_stage": "classify-local-hybrid",
+  "resources": [
+    "resource_f12a21534177bde82830",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_75b90575bb9e48ce7918",
+  "started_at": "2026-06-05T00:15:57.349324Z",
+  "state": "succeeded"
+}

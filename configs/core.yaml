@@ -45,6 +45,10 @@ classification:
   min_non_other_precision: 0.85
   min_measure_recall_for_promotion: 0.35
   min_other_reduction_fraction: 0.20
+  measure_evidence_gate_enabled: true
+  measure_acceptance_min_score: 0.70
+  max_negative_dimension_score: 0.35
+  measure_vote_min_agreement: 2
 clustering:
   hdbscan_min_cluster_size: 5
   hdbscan_min_samples: 2

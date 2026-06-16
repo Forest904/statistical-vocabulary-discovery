@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    "data\\processed\\classification_features.parquet",
+    "data\\gold\\vocabulary_gold_sample.csv",
+    "data\\gold\\vocabulary_gold_labels.csv",
+    "data\\gold\\vocabulary_gold_relabel.csv",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\semantic-hybrid_predictions.parquet",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\classification_metrics.json",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\classification_summary.json",
+    "data\\processed\\measure_context_features.parquet",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\classification_calibration_metrics.json",
+    "report\\classification_calibration_metrics.json",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\proposed\\measures.csv",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\proposed\\dimension_names.csv",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\proposed\\dimension_values.csv",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\proposed\\units.csv",
+    "outputs\\classification\\run_0a91a11c65dbc89e83ab\\proposed\\other_ambiguous.csv"
+  ],
+  "config_id": "cfg_eac3564ddc996f119f0b78c4200748d5",
+  "config_summary": {
+    "config_name": "core",
+    "corpus": "core",
+    "random_seed": 42
+  },
+  "corpus": "core",
+  "environment": {
+    "config_fingerprint": "cfg_eac3564ddc996f119f0b78c4200748d5",
+    "config_summary": {
+      "config_name": "core",
+      "corpus": "core",
+      "random_seed": 42
+    },
+    "corpus": {
+      "archive_name": "eurostat_2000_tables.tgz",
+      "expected_md5": "97bda36fec3c7c7ed042ee64ab16bf2c",
+      "expected_table_count": 2000,
+      "name": "core"
+    },
+    "git": {
+      "commit": "a413081c03d12dfe9587dfa78be8ed53f1b4a55d",
+      "dirty": true,
+      "dirty_warning": "worktree has uncommitted changes"
+    },
+    "package_version": "0.1.0",
+    "python_version": "3.12.2"
+  },
+  "finished_at": "2026-06-16T18:25:29.250019Z",
+  "pipeline_stage": "classify-semantic-hybrid",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_0a91a11c65dbc89e83ab",
+  "started_at": "2026-06-16T18:20:25.678934Z",
+  "state": "succeeded"
+}

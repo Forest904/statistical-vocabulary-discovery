@@ -1,0 +1,1744 @@
+{
+  "config_name": "core",
+  "corpus": "core",
+  "expected_table_count": 2000,
+  "failed_table_count": 0,
+  "failed_tables": [],
+  "inventoried_table_count": 2000,
+  "resource_validation": [
+    {
+      "checksum_md5": "175222a2497fbceee6f9f6ede6728e9c",
+      "expected_md5": "175222a2497fbceee6f9f6ede6728e9c",
+      "expected_size_bytes": null,
+      "license": "Zenodo record license; verify from record metadata",
+      "local_path": "data\\raw\\eurostat_7605_tables.tgz",
+      "message": "local resource is valid",
+      "name": "zenodo_eurostat_7605_tables.tgz",
+      "resource_id": "resource_6a7ca2ebff5a28c0cc12",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 13459091883,
+      "url": "https://zenodo.org/records/15681384/files/eurostat_7605_tables.tgz?download=1",
+      "validation_status": "verified",
+      "version": "Zenodo record 15681384"
+    },
+    {
+      "checksum_md5": "a84b5ebfc62cb5b8634897db77857ad2",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "Eurostat reuse notice",
+      "local_path": "data\\external\\eurostat_toc_en.txt",
+      "message": "local resource is valid",
+      "name": "eurostat_title_catalog_en",
+      "resource_id": "resource_b03877994a1f28867882",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 1986146,
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
+      "validation_status": "reused",
+      "version": "retrieved-current"
+    },
+    {
+      "checksum_md5": "1f3fa7cb4f2c240481d5e5ab3de465a2",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "EuroGeographics-Eurostat GISCO reuse notice",
+      "local_path": "data\\external\\NUTS_AT_2024.csv",
+      "message": "local resource is valid",
+      "name": "nuts_2024_attributes",
+      "resource_id": "resource_c65fff502d65521f56a6",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 89384,
+      "url": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/csv/NUTS_AT_2024.csv",
+      "validation_status": "reused",
+      "version": "NUTS 2024"
+    },
+    {
+      "checksum_md5": "2b0dd521fdd39429c81b29d92b25a448",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "Eurostat reuse notice",
+      "local_path": "data\\external\\eurostat_geo_codelist.xml",
+      "message": "local resource is valid",
+      "name": "eurostat_geo_codelist_sdmx3",
+      "resource_id": "resource_af84c9a7084141a79612",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 1013040,
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/structure/codelist/ESTAT/GEO/14.0?compress=false",
+      "validation_status": "reused",
+      "version": "GEO 14.0"
+    },
+    {
+      "checksum_md5": "00dbc7d29aba464ff2a6b0a0a297d3d0",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "Upstream GitHub repository license; verify before redistribution",
+      "local_path": "data\\external\\star\\S_i.csv",
+      "message": "local resource is valid",
+      "name": "star_original_questions",
+      "resource_id": "resource_b523a0b6ac9ec8303221",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 10593,
+      "url": "https://raw.githubusercontent.com/AntoineGauquier/efficient_and_scalable_search_for_statistics/31f69971e6286f1d9dada7851c03a649b8ab150b/S_i.csv",
+      "validation_status": "reused",
+      "version": "31f69971e6286f1d9dada7851c03a649b8ab150b"
+    },
+    {
+      "checksum_md5": "10f8ca4874511b55a0a09f4014d1d3c4",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "Upstream GitHub repository license; verify before redistribution",
+      "local_path": "data\\external\\star\\S_r.csv",
+      "message": "local resource is valid",
+      "name": "star_reformulated_questions",
+      "resource_id": "resource_da69880f2df1d0ed3343",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 10326,
+      "url": "https://raw.githubusercontent.com/AntoineGauquier/efficient_and_scalable_search_for_statistics/31f69971e6286f1d9dada7851c03a649b8ab150b/S_r.csv",
+      "validation_status": "reused",
+      "version": "31f69971e6286f1d9dada7851c03a649b8ab150b"
+    },
+    {
+      "checksum_md5": "8d6f46945392ddb7858d8ea2548afdf1",
+      "expected_md5": null,
+      "expected_size_bytes": null,
+      "license": "Upstream GitHub repository license; verify before redistribution",
+      "local_path": "data\\external\\star\\annotations.csv",
+      "message": "local resource is valid",
+      "name": "star_annotations",
+      "resource_id": "resource_fb4c8764e0d837a42723",
+      "retrieved_at": "2026-06-05T01:31:52.075084Z",
+      "size_bytes": 171082,
+      "url": "https://raw.githubusercontent.com/AntoineGauquier/efficient_and_scalable_search_for_statistics/31f69971e6286f1d9dada7851c03a649b8ab150b/annotations.csv",
+      "validation_status": "reused",
+      "version": "31f69971e6286f1d9dada7851c03a649b8ab150b"
+    }
+  ],
+  "source_repairs": [
+    {
+      "defect_reason": "core file is gzip-wrapped tar content; nested tar does not contain aei_hri.csv",
+      "message": "known upstream packaging defect repaired during ingestion",
+      "original_md5": "1f58970ba23ae22ff81fa51635f8b0fa",
+      "original_path": "data\\raw\\eurostat_2000_tables\\aei_hri.csv",
+      "original_size_bytes": 5238714,
+      "repair_status": "applied",
+      "repaired_at": "2026-06-16T17:47:38.099416Z",
+      "replacement_md5": "1bcf9ddf8155e03e47d463cb590f82ae",
+      "replacement_path": "data\\raw\\eurostat_7605_tables\\aei_hri.csv",
+      "replacement_size_bytes": 13976,
+      "replacement_source_corpus": "full",
+      "table_id": "aei_hri"
+    }
+  ],
+  "status_counts": {
+    "parsed": 1771,
+    "warning": 229
+  },
+  "wall_clock_seconds": 1.9299266999987594,
+  "warning_table_count": 229,
+  "warning_tables": [
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "bd_size$dv_1502"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "crim_off_cat$dv_1401"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "crim_off_cat$dv_348"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "crim_thb_sex$dv_1641"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "crim_thb_vctz$dv_1643"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "demo_magec$dv_1942"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "demo_mlexpec$dv_292"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "demo_r_find3$dv_1541"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "demo_r_gind3$dv_1542"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "demo_r_pjanind3$dv_1561"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "earn_ses_pub1a$dv_352"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "earn_ses_pub1i$dv_353"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "earn_ses_pub1s$dv_354"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "earn_ses_pub2a$dv_1880"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "earn_ses_pub2s$dv_1879"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "edat_lfse_03$dv_598"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "edat_lfse_14$dv_1864"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "edat_lfse_14$dv_356"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "edat_lfse_20$dv_1101"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "educ_ipart$dv_437"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "educ_uoe_enra05$dv_441"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "educ_uoe_mobs03$dv_1126"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "egi_co2_1"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "egi_em3"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "egi_va2"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "env_bio1"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ert_bil_eur_a$dv_841"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ert_bil_eur_a$dv_861"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_cd_acdr2$dv_1145"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_dhc140$dv_2681"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_al1e$dv_1142"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_al3e$dv_450"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_al3i$dv_461"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_bm1e$dv_309"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_bm1i$dv_306"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_fv3e$dv_1143"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_fv3e$dv_462"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_mh1e$dv_463"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_mh1i$dv_464"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_pe2e$dv_1144"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_pe2e$dv_301"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_pe3e$dv_296"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_sk3e$dv_1127"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_sk3e$dv_298"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_sk3i$dv_1141"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_ehis_sk3i$dv_304"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_hlye$dv_2041"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_hlye$dv_287"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_rs_grd2$dv_2825"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_rs_prs2$dv_2824"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_sha11_hc$dv_2841"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_sha11_hf$dv_2821"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_sha11_hf$dv_2826"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_silc_08$dv_1146"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hlth_silc_11$dv_1148"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "hsw_ac8$dv_386"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_hch16$dv_2262"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_hch17$dv_2261"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_hch18$dv_2263"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_hch19$dv_2264"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_iw02$dv_2665"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li02$dv_548"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li11$dv_2662"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li21$dv_2663"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li22$dv_2664"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li33$dv_1983"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_li34$dv_1982"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lk11"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lvhl11n$dv_1181"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lvhl30$dv_1323"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lvho05a$dv_1185"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lvho05a$dv_2685"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_lvps08$dv_1041"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mddd04b$dv_2721"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mddd11$dv_655"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mdes03$dv_2702"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mdho06a$dv_1184"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mdho06a$dv_2701"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mdsd03$dv_1165"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_mdsd07$dv_2621"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_peps01n$dv_1161"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pnp2$dv_1988"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw01$dv_2761"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw01b$dv_2749"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw01b$dv_2751"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw01b$dv_2781"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw03$dv_2762"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw05b$dv_2766"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw08$dv_426"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw12$dv_2547"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_pw15$dv_2750"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp01$dv_1061"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp03$dv_1062"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp03$dv_552"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp06$dv_2742"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp07$dv_1064"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp10$dv_2744"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp12$dv_2746"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp15$dv_433"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp17$dv_434"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp19$dv_312"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp19$dv_313"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp20$dv_2747"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp21$dv_436"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp22$dv_2441"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp31$dv_2383"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp33$dv_2541"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp34$dv_2542"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp37$dv_2543"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp38$dv_2388"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp38$dv_2544"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp39$dv_2548"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ilc_scp40$dv_2549"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_da_gdp"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_da_pop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_da_tot"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_da_typ"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_dfa_tot"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_dr_tot"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_ta_gdp"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_ta_ntr"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_ta_pop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_ta_tot"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ipr_ta_typ"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_ci_ac_i$dv_1043"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_ci_ac_i$dv_1122"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_ci_cm_h$dv_507"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_ci_in_h$dv_512"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_cisci_f$dv_536"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_sk_cskl_i$dv_266"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_sk_dskl_i$dv_317"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_sks_itspa$dv_1847"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "isoc_sks_itsps$dv_1846"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_eppgai$dv_577"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ergaed$dv_319"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ewpeve$dv_604"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ewpnig$dv_605"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ewpsat$dv_606"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ewpsun$dv_607"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_ipga$dv_610"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_qoe_3a2$dv_608"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfsa_urgaed$dv_611"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfso_10fvaredu$dv_609"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfso_14loq$dv_615"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfst_hheredch$dv_2683"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "lfst_hhwahchi$dv_1872"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "met_ipr_da"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "met_ipr_dapop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "met_ipr_dfa"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "met_ipr_dfapop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "met_ipr_dr"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asyaccm$dv_961"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asyappctza$dv_618"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asypenctzm$dv_723"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asyresa$dv_629"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asytpfa$dv_1381"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asytpfm$dv_1383"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asytpfq$dv_1382"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asytpsm$dv_1384"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_asywitha$dv_1021"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_eiord$dv_1261"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_eirtn$dv_1241"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_reschst$dv_1285"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_reslas$dv_1283"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "migr_resltra$dv_1284"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nama_10r_3empers$dv_1564"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nama_10r_3gdp$dv_1562"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nama_10r_3gva$dv_1563"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nrg_125m"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nrg_135m"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "nrg_bal_s$dv_650"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "road_go_na_rl3g$dv_1581"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "road_go_na_ru3g$dv_1582"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_05_10"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_05_60"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_11_31"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_13_60"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_14_50"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_15_10"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "sdg_16_60"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "spr_net_ben$dv_1622"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tag00124"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tag00125"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tai09"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ten00117"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ten00118"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ten00120"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ten00138"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tessi191"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00001"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00002"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00028"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00037"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00065"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tet00066"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tgs00027"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tgs00103"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tgs00108"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tin00174"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tin00175"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tin00176"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00102"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00103"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00104"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00105"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00151"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00175"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tps00203"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "trng_lfs_02$dv_2221"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tsc00007"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "tsc00031"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ttr00012"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "ttr00016"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "60 non-numeric observation cells"
+      ],
+      "table_id": "tus_00alone"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title",
+        "64 non-numeric observation cells"
+      ],
+      "table_id": "tus_00educ$dv_571"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "58 non-numeric observation cells"
+      ],
+      "table_id": "tus_00meal"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "192 non-numeric observation cells"
+      ],
+      "table_id": "tus_00npaycare"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "378 non-numeric observation cells"
+      ],
+      "table_id": "tus_00npaywork"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "64 non-numeric observation cells"
+      ],
+      "table_id": "tus_00screen"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "64 non-numeric observation cells"
+      ],
+      "table_id": "tus_00simuact"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "300 non-numeric observation cells"
+      ],
+      "table_id": "tus_00travel"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title",
+        "47 non-numeric observation cells"
+      ],
+      "table_id": "tus_00work$dv_671"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_10r_3gdp$dv_1584"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_ipr_da"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_ipr_dapop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_ipr_dfa"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_ipr_dfapop"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_ipr_dr"
+    },
+    {
+      "parse_status": "warning",
+      "reasons": [
+        "missing title"
+      ],
+      "table_id": "urt_lfe3emprt$dv_1586"
+    }
+  ]
+}

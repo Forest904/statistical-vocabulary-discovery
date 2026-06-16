@@ -1,0 +1,51 @@
+{
+  "artifacts": [
+    "outputs\\measure_relations.csv",
+    "outputs\\relations\\run_9431e98d07745bcef11d\\accepted_relations_full.csv",
+    "outputs\\relations\\run_9431e98d07745bcef11d\\relation_candidates.csv",
+    "outputs\\relations\\run_9431e98d07745bcef11d\\manual_relation_review_sample.csv",
+    "outputs\\relations\\run_9431e98d07745bcef11d\\relation_summary.json"
+  ],
+  "config_id": "cfg_04a56f0aee30af47c312ae19c6dbc7ea",
+  "config_summary": {
+    "config_name": "core",
+    "corpus": "core",
+    "random_seed": 42
+  },
+  "corpus": "core",
+  "environment": {
+    "config_fingerprint": "cfg_04a56f0aee30af47c312ae19c6dbc7ea",
+    "config_summary": {
+      "config_name": "core",
+      "corpus": "core",
+      "random_seed": 42
+    },
+    "corpus": {
+      "archive_name": "eurostat_2000_tables.tgz",
+      "expected_md5": "97bda36fec3c7c7ed042ee64ab16bf2c",
+      "expected_table_count": 2000,
+      "name": "core"
+    },
+    "git": {
+      "commit": "9482da8750df2d74f3b79a4c213164ba8031247f",
+      "dirty": true,
+      "dirty_warning": "worktree has uncommitted changes"
+    },
+    "package_version": "0.1.0",
+    "python_version": "3.12.2"
+  },
+  "finished_at": "2026-06-16T17:40:55.273772Z",
+  "pipeline_stage": "relations",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_9431e98d07745bcef11d",
+  "started_at": "2026-06-16T17:40:22.060277Z",
+  "state": "succeeded"
+}

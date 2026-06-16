@@ -1,0 +1,16 @@
+{
+  "artifacts": [
+    "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\stage_checkpoints.json",
+    "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\resource_measurements.csv",
+    "report\\full_corpus_scalability.md",
+    "outputs\\full_corpus\\run_6c602fe0d70beb33cf3c\\run_manifest.json"
+  ],
+  "config_id": "cfg_3057319d283701c261a9",
+  "corpus": "full",
+  "finished_at": "2026-06-05T03:59:04.813054Z",
+  "pipeline_stage": "run-all",
+  "resources": [],
+  "run_id": "run_6c602fe0d70beb33cf3c",
+  "started_at": "2026-06-05T01:10:06.424156Z",
+  "state": "succeeded"
+}

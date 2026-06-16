@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    "data\\processed\\knowledge_graph_nodes.parquet",
+    "data\\processed\\knowledge_graph_edges.parquet",
+    "outputs\\knowledge_graph\\run_232f3b44d3cd485ba4d2\\knowledge_graph_summary.json",
+    "outputs\\knowledge_graph\\current_graph.json"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-05T14:45:31.700839Z",
+  "pipeline_stage": "knowledge_graph",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_232f3b44d3cd485ba4d2",
+  "started_at": "2026-06-05T14:45:27.971706Z",
+  "state": "succeeded"
+}

@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    "outputs\\measure_relations.csv",
+    "outputs\\relations\\run_bc54c855edc0db4b8914\\relation_candidates.csv",
+    "outputs\\relations\\run_bc54c855edc0db4b8914\\manual_relation_review_sample.csv",
+    "outputs\\relations\\run_bc54c855edc0db4b8914\\relation_summary.json"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-04T21:47:15.268009Z",
+  "pipeline_stage": "relations",
+  "resources": [
+    "resource_f12a21534177bde82830",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_bc54c855edc0db4b8914",
+  "started_at": "2026-06-04T21:44:30.170712Z",
+  "state": "succeeded"
+}

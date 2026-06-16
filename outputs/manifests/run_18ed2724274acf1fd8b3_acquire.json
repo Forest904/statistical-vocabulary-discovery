@@ -1,0 +1,21 @@
+{
+  "artifacts": [
+    "data\\processed\\resource_manifest.json"
+  ],
+  "config_id": "cfg_3057319d283701c261a9",
+  "corpus": "full",
+  "finished_at": "2026-06-05T01:31:52.075084Z",
+  "pipeline_stage": "acquire",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_18ed2724274acf1fd8b3",
+  "started_at": "2026-06-05T01:10:06.590048Z",
+  "state": "succeeded"
+}

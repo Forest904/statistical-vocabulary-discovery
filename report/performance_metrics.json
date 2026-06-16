@@ -34,7 +34,7 @@
   "config_name": "core",
   "corpus": "core",
   "expected_table_count": 2000,
-  "peak_rss_bytes": 71278592,
+  "peak_rss_bytes": 70443008,
   "selected_config": {
     "classification_embedding_batch_size": 64,
     "extraction_parallel_chunk_size": 25,
@@ -48,23 +48,24 @@
     "classification": {
       "diagnostics": {
         "prediction_count": 13235,
-        "run_id": "run_5ca4ceb79c04b291aed5",
+        "run_id": "run_7d30a4b00ad01fbdb893",
         "timing": {
-          "calibration_sweep_seconds": 125.55111089999991,
-          "embedding_seconds": 2.6467885000020033,
-          "full_prediction_seconds": 0.2634665000005043,
-          "model_fit_seconds": 5.085865600001853,
-          "probability_seconds": 0.3320060000005469,
-          "semantic_feature_seconds": 143.9775198999996
+          "calibration_sweep_seconds": 203.41539390000253,
+          "context_feature_seconds": 17.80344250000053,
+          "embedding_seconds": 3.5625259000007645,
+          "full_prediction_seconds": 0.36788439999872935,
+          "model_fit_seconds": 9.866462399997545,
+          "probability_seconds": 0.7566450000012992,
+          "semantic_feature_seconds": 181.67200980000052
         },
         "variant": "semantic-hybrid"
       },
       "peak_rss_bytes": null,
       "stage": "classification",
       "throughput": {
-        "terms_per_second": 47.632456823595646
+        "terms_per_second": 31.70482379101044
       },
-      "wall_clock_seconds": 277.8567574000044
+      "wall_clock_seconds": 417.4443639000019
     },
     "clustering": {
       "diagnostics": {

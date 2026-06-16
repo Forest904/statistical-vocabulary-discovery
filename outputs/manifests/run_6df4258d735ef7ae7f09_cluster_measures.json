@@ -1,0 +1,25 @@
+{
+  "artifacts": [
+    "outputs\\measure_clusters.csv",
+    "outputs\\clustering\\run_6df4258d735ef7ae7f09\\agglomerative_baseline.csv",
+    "outputs\\clustering\\run_6df4258d735ef7ae7f09\\domain_taxonomy.json",
+    "outputs\\clustering\\run_6df4258d735ef7ae7f09\\manual_cluster_review_sample.csv",
+    "outputs\\clustering\\run_6df4258d735ef7ae7f09\\clustering_summary.json"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-04T21:44:16.826025Z",
+  "pipeline_stage": "cluster-measures",
+  "resources": [
+    "resource_f12a21534177bde82830",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_6df4258d735ef7ae7f09",
+  "started_at": "2026-06-04T21:43:09.550376Z",
+  "state": "succeeded"
+}

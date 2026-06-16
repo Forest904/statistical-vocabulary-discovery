@@ -97,6 +97,10 @@ class ClassificationConfig(BaseModel):
     acceptance_final_macro_drop: float = Field(default=0.02, ge=0.0, le=1.0)
     min_other_reduction_fraction: float = Field(default=0.20, ge=0.0, le=1.0)
     min_measure_recall_for_promotion: float = Field(default=0.35, ge=0.0, le=1.0)
+    measure_evidence_gate_enabled: bool = True
+    measure_acceptance_min_score: float = Field(default=0.70, ge=0.0, le=1.0)
+    max_negative_dimension_score: float = Field(default=0.35, ge=0.0, le=1.0)
+    measure_vote_min_agreement: int = Field(default=2, ge=0)
 
 
 class ClusteringConfig(BaseModel):

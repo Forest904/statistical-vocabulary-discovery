@@ -1,0 +1,58 @@
+{
+  "artifacts": [
+    "data\\processed\\classification_features.parquet",
+    "data\\gold\\vocabulary_gold_sample.csv",
+    "data\\gold\\vocabulary_gold_labels.csv",
+    "data\\gold\\vocabulary_gold_relabel.csv",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\local-hybrid_predictions.parquet",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\classification_metrics.json",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\classification_summary.json",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\proposed\\measures.csv",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\proposed\\dimension_names.csv",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\proposed\\dimension_values.csv",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\proposed\\units.csv",
+    "outputs\\classification\\run_c91d8b9b48af933f5863\\proposed\\other_ambiguous.csv"
+  ],
+  "config_id": "cfg_04a56f0aee30af47c312ae19c6dbc7ea",
+  "config_summary": {
+    "config_name": "core",
+    "corpus": "core",
+    "random_seed": 42
+  },
+  "corpus": "core",
+  "environment": {
+    "config_fingerprint": "cfg_04a56f0aee30af47c312ae19c6dbc7ea",
+    "config_summary": {
+      "config_name": "core",
+      "corpus": "core",
+      "random_seed": 42
+    },
+    "corpus": {
+      "archive_name": "eurostat_2000_tables.tgz",
+      "expected_md5": "97bda36fec3c7c7ed042ee64ab16bf2c",
+      "expected_table_count": 2000,
+      "name": "core"
+    },
+    "git": {
+      "commit": "9482da8750df2d74f3b79a4c213164ba8031247f",
+      "dirty": true,
+      "dirty_warning": "worktree has uncommitted changes"
+    },
+    "package_version": "0.1.0",
+    "python_version": "3.12.2"
+  },
+  "finished_at": "2026-06-16T17:22:04.311099Z",
+  "pipeline_stage": "classify-local-hybrid",
+  "resources": [
+    "resource_6a7ca2ebff5a28c0cc12",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_c91d8b9b48af933f5863",
+  "started_at": "2026-06-16T17:20:59.845602Z",
+  "state": "succeeded"
+}

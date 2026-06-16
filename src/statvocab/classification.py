@@ -5,11 +5,16 @@ from __future__ import annotations
 import json
 import math
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib import import_module
 from pathlib import Path
 from typing import Any, cast
 
+from statvocab.classification_context import (
+    build_measure_context_features,
+    measure_subtype_for_context,
+    weak_supervision_vote_summary,
+)
 from statvocab.classification_evaluate import _score_rows, evaluate_classification
 from statvocab.classification_features import (
     completed_gold_labels,
@@ -64,10 +69,18 @@ class _SemanticOverrideSettings:
 
 
 @dataclass(frozen=True)
+class _EvidenceGateSettings:
+    measure_acceptance_min_score: float = 0.70
+    max_negative_dimension_score: float = 0.35
+    measure_vote_min_agreement: int = 2
+
+
+@dataclass(frozen=True)
 class _CalibrationSettings:
     non_other_threshold: float
     measure_threshold: float
     override: _SemanticOverrideSettings
+    evidence: _EvidenceGateSettings = field(default_factory=_EvidenceGateSettings)
 
 
 def _occurrence_ids(row: dict[str, Any]) -> tuple[str, ...]:
@@ -147,6 +160,7 @@ def _import_sklearn() -> tuple[Any, Any, Any]:
 def _model_feature_dict(
     row: dict[str, Any],
     semantic_features: dict[str, object] | None = None,
+    context_features: dict[str, object] | None = None,
 ) -> dict[str, object]:
     features: dict[str, object] = {
         "source_roles": row["source_roles"],
@@ -168,6 +182,14 @@ def _model_feature_dict(
     }
     if semantic_features:
         features.update(semantic_features)
+    if context_features:
+        features.update(
+            {
+                key: value
+                for key, value in context_features.items()
+                if key not in {"term_id", "measure_subtype"}
+            }
+        )
     return features
 
 
@@ -334,6 +356,7 @@ def _threshold_values(start: float, stop: float, step: float) -> list[float]:
 
 def _semantic_calibration_grid() -> list[_CalibrationSettings]:
     settings: list[_CalibrationSettings] = []
+    default_evidence = _EvidenceGateSettings()
     for non_other_threshold in _threshold_values(0.55, 0.90, 0.025):
         for measure_threshold in _threshold_values(0.60, 0.95, 0.025):
             for min_centroid_score in (0.72, 0.76, 0.80, 0.84):
@@ -350,8 +373,30 @@ def _semantic_calibration_grid() -> list[_CalibrationSettings]:
                                         min_margin=min_margin,
                                         min_neighbor_vote=min_neighbor_vote,
                                     ),
+                                    evidence=default_evidence,
                                 )
                             )
+    conservative_override = _SemanticOverrideSettings(
+        mode="centroid-and-neighbor",
+        min_centroid_score=0.76,
+        min_margin=0.03,
+        min_neighbor_vote=0.75,
+    )
+    for acceptance in (0.60, 0.65, 0.70, 0.75, 0.80):
+        for negative in (0.25, 0.35, 0.45):
+            for votes in (1, 2, 3):
+                settings.append(
+                    _CalibrationSettings(
+                        non_other_threshold=0.55,
+                        measure_threshold=0.60,
+                        override=conservative_override,
+                        evidence=_EvidenceGateSettings(
+                            measure_acceptance_min_score=acceptance,
+                            max_negative_dimension_score=negative,
+                            measure_vote_min_agreement=votes,
+                        ),
+                    )
+                )
     return settings
 
 
@@ -363,6 +408,9 @@ def _settings_payload(settings: _CalibrationSettings) -> dict[str, Any]:
         "semantic_override_min_centroid_score": settings.override.min_centroid_score,
         "semantic_override_min_margin": settings.override.min_margin,
         "semantic_override_min_neighbor_vote": settings.override.min_neighbor_vote,
+        "measure_acceptance_min_score": settings.evidence.measure_acceptance_min_score,
+        "max_negative_dimension_score": settings.evidence.max_negative_dimension_score,
+        "measure_vote_min_agreement": settings.evidence.measure_vote_min_agreement,
     }
 
 
@@ -409,6 +457,46 @@ def _semantic_measure_override(
     return None
 
 
+def _evidence_gate_rejection_reason(
+    context_features: dict[str, object] | None,
+    settings: _EvidenceGateSettings,
+) -> str | None:
+    if not context_features:
+        return "missing_context_features"
+    acceptance = float(context_features.get("measure_acceptance_score") or 0.0)
+    negative = float(context_features.get("negative_dimension_score") or 0.0)
+    votes = int(context_features.get("measure_vote_agreement") or 0)
+    if acceptance < settings.measure_acceptance_min_score:
+        return "measure_acceptance_score_below_threshold"
+    if negative > settings.max_negative_dimension_score:
+        return "negative_dimension_score_above_threshold"
+    if votes < settings.measure_vote_min_agreement:
+        return "measure_vote_agreement_below_threshold"
+    return None
+
+
+def _evidence_gated_semantic_measure_override(
+    semantic_features: dict[str, object] | None,
+    context_features: dict[str, object] | None,
+    settings: _CalibrationSettings,
+    *,
+    enabled: bool,
+) -> tuple[float | None, str | None, str | None]:
+    confidence = _semantic_measure_override(semantic_features, settings.override)
+    if confidence is None:
+        return None, "semantic_centroid_neighbor_conditions_failed", None
+    if enabled:
+        rejection = _evidence_gate_rejection_reason(context_features, settings.evidence)
+        if rejection is not None:
+            return None, rejection, None
+    subtype = (
+        measure_subtype_for_context(context_features)
+        if context_features
+        else "weak_semantic_measure"
+    )
+    return confidence, None, subtype
+
+
 def _hybrid_predictions(
     rows: list[dict[str, Any]],
     *,
@@ -435,6 +523,19 @@ def _hybrid_predictions(
         else {}
     )
     semantic_feature_seconds = time.perf_counter() - semantic_started
+    context_started = time.perf_counter()
+    context_features = (
+        build_measure_context_features(config, rows, semantic_features)
+        if variant == "semantic-hybrid"
+        else {}
+    )
+    context_feature_seconds = time.perf_counter() - context_started
+    context_features_path: Path | None = None
+    if context_features:
+        context_features_path = write_parquet_rows(
+            list(context_features.values()),
+            config.paths.processed_dir / "measure_context_features.parquet",
+        )
     dict_vectorizer, logistic_regression, calibrated_classifier_cv = _import_sklearn()
     row_by_term = {str(row["term_id"]): row for row in rows}
     row_index_by_term = {str(row["term_id"]): index for index, row in enumerate(rows)}
@@ -451,6 +552,7 @@ def _hybrid_predictions(
             _model_feature_dict(
                 row_by_term[row["term_id"]],
                 semantic_features.get(str(row["term_id"])),
+                context_features.get(str(row["term_id"])),
             )
             for row in train_labels
         ]
@@ -469,7 +571,14 @@ def _hybrid_predictions(
     rule_rows = _rule_predictions(rows, variant=variant, run_id=run_id)
     predict_started = time.perf_counter()
     all_x = vectorizer.transform(
-        [_model_feature_dict(row, semantic_features.get(str(row["term_id"]))) for row in rows]
+        [
+            _model_feature_dict(
+                row,
+                semantic_features.get(str(row["term_id"])),
+                context_features.get(str(row["term_id"])),
+            )
+            for row in rows
+        ]
     )
     probabilities = model.predict_proba(all_x)
     classes = [str(value) for value in model.classes_]
@@ -479,6 +588,7 @@ def _hybrid_predictions(
         settings: _CalibrationSettings,
         *,
         indexes: list[int] | None = None,
+        collect_diagnostics: bool = False,
     ) -> list[dict[str, Any]]:
         actual_indexes = indexes if indexes is not None else list(range(len(rows)))
         predictions: list[dict[str, Any]] = []
@@ -490,21 +600,34 @@ def _hybrid_predictions(
                 predictions.append(rule_row)
                 continue
             row_semantic_features = semantic_features.get(str(row["term_id"]))
+            row_context_features = context_features.get(str(row["term_id"]))
             best_index = max(range(len(classes)), key=lambda index: float(probs[index]))
             confidence = float(probs[best_index])
             best_class = classes[best_index]
-            semantic_measure_confidence = (
-                _semantic_measure_override(row_semantic_features, settings.override)
+            semantic_measure_confidence, semantic_rejection, measure_subtype = (
+                _evidence_gated_semantic_measure_override(
+                    row_semantic_features,
+                    row_context_features,
+                    settings,
+                    enabled=config.classification.measure_evidence_gate_enabled,
+                )
                 if variant == "semantic-hybrid"
-                else None
+                else (None, None, None)
             )
+            if collect_diagnostics and semantic_rejection:
+                diagnostics = build_predictions.diagnostics
+                reasons = diagnostics.setdefault("semantic_promotion_rejection_reasons", {})
+                reasons[semantic_rejection] = reasons.get(semantic_rejection, 0) + 1
             if (
                 semantic_measure_confidence is not None
                 and semantic_measure_confidence >= settings.measure_threshold
             ):
                 category = VocabularyCategory.MEASURE
                 confidence = max(confidence, semantic_measure_confidence)
-                evidence = "semantic centroid/neighbor measure fallback"
+                evidence = (
+                    "semantic evidence-gated measure fallback"
+                    f"; measure_subtype={measure_subtype or 'weak_semantic_measure'}"
+                )
             elif best_class != VocabularyCategory.OTHER_AMBIGUOUS.value:
                 threshold = (
                     settings.measure_threshold
@@ -536,6 +659,8 @@ def _hybrid_predictions(
             )
         return predictions
 
+    build_predictions.diagnostics = {}  # type: ignore[attr-defined]
+
     validation_labels = [row for row in labels if row.get("split") == "validation"]
     validation_indexes = [
         row_index_by_term[str(label["term_id"])]
@@ -550,6 +675,7 @@ def _hybrid_predictions(
                 non_other_threshold=threshold,
                 measure_threshold=threshold,
                 override=_SemanticOverrideSettings(),
+                evidence=_EvidenceGateSettings(),
             )
             for threshold in [round(0.45 + (index * 0.025), 3) for index in range(13)]
         ]
@@ -558,6 +684,11 @@ def _hybrid_predictions(
         non_other_threshold=config.classification.abstention_threshold,
         measure_threshold=config.classification.abstention_threshold,
         override=_SemanticOverrideSettings(),
+        evidence=_EvidenceGateSettings(
+            measure_acceptance_min_score=config.classification.measure_acceptance_min_score,
+            max_negative_dimension_score=config.classification.max_negative_dimension_score,
+            measure_vote_min_agreement=config.classification.measure_vote_min_agreement,
+        ),
     )
     selected_payload: dict[str, Any] = {"reason": "default threshold used"}
     best_rank: tuple[bool, bool, float, float, float, int] | None = None
@@ -624,14 +755,26 @@ def _hybrid_predictions(
             "reason": "no validation candidate satisfied non-other precision floor; default used"
         }
     full_predict_started = time.perf_counter()
-    predictions = build_predictions(selected_settings)
+    predictions = build_predictions(selected_settings, collect_diagnostics=True)
     full_prediction_seconds = time.perf_counter() - full_predict_started
     selected_payload.update(_settings_payload(selected_settings))
     selected_payload["threshold"] = selected_settings.non_other_threshold
     selected_payload["semantic_features_enabled"] = bool(semantic_features)
+    selected_payload["measure_context_features_enabled"] = bool(context_features)
+    selected_payload["measure_context_features_path"] = (
+        str(context_features_path) if context_features_path is not None else None
+    )
+    selected_payload["weak_supervision_vote_summary"] = weak_supervision_vote_summary(
+        context_features
+    )
+    selected_payload["semantic_promotion_rejection_reasons"] = build_predictions.diagnostics.get(  # type: ignore[attr-defined]
+        "semantic_promotion_rejection_reasons",
+        {},
+    )
     selected_payload["timing"] = {
         "embedding_seconds": embedding_seconds,
         "semantic_feature_seconds": semantic_feature_seconds,
+        "context_feature_seconds": context_feature_seconds,
         "model_fit_seconds": model_fit_seconds,
         "probability_seconds": probability_seconds,
         "calibration_sweep_seconds": sweep_seconds,
@@ -872,13 +1015,82 @@ def _semantic_false_positive_breakdown(
     for prediction in predictions:
         if prediction.get("category") != VocabularyCategory.MEASURE.value:
             continue
-        if "semantic centroid/neighbor measure fallback" not in str(prediction.get("evidence")):
+        if "semantic" not in str(prediction.get("evidence")):
             continue
         gold = labels_by_term.get(str(prediction["term_id"]))
         if gold is None or gold == VocabularyCategory.MEASURE.value:
             continue
         counts[gold] = counts.get(gold, 0) + 1
     return dict(sorted(counts.items()))
+
+
+def _measure_subtype(prediction: dict[str, Any]) -> str:
+    evidence = str(prediction.get("evidence") or "")
+    marker = "measure_subtype="
+    if marker not in evidence:
+        return "not_tagged"
+    return evidence.split(marker, 1)[1].split(";", 1)[0].strip() or "not_tagged"
+
+
+def _measure_subtype_counts(predictions: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for prediction in predictions:
+        if prediction.get("category") != VocabularyCategory.MEASURE.value:
+            continue
+        subtype = _measure_subtype(prediction)
+        counts[subtype] = counts.get(subtype, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _measure_subtype_metrics(
+    labels: list[dict[str, str]],
+    predictions: list[dict[str, Any]],
+) -> dict[str, dict[str, float | int]]:
+    labels_by_term = {str(row["term_id"]): str(row["category"]) for row in labels}
+    total_gold_measures = sum(
+        1 for category in labels_by_term.values() if category == VocabularyCategory.MEASURE.value
+    )
+    buckets: dict[str, dict[str, int]] = {}
+    for prediction in predictions:
+        if prediction.get("category") != VocabularyCategory.MEASURE.value:
+            continue
+        term_id = str(prediction["term_id"])
+        if term_id not in labels_by_term:
+            continue
+        subtype = _measure_subtype(prediction)
+        bucket = buckets.setdefault(subtype, {"predicted": 0, "true_positive": 0})
+        bucket["predicted"] += 1
+        if labels_by_term[term_id] == VocabularyCategory.MEASURE.value:
+            bucket["true_positive"] += 1
+    metrics: dict[str, dict[str, float | int]] = {}
+    for subtype, bucket in sorted(buckets.items()):
+        predicted = bucket["predicted"]
+        true_positive = bucket["true_positive"]
+        metrics[subtype] = {
+            "predicted": predicted,
+            "true_positive": true_positive,
+            "precision": true_positive / predicted if predicted else 0.0,
+            "recall_share": true_positive / total_gold_measures if total_gold_measures else 0.0,
+        }
+    return metrics
+
+
+def _semantic_false_positive_breakdown_by_subtype(
+    labels: list[dict[str, str]],
+    predictions: list[dict[str, Any]],
+) -> dict[str, dict[str, int]]:
+    labels_by_term = {str(row["term_id"]): str(row["category"]) for row in labels}
+    counts: dict[str, dict[str, int]] = {}
+    for prediction in predictions:
+        if prediction.get("category") != VocabularyCategory.MEASURE.value:
+            continue
+        subtype = _measure_subtype(prediction)
+        gold = labels_by_term.get(str(prediction["term_id"]))
+        if gold is None or gold == VocabularyCategory.MEASURE.value:
+            continue
+        bucket = counts.setdefault(subtype, {})
+        bucket[gold] = bucket.get(gold, 0) + 1
+    return {subtype: dict(sorted(values.items())) for subtype, values in sorted(counts.items())}
 
 
 def _calibration_report_payload(
@@ -891,6 +1103,7 @@ def _calibration_report_payload(
     gate: dict[str, Any],
 ) -> dict[str, Any]:
     calibration = cast(dict[str, Any], model_selection.get("calibration") or {})
+    labels = completed_gold_labels(config)
     return {
         "run_id": run_id,
         "variant": "semantic-hybrid",
@@ -905,6 +1118,20 @@ def _calibration_report_payload(
                 "semantic_override_min_centroid_score",
                 "semantic_override_min_margin",
                 "semantic_override_min_neighbor_vote",
+                "measure_acceptance_min_score",
+                "max_negative_dimension_score",
+                "measure_vote_min_agreement",
+            )
+        },
+        "measure_context_features_enabled": bool(
+            model_selection.get("measure_context_features_enabled")
+        ),
+        "chosen_evidence_gate_settings": {
+            key: model_selection.get(key)
+            for key in (
+                "measure_acceptance_min_score",
+                "max_negative_dimension_score",
+                "measure_vote_min_agreement",
             )
         },
         "validation_metrics": {
@@ -919,9 +1146,21 @@ def _calibration_report_payload(
         "evaluated_candidate_count": calibration.get("evaluated_candidate_count", 0),
         "candidate_count": calibration.get("candidate_count", 0),
         "false_positive_category_breakdown": _semantic_false_positive_breakdown(
-            completed_gold_labels(config),
+            labels,
             predictions,
         ),
+        "false_positive_breakdown_by_subtype": _semantic_false_positive_breakdown_by_subtype(
+            labels,
+            predictions,
+        ),
+        "measure_subtype_counts": _measure_subtype_counts(predictions),
+        "measure_subtype_metrics": _measure_subtype_metrics(labels, predictions),
+        "weak_supervision_vote_summary": model_selection.get("weak_supervision_vote_summary")
+        or {},
+        "semantic_promotion_rejection_reasons": model_selection.get(
+            "semantic_promotion_rejection_reasons"
+        )
+        or {},
         "timing": model_selection.get("timing") or {},
         "metrics_status": metrics_payload.get("metrics_status", "available"),
     }
@@ -999,6 +1238,9 @@ def run_classification(
         "metrics": metrics_path,
         "summary": summary_path,
     }
+    context_features_path = model_selection.get("measure_context_features_path")
+    if context_features_path:
+        artifacts["measure_context_features"] = Path(str(context_features_path))
     if variant == "semantic-hybrid":
         calibration_payload = _calibration_report_payload(
             config=config,

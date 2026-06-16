@@ -3,11 +3,18 @@ from pydantic import ValidationError
 
 from statvocab.classification import (
     _CalibrationSettings,
+    _evidence_gated_semantic_measure_override,
+    _EvidenceGateSettings,
     _gate_exports,
     _semantic_measure_override,
     _SemanticOverrideSettings,
     _settings_payload,
     semantic_feature_rows,
+)
+from statvocab.classification_context import (
+    build_measure_context_features,
+    measure_subtype_for_context,
+    weak_supervision_vote_summary,
 )
 from statvocab.classification_evaluate import evaluate_classification
 from statvocab.classification_features import write_parquet_rows
@@ -167,6 +174,168 @@ def test_semantic_measure_override_requires_margin_and_neighbor_agreement() -> N
     )
 
 
+def test_measure_context_features_compute_evidence_and_votes() -> None:
+    config = load_config("configs/evaluation.yaml")
+    rows = [
+        {
+            "term_id": "term_population",
+            "canonical_term": "Population by sex",
+            "matching_key": "population by sex",
+            "occurrence_count": 2,
+            "table_count": 1,
+            "occurrence_ids_json": '["occ_title", "occ_value"]',
+            "role_summary_json": '{"metadata_value": 1, "title_keyphrase": 1}',
+            "metadata_columns_json": '["sex"]',
+            "has_metadata_value_evidence": True,
+            "has_percent": False,
+            "has_unit_word": False,
+            "has_age_pattern": False,
+            "looks_like_dimension_name": False,
+        }
+    ]
+    features = build_measure_context_features(
+        config,
+        rows,
+        {
+            "term_population": {
+                "semantic_best_centroid_class": "measure",
+                "semantic_neighbor_best_class": "measure",
+                "semantic_centroid_measure": 0.82,
+                "semantic_centroid_dimension_value": 0.70,
+            }
+        },
+        term_occurrences=[
+            {
+                "term_id": "term_population",
+                "occurrence_id": "occ_title",
+                "source_area": "title_keyphrase",
+                "metadata_column": None,
+            },
+            {
+                "term_id": "term_population",
+                "occurrence_id": "occ_value",
+                "source_area": "metadata_value",
+                "metadata_column": "sex",
+            },
+        ],
+        title_terms=[
+            {
+                "occurrence_id": "occ_title",
+                "extraction_rule": "title_keyphrase_statistical_head",
+            }
+        ],
+    )
+
+    context = features["term_population"]
+    assert context["title_keyphrase_count"] == 1
+    assert context["metadata_value_count"] == 1
+    assert context["dimension_context_evidence"] is True
+    assert context["measure_vote_count"] == 3
+    assert context["negative_vote_count"] >= 1
+    assert weak_supervision_vote_summary(features)["label_counts"]["measure"] == 1
+
+
+def test_evidence_gated_semantic_measure_override_accepts_grounded_measure() -> None:
+    semantic = {
+        "semantic_best_centroid_class": "measure",
+        "semantic_neighbor_best_class": "measure",
+        "semantic_centroid_measure": 0.86,
+        "semantic_centroid_other_ambiguous": 0.50,
+        "semantic_centroid_dimension_value": 0.62,
+        "semantic_neighbor_vote_measure": 0.80,
+    }
+    context = {
+        "measure_acceptance_score": 0.80,
+        "negative_dimension_score": 0.20,
+        "measure_vote_agreement": 3,
+        "title_keyphrase_count": 1,
+        "title_clause_count": 0,
+        "economic_measure_head": False,
+        "count_quantity_measure_head": False,
+        "statistical_head_match": True,
+    }
+
+    confidence, reason, subtype = _evidence_gated_semantic_measure_override(
+        semantic,
+        context,
+        _CalibrationSettings(
+            non_other_threshold=0.55,
+            measure_threshold=0.60,
+            override=_SemanticOverrideSettings(
+                mode="centroid-and-neighbor",
+                min_centroid_score=0.80,
+                min_margin=0.10,
+                min_neighbor_vote=0.75,
+            ),
+            evidence=_EvidenceGateSettings(
+                measure_acceptance_min_score=0.70,
+                max_negative_dimension_score=0.35,
+                measure_vote_min_agreement=2,
+            ),
+        ),
+        enabled=True,
+    )
+
+    assert confidence is not None
+    assert reason is None
+    assert subtype == "title_keyphrase_measure"
+
+
+def test_evidence_gated_semantic_measure_override_rejects_negative_context() -> None:
+    semantic = {
+        "semantic_best_centroid_class": "measure",
+        "semantic_neighbor_best_class": "measure",
+        "semantic_centroid_measure": 0.86,
+        "semantic_centroid_other_ambiguous": 0.50,
+        "semantic_centroid_dimension_value": 0.62,
+        "semantic_neighbor_vote_measure": 0.80,
+    }
+    context = {
+        "measure_acceptance_score": 0.80,
+        "negative_dimension_score": 0.60,
+        "measure_vote_agreement": 3,
+    }
+
+    confidence, reason, subtype = _evidence_gated_semantic_measure_override(
+        semantic,
+        context,
+        _CalibrationSettings(
+            non_other_threshold=0.55,
+            measure_threshold=0.60,
+            override=_SemanticOverrideSettings(
+                mode="centroid-and-neighbor",
+                min_centroid_score=0.80,
+                min_margin=0.10,
+                min_neighbor_vote=0.75,
+            ),
+            evidence=_EvidenceGateSettings(
+                measure_acceptance_min_score=0.70,
+                max_negative_dimension_score=0.35,
+                measure_vote_min_agreement=2,
+            ),
+        ),
+        enabled=True,
+    )
+
+    assert confidence is None
+    assert reason == "negative_dimension_score_above_threshold"
+    assert subtype is None
+
+
+def test_measure_subtype_assignment_is_diagnostic_only() -> None:
+    subtype = measure_subtype_for_context(
+        {
+            "title_keyphrase_count": 0,
+            "title_clause_count": 0,
+            "economic_measure_head": True,
+            "count_quantity_measure_head": False,
+            "statistical_head_match": True,
+        }
+    )
+
+    assert subtype == "economic_measure"
+
+
 def test_settings_payload_contains_calibration_knobs() -> None:
     payload = _settings_payload(
         _CalibrationSettings(
@@ -184,6 +353,7 @@ def test_settings_payload_contains_calibration_knobs() -> None:
     assert payload["non_other_threshold"] == 0.8
     assert payload["measure_threshold"] == 0.9
     assert payload["semantic_override_mode"] == "centroid-and-neighbor"
+    assert payload["measure_acceptance_min_score"] == 0.7
 
 
 def test_generate_term_embeddings_reuses_matching_cache(

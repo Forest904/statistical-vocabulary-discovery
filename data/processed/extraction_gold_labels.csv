@@ -1,0 +1,468 @@
+table_id,area,expected_value,expected_present,notes
+aei_hri,time,2011,true,Observed in source time columns.
+aei_hri,time,2017,true,Observed in source time columns.
+aei_hri,time,2022,true,Observed in source time columns.
+aei_hri,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+aei_hri,string,Group 1 - low-risk active substances,true,Obvious non-geographic metadata header or value in source table.
+aei_hri,string,"Index, 2011-2013 average =100",true,Obvious non-geographic metadata header or value in source table.
+aei_hri,geography,"European Union (EU6-1958, EU9-1973, EU10-1981, EU12-1986, EU15-1995, EU25-2004, EU27-2007, EU28-2013, EU27-2020)",true,Observed in source geography/reporting column.
+aei_hri,geography,European Union - 27 countries (from 2020),true,Observed in source geography/reporting column.
+aei_hri,title,Harmonised risk indicator 1 for pesticides by categorisation of active substances,true,Cleaned title/title term after removing explicit time/geography where applicable.
+aei_pestsal_rsk,time,2011,true,Observed in source time columns.
+aei_pestsal_rsk,time,2016,true,Observed in source time columns.
+aei_pestsal_rsk,time,2021,true,Observed in source time columns.
+aei_pestsal_rsk,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+aei_pestsal_rsk,string,"Categories B, D, E and F - chemical active substances",true,Obvious non-geographic metadata header or value in source table.
+aei_pestsal_rsk,string,Kilogram,true,Obvious non-geographic metadata header or value in source table.
+aei_pestsal_rsk,geography,Austria,true,Observed in source geography/reporting column.
+aei_pestsal_rsk,geography,Belgium,true,Observed in source geography/reporting column.
+aei_pestsal_rsk,title,Pesticide sales by categorisation of active substances,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apri_lprc_h,time,1985,true,Observed in source time columns.
+apri_lprc_h,time,1997,true,Observed in source time columns.
+apri_lprc_h,time,2009,true,Observed in source time columns.
+apri_lprc_h,time,until 2009,true,Observed in source title.
+apri_lprc_h,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apri_lprc_h,string,Euro per hectare,true,Obvious non-geographic metadata header or value in source table.
+apri_lprc_h,string,Arable land,true,Obvious non-geographic metadata header or value in source table.
+apri_lprc_h,geography,Belgium,true,Observed in source geography/reporting column.
+apri_lprc_h,geography,Bulgaria,true,Observed in source geography/reporting column.
+apri_lprc_h,title,Agricultural land prices by region - historical data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apri_lrnt_h,time,1985,true,Observed in source time columns.
+apri_lrnt_h,time,1997,true,Observed in source time columns.
+apri_lrnt_h,time,2009,true,Observed in source time columns.
+apri_lrnt_h,time,until 2009,true,Observed in source title.
+apri_lrnt_h,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apri_lrnt_h,string,Euro per hectare,true,Obvious non-geographic metadata header or value in source table.
+apri_lrnt_h,string,Arable land,true,Obvious non-geographic metadata header or value in source table.
+apri_lrnt_h,geography,Austria,true,Observed in source geography/reporting column.
+apri_lrnt_h,geography,Belgium,true,Observed in source geography/reporting column.
+apri_lrnt_h,title,Agricultural land renting prices for one year by region - historical data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apri_pi95_vwia,time,1995,true,Observed in source time columns.
+apri_pi95_vwia,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwia,string,Euro,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwia,string,ind_inpu,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwia,geography,AT,true,Observed in source geography/reporting column.
+apri_pi95_vwia,geography,BE,true,Observed in source geography/reporting column.
+apri_pi95_vwia,title,Weights of purchase prices of the means of agricultural production - survey,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apri_pi95_vwpa,time,1995,true,Observed in source time columns.
+apri_pi95_vwpa,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwpa,string,Euro,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwpa,string,ind_outp,true,Obvious non-geographic metadata header or value in source table.
+apri_pi95_vwpa,geography,AT,true,Observed in source geography/reporting column.
+apri_pi95_vwpa,geography,BE,true,Observed in source geography/reporting column.
+apri_pi95_vwpa,title,Weights of producer prices of agricultural products - survey,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apro_ec_egghen,time,2013,true,Observed in source time columns.
+apro_ec_egghen,time,2018,true,Observed in source time columns.
+apro_ec_egghen,time,2023,true,Observed in source time columns.
+apro_ec_egghen,time,2013-2024,true,Observed in source title.
+apro_ec_egghen,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_egghen,string,Other operators receiving eggs from agricultural producers,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_egghen,string,Eggs for consumption,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_egghen,string,Million,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_egghen,geography,Denmark,true,Observed in source geography/reporting column.
+apro_ec_egghen,geography,Finland,true,Observed in source geography/reporting column.
+apro_ec_egghen,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+apro_ec_egghen,title,Production of eggs for consumption and number of laying hens,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apro_ec_lshen,time,1960,true,Observed in source time columns.
+apro_ec_lshen,time,1986,true,Observed in source time columns.
+apro_ec_lshen,time,2012,true,Observed in source time columns.
+apro_ec_lshen,time,1960-2012,true,Observed in source title.
+apro_ec_lshen,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_lshen,string,Laying hens,true,Obvious non-geographic metadata header or value in source table.
+apro_ec_lshen,string,Thousand heads (animals),true,Obvious non-geographic metadata header or value in source table.
+apro_ec_lshen,geography,Austria,true,Observed in source geography/reporting column.
+apro_ec_lshen,geography,Belgium,true,Observed in source geography/reporting column.
+apro_ec_lshen,title,Laying hens population - annual data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apro_mk_fatprot,time,1960,true,Observed in source time columns.
+apro_mk_fatprot,time,1992,true,Observed in source time columns.
+apro_mk_fatprot,time,2023,true,Observed in source time columns.
+apro_mk_fatprot,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apro_mk_fatprot,string,Cows' milk collection,true,Obvious non-geographic metadata header or value in source table.
+apro_mk_fatprot,string,Fat content (% of product weight) (annual),true,Obvious non-geographic metadata header or value in source table.
+apro_mk_fatprot,geography,Albania,true,Observed in source geography/reporting column.
+apro_mk_fatprot,geography,Austria,true,Observed in source geography/reporting column.
+apro_mk_fatprot,title,Fat contents and protein contents (cow's milk) - annual data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apro_mt_lsequi,time,1960,true,Observed in source time columns.
+apro_mt_lsequi,time,1979,true,Observed in source time columns.
+apro_mt_lsequi,time,1997,true,Observed in source time columns.
+apro_mt_lsequi,time,1960-1997,true,Observed in source title.
+apro_mt_lsequi,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+apro_mt_lsequi,string,"Live horses, asses, mules and hinnies",true,Obvious non-geographic metadata header or value in source table.
+apro_mt_lsequi,string,Thousand heads (animals),true,Obvious non-geographic metadata header or value in source table.
+apro_mt_lsequi,geography,Albania,true,Observed in source geography/reporting column.
+apro_mt_lsequi,geography,Belgium,true,Observed in source geography/reporting column.
+apro_mt_lsequi,title,Livestock - Equidae - annual data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+apro_mt_ppighq,time,Janvier-Mars 1995,true,Observed in source time columns.
+apro_mt_ppighq,time,Avril-Juin 2010,true,Observed in source time columns.
+apro_mt_ppighq,time,Avril-Juin 2025,true,Observed in source time columns.
+apro_mt_ppighq,string,Quarterly,true,Obvious non-geographic metadata header or value in source table.
+apro_mt_ppighq,string,Pigmeat,true,Obvious non-geographic metadata header or value in source table.
+apro_mt_ppighq,string,Gross indigenous production,true,Obvious non-geographic metadata header or value in source table.
+apro_mt_ppighq,string,Thousand heads (animals),true,Obvious non-geographic metadata header or value in source table.
+apro_mt_ppighq,geography,Austria,true,Observed in source geography/reporting column.
+apro_mt_ppighq,geography,Belgium,true,Observed in source geography/reporting column.
+apro_mt_ppighq,title,Production forecasts for pigs - quarterly data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_ec_emp_arp,time,2003,true,Observed in source time columns.
+avia_ec_emp_arp,time,2012,true,Observed in source time columns.
+avia_ec_emp_arp,time,2021,true,Observed in source time columns.
+avia_ec_emp_arp,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_arp,string,SALZBURG airport,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_arp,string,Total,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_arp,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+avia_ec_emp_arp,title,Persons employed in main airports by sex,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_ec_emp_ent,time,2001,true,Observed in source time columns.
+avia_ec_emp_ent,time,2007,true,Observed in source time columns.
+avia_ec_emp_ent,time,2013,true,Observed in source time columns.
+avia_ec_emp_ent,time,2001-2013,true,Observed in source title.
+avia_ec_emp_ent,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_ent,string,Airport enterprises,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_ent,string,Females,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_emp_ent,geography,Cyprus,true,Observed in source geography/reporting column.
+avia_ec_emp_ent,geography,Czechia,true,Observed in source geography/reporting column.
+avia_ec_emp_ent,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+avia_ec_emp_ent,title,Persons employed in aviation and airport enterprises by sex,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_ec_enterp,time,2001,true,Observed in source time columns.
+avia_ec_enterp,time,2007,true,Observed in source time columns.
+avia_ec_enterp,time,2013,true,Observed in source time columns.
+avia_ec_enterp,time,2001-2013,true,Observed in source title.
+avia_ec_enterp,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_enterp,string,Airport enterprises,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_enterp,string,Aviation enterprises,true,Obvious non-geographic metadata header or value in source table.
+avia_ec_enterp,geography,Cyprus,true,Observed in source geography/reporting column.
+avia_ec_enterp,geography,Czechia,true,Observed in source geography/reporting column.
+avia_ec_enterp,title,Aviation and airport enterprises,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_eq_arc_age,time,2000,true,Observed in source time columns.
+avia_eq_arc_age,time,2012,true,Observed in source time columns.
+avia_eq_arc_age,time,2023,true,Observed in source time columns.
+avia_eq_arc_age,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_age,string,Age class,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_age,string,Less than 5 years,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_age,geography,Austria,true,Observed in source geography/reporting column.
+avia_eq_arc_age,geography,Bosnia and Herzegovina,true,Observed in source geography/reporting column.
+avia_eq_arc_age,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+avia_eq_arc_age,title,Commercial aircraft fleet by age of aircraft and country of operator,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_eq_arc_agereg,time,2000,true,Observed in source time columns.
+avia_eq_arc_agereg,time,2012,true,Observed in source time columns.
+avia_eq_arc_agereg,time,2023,true,Observed in source time columns.
+avia_eq_arc_agereg,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_agereg,string,Number,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_agereg,string,Less than 5 years,true,Obvious non-geographic metadata header or value in source table.
+avia_eq_arc_agereg,geography,Austria,true,Observed in source geography/reporting column.
+avia_eq_arc_agereg,geography,Belgium,true,Observed in source geography/reporting column.
+avia_eq_arc_agereg,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+avia_eq_arc_agereg,title,Commercial aircraft fleet by age of aircraft and country of registration,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_if_arp,time,2001,true,Observed in source time columns.
+avia_if_arp,time,2011,true,Observed in source time columns.
+avia_if_arp,time,2021,true,Observed in source time columns.
+avia_if_arp,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_if_arp,string,Airports,true,Obvious non-geographic metadata header or value in source table.
+avia_if_arp,string,Main airports,true,Obvious non-geographic metadata header or value in source table.
+avia_if_arp,geography,Albania,true,Observed in source geography/reporting column.
+avia_if_arp,geography,Austria,true,Observed in source geography/reporting column.
+avia_if_arp,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+avia_if_arp,title,Commercial airports by type,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_tpgo,time,2008,true,Observed in source time columns.
+avia_tpgo,time,2015,true,Observed in source time columns.
+avia_tpgo,time,2022,true,Observed in source time columns.
+avia_tpgo,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_tpgo,string,International transport Extra-EU27 (from 2020),true,Obvious non-geographic metadata header or value in source table.
+avia_tpgo,string,Million tonne-kilometre (TKM),true,Obvious non-geographic metadata header or value in source table.
+avia_tpgo,geography,Austria,true,Observed in source geography/reporting column.
+avia_tpgo,geography,Belgium,true,Observed in source geography/reporting column.
+avia_tpgo,title,Freight and mail air transport over national territory (including territorial sea) - million tonne-km,true,Cleaned title/title term after removing explicit time/geography where applicable.
+avia_tppa,time,2008,true,Observed in source time columns.
+avia_tppa,time,2015,true,Observed in source time columns.
+avia_tppa,time,2022,true,Observed in source time columns.
+avia_tppa,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+avia_tppa,string,International transport Extra-EU27 (from 2020),true,Obvious non-geographic metadata header or value in source table.
+avia_tppa,string,Millions of passenger-kilometres,true,Obvious non-geographic metadata header or value in source table.
+avia_tppa,geography,Austria,true,Observed in source geography/reporting column.
+avia_tppa,geography,Belgium,true,Observed in source geography/reporting column.
+avia_tppa,title,Passenger air transport over national territory (including territorial sea) - million passenger-km,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bop_its_str,time,1992,true,Observed in source time columns.
+bop_its_str,time,2003,true,Observed in source time columns.
+bop_its_str,time,2013,true,Observed in source time columns.
+bop_its_str,time,1992-2013,true,Observed in source title.
+bop_its_str,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bop_its_str,string,Percentage,true,Obvious non-geographic metadata header or value in source table.
+bop_its_str,string,Market integration - trade integration of goods,true,Obvious non-geographic metadata header or value in source table.
+bop_its_str,geography,Austria,true,Observed in source geography/reporting column.
+bop_its_str,geography,Belgium,true,Observed in source geography/reporting column.
+bop_its_str,title,International trade in services - market integration indicators - historical data,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs10_00,time,2000,true,Observed in source time columns.
+bs_bs10_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs10_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs10_00,string,[0% - 50%[,true,Obvious non-geographic metadata header or value in source table.
+bs_bs10_00,string,From 10 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs10_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs10_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs10_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs10_00,title,Turnover by client specialisation and employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs11_00,time,2000,true,Observed in source time columns.
+bs_bs11_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs11_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs11_00,string,[0% - 50%[,true,Obvious non-geographic metadata header or value in source table.
+bs_bs11_00,string,Non-specialised enterprises,true,Obvious non-geographic metadata header or value in source table.
+bs_bs11_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs11_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs11_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs11_00,title,Turnover by client specialisation and product specialisation,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs13_04,time,2004,true,Observed in source time columns.
+bs_bs13_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs13_04,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs13_04,string,Advertising,true,Obvious non-geographic metadata header or value in source table.
+bs_bs13_04,string,Advertising material distributed by post,true,Obvious non-geographic metadata header or value in source table.
+bs_bs13_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs13_04,geography,Greece,true,Observed in source geography/reporting column.
+bs_bs13_04,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs13_04,title,Turnover by type of media for advertising services,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs14_04,time,2004,true,Observed in source time columns.
+bs_bs14_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs14_04,string,Income from intellectual property rights - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs14_04,string,Computer and related activities,true,Obvious non-geographic metadata header or value in source table.
+bs_bs14_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs14_04,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs14_04,title,Income from intellectual property rights for computer services,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs16_04,time,2004,true,Observed in source time columns.
+bs_bs16_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs16_04,string,Purchase of advertising space or time for resale - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs16_04,string,Advertising,true,Obvious non-geographic metadata header or value in source table.
+bs_bs16_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs16_04,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs16_04,title,Purchases of advertising space or time for resale,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs1_00,time,1999,true,Observed in source time columns.
+bs_bs1_00,time,2000,true,Observed in source time columns.
+bs_bs1_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs1_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs1_00,string,Non-specialised enterprises,true,Obvious non-geographic metadata header or value in source table.
+bs_bs1_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs1_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs1_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs1_00,title,Turnover by product specialisation for div. 72,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs2_00,time,1999,true,Observed in source time columns.
+bs_bs2_00,time,2000,true,Observed in source time columns.
+bs_bs2_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs2_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs2_00,string,Non-specialised enterprises,true,Obvious non-geographic metadata header or value in source table.
+bs_bs2_00,string,From 10 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs2_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs2_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs2_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs2_00,title,Turnover by product specialisation and employment size class for group 72.2,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs4_06,time,2006,true,Observed in source time columns.
+bs_bs4_06,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs4_06,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs4_06,string,Place of residence outside the reporting country but in another EU country,true,Obvious non-geographic metadata header or value in source table.
+bs_bs4_06,string,Computer and related activities,true,Obvious non-geographic metadata header or value in source table.
+bs_bs4_06,geography,Cyprus,true,Observed in source geography/reporting column.
+bs_bs4_06,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs4_06,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs4_06,title,Turnover by residence of client and economic activity,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs5_00,time,1999,true,Observed in source time columns.
+bs_bs5_00,time,2000,true,Observed in source time columns.
+bs_bs5_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_00,string,Enterprises,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_00,string,Computer and related activities,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs5_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs5_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs5_00,title,Turnover by type of client and NACE Rev.1 at 3-digit level,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs5_04,time,2004,true,Observed in source time columns.
+bs_bs5_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_04,string,Enterprises - number,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_04,string,From 1 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_04,string,Enterprises not carrying out cross border trade,true,Obvious non-geographic metadata header or value in source table.
+bs_bs5_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs5_04,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs5_04,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs5_04,title,Number of enterprises carrying out cross trade by employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs6_00,time,1999,true,Observed in source time columns.
+bs_bs6_00,time,2000,true,Observed in source time columns.
+bs_bs6_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_00,string,Enterprises,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_00,string,From 10 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs6_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs6_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs6_00,title,Turnover by type of client and employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs6_04,time,2004,true,Observed in source time columns.
+bs_bs6_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_04,string,Enterprises - number,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_04,string,From 1 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_04,string,Trade within own enterprise group,true,Obvious non-geographic metadata header or value in source table.
+bs_bs6_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs6_04,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs6_04,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs6_04,title,Number of enterprises carrying out cross trade by type of cross trade and employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs7_00,time,1999,true,Observed in source time columns.
+bs_bs7_00,time,2000,true,Observed in source time columns.
+bs_bs7_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_00,string,Place of residence outside the reporting country,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_00,string,Computer and related activities,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs7_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs7_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs7_00,title,Turnover by nationality of client and NACE Rev.1 at 3-digit level,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs7_04,time,2004,true,Observed in source time columns.
+bs_bs7_04,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_04,string,Enterprises - number,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_04,string,From 1 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_04,string,Cutting edge products or specialised niche services,true,Obvious non-geographic metadata header or value in source table.
+bs_bs7_04,geography,Germany,true,Observed in source geography/reporting column.
+bs_bs7_04,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs7_04,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs7_04,title,Number of enterprises carrying out cross trade by reasons for cross trade and employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs8_00,time,1999,true,Observed in source time columns.
+bs_bs8_00,time,2000,true,Observed in source time columns.
+bs_bs8_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs8_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs8_00,string,Place of residence outside the reporting country,true,Obvious non-geographic metadata header or value in source table.
+bs_bs8_00,string,From 10 to 49 persons employed,true,Obvious non-geographic metadata header or value in source table.
+bs_bs8_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs8_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs8_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs8_00,title,Turnover by nationality of client and employment size class,true,Cleaned title/title term after removing explicit time/geography where applicable.
+bs_bs9_00,time,2000,true,Observed in source time columns.
+bs_bs9_00,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+bs_bs9_00,string,Turnover or gross premiums written - million euro,true,Obvious non-geographic metadata header or value in source table.
+bs_bs9_00,string,[0% - 50%[,true,Obvious non-geographic metadata header or value in source table.
+bs_bs9_00,string,Computer and related activities,true,Obvious non-geographic metadata header or value in source table.
+bs_bs9_00,geography,Denmark,true,Observed in source geography/reporting column.
+bs_bs9_00,geography,Spain,true,Observed in source geography/reporting column.
+bs_bs9_00,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+bs_bs9_00,title,Turnover by client specialisation and NACE Rev.1 at 3-digit level,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_cie011,time,2005,true,Observed in source time columns.
+cei_cie011,time,2014,true,Observed in source time columns.
+cei_cie011,time,2023,true,Observed in source time columns.
+cei_cie011,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_cie011,string,Persons employed,true,Obvious non-geographic metadata header or value in source table.
+cei_cie011,string,Full-time equivalent (FTE),true,Obvious non-geographic metadata header or value in source table.
+cei_cie011,geography,Austria,true,Observed in source geography/reporting column.
+cei_cie011,geography,Belgium,true,Observed in source geography/reporting column.
+cei_cie011,title,Persons employed in circular economy sectors,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_cie012,time,2005,true,Observed in source time columns.
+cei_cie012,time,2013,true,Observed in source time columns.
+cei_cie012,time,2021,true,Observed in source time columns.
+cei_cie012,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_cie012,string,Gross value added,true,Obvious non-geographic metadata header or value in source table.
+cei_cie012,string,Million euro,true,Obvious non-geographic metadata header or value in source table.
+cei_cie012,geography,Austria,true,Observed in source geography/reporting column.
+cei_cie012,geography,Belgium,true,Observed in source geography/reporting column.
+cei_cie012,title,Private investment and gross added value related to circular economy sectors,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_cie020,time,2000,true,Observed in source time columns.
+cei_cie020,time,2010,true,Observed in source time columns.
+cei_cie020,time,2020,true,Observed in source time columns.
+cei_cie020,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_cie020,string,Climate change mitigation technologies related to wastewater treatment or waste management,true,Obvious non-geographic metadata header or value in source table.
+cei_cie020,string,Number,true,Obvious non-geographic metadata header or value in source table.
+cei_cie020,geography,Austria,true,Observed in source geography/reporting column.
+cei_cie020,geography,Australia,true,Observed in source geography/reporting column.
+cei_cie020,title,Patents related to recycling and secondary raw materials,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_gsr011,time,2000,true,Observed in source time columns.
+cei_gsr011,time,2012,true,Observed in source time columns.
+cei_gsr011,time,2023,true,Observed in source time columns.
+cei_gsr011,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr011,string,Air pollutants and greenhouse gases,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr011,string,Total - all NACE activities,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr011,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr011,geography,Austria,true,Observed in source geography/reporting column.
+cei_gsr011,geography,Belgium,true,Observed in source geography/reporting column.
+cei_gsr011,title,Greenhouse gases emissions from production activities,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_gsr020,time,2011,true,Observed in source time columns.
+cei_gsr020,time,2015,true,Observed in source time columns.
+cei_gsr020,time,2022,true,Observed in source time columns.
+cei_gsr020,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr020,string,Aluminium,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr020,string,Extraction,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr020,string,Percentage,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr020,geography,European Union - 27 countries (from 2020),true,Observed in source geography/reporting column.
+cei_gsr020,title,EU self-sufficiency for raw materials,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_gsr030,time,2000,true,Observed in source time columns.
+cei_gsr030,time,2012,true,Observed in source time columns.
+cei_gsr030,time,2023,true,Observed in source time columns.
+cei_gsr030,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr030,string,Materials,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr030,string,Percentage,true,Obvious non-geographic metadata header or value in source table.
+cei_gsr030,geography,Albania,true,Observed in source geography/reporting column.
+cei_gsr030,geography,Austria,true,Observed in source geography/reporting column.
+cei_gsr030,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+cei_gsr030,title,Material import dependency,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc020,time,2000,true,Observed in source time columns.
+cei_pc020,time,2012,true,Observed in source time columns.
+cei_pc020,time,2023,true,Observed in source time columns.
+cei_pc020,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc020,string,Tonnes per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc020,string,Raw material consumption,true,Obvious non-geographic metadata header or value in source table.
+cei_pc020,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc020,geography,Belgium,true,Observed in source geography/reporting column.
+cei_pc020,geography,Total,false,"Suspicious false positive: aggregate/value label, not a geography term in this table."
+cei_pc020,title,Material footprint,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc030,time,2000,true,Observed in source time columns.
+cei_pc030,time,2012,true,Observed in source time columns.
+cei_pc030,time,2023,true,Observed in source time columns.
+cei_pc030,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc030,string,"Euro per kilogram, chain linked volumes (2015)",true,Obvious non-geographic metadata header or value in source table.
+cei_pc030,string,"Index, 2000=100",true,Obvious non-geographic metadata header or value in source table.
+cei_pc030,geography,Albania,true,Observed in source geography/reporting column.
+cei_pc030,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc030,title,Resource productivity,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc031,time,2000,true,Observed in source time columns.
+cei_pc031,time,2011,true,Observed in source time columns.
+cei_pc031,time,2022,true,Observed in source time columns.
+cei_pc031,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc031,string,Waste generated,true,Obvious non-geographic metadata header or value in source table.
+cei_pc031,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc031,geography,Albania,true,Observed in source geography/reporting column.
+cei_pc031,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc031,title,Generation of municipal waste per capita,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc032,time,2004,true,Observed in source time columns.
+cei_pc032,time,2014,true,Observed in source time columns.
+cei_pc032,time,2022,true,Observed in source time columns.
+cei_pc032,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc032,string,"Kilograms per thousand euro, chain linked volumes (2010)",true,Obvious non-geographic metadata header or value in source table.
+cei_pc032,geography,Albania,true,Observed in source geography/reporting column.
+cei_pc032,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc032,title,Generation of waste excluding major mineral wastes per GDP unit,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc034,time,2004,true,Observed in source time columns.
+cei_pc034,time,2014,true,Observed in source time columns.
+cei_pc034,time,2022,true,Observed in source time columns.
+cei_pc034,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc034,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc034,string,Hazardous and non-hazardous - total,true,Obvious non-geographic metadata header or value in source table.
+cei_pc034,string,Total waste,true,Obvious non-geographic metadata header or value in source table.
+cei_pc034,geography,Albania,true,Observed in source geography/reporting column.
+cei_pc034,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc034,title,Waste generation per capita,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc035,time,2020,true,Observed in source time columns.
+cei_pc035,time,2021,true,Observed in source time columns.
+cei_pc035,time,2022,true,Observed in source time columns.
+cei_pc035,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc035,string,Waste collected,true,Obvious non-geographic metadata header or value in source table.
+cei_pc035,string,"Food waste - bio, household and similar waste",true,Obvious non-geographic metadata header or value in source table.
+cei_pc035,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc035,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc035,geography,Belgium,true,Observed in source geography/reporting column.
+cei_pc035,title,Food waste,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc040,time,2000,true,Observed in source time columns.
+cei_pc040,time,2011,true,Observed in source time columns.
+cei_pc040,time,2022,true,Observed in source time columns.
+cei_pc040,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc040,string,Packaging,true,Obvious non-geographic metadata header or value in source table.
+cei_pc040,string,Waste generated,true,Obvious non-geographic metadata header or value in source table.
+cei_pc040,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc040,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc040,geography,Belgium,true,Observed in source geography/reporting column.
+cei_pc040,title,Generation of packaging waste per capita,true,Cleaned title/title term after removing explicit time/geography where applicable.
+cei_pc050,time,2000,true,Observed in source time columns.
+cei_pc050,time,2011,true,Observed in source time columns.
+cei_pc050,time,2022,true,Observed in source time columns.
+cei_pc050,string,Annual,true,Obvious non-geographic metadata header or value in source table.
+cei_pc050,string,Plastic packaging,true,Obvious non-geographic metadata header or value in source table.
+cei_pc050,string,Waste generated,true,Obvious non-geographic metadata header or value in source table.
+cei_pc050,string,Kilograms per capita,true,Obvious non-geographic metadata header or value in source table.
+cei_pc050,geography,Austria,true,Observed in source geography/reporting column.
+cei_pc050,geography,Belgium,true,Observed in source geography/reporting column.
+cei_pc050,title,Generation of plastic packaging waste per capita,true,Cleaned title/title term after removing explicit time/geography where applicable.

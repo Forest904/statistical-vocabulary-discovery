@@ -1,0 +1,27 @@
+{
+  "artifacts": [
+    "data\\processed\\search_documents.parquet",
+    "outputs\\search\\run_3a9d8e3932a528f6330e\\lexical.sqlite",
+    "outputs\\search\\run_3a9d8e3932a528f6330e\\semantic.faiss",
+    "outputs\\search\\run_3a9d8e3932a528f6330e\\semantic_metadata.parquet",
+    "outputs\\search\\run_3a9d8e3932a528f6330e\\search_index_summary.json",
+    "outputs\\search\\run_3a9d8e3932a528f6330e\\index_manifest.json",
+    "outputs\\search\\current_index.json"
+  ],
+  "config_id": "cfg_826e8b011499b9f2bd32",
+  "corpus": "core",
+  "finished_at": "2026-06-04T23:10:13.595438Z",
+  "pipeline_stage": "build-search-index",
+  "resources": [
+    "resource_f12a21534177bde82830",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_3a9d8e3932a528f6330e",
+  "started_at": "2026-06-04T23:09:23.927572Z",
+  "state": "succeeded"
+}
