@@ -9,6 +9,7 @@ import math
 import random
 import re
 import sys
+import time
 from collections import Counter
 from importlib import import_module
 from pathlib import Path
@@ -584,6 +585,7 @@ def run_measure_clustering(
 ) -> tuple[dict[str, Path], Path, dict[str, Any]]:
     """Cluster final measure terms and export domain review artifacts."""
 
+    started = time.perf_counter()
     numpy, hdbscan, agglomerative_clustering, silhouette_score = _import_clustering_dependencies()
     measures = _measure_rows(config)
     manifest = create_manifest(config, "cluster-measures")
@@ -591,7 +593,12 @@ def run_measure_clustering(
 
     if not measures:
         rows: list[dict[str, Any]] = []
-        summary = {"run_id": manifest.run_id, "measure_count": 0, "coverage": 0.0}
+        summary = {
+            "run_id": manifest.run_id,
+            "measure_count": 0,
+            "coverage": 0.0,
+            "wall_clock_seconds": time.perf_counter() - started,
+        }
         artifacts = {
             "measure_clusters": write_csv_rows(
                 rows,
@@ -630,6 +637,7 @@ def run_measure_clustering(
     matrix = numpy.array([vectors_by_term[row["term_id"]] for row in measures], dtype=float)
     raw_labels: list[int] | None = None
     if config.clustering.contextual_features_enabled:
+        raw_cluster_started = time.perf_counter()
         raw_matrix = numpy.array(
             [raw_vectors_by_term[row["term_id"]] for row in measures],
             dtype=float,
@@ -645,7 +653,11 @@ def run_measure_clustering(
         )
         raw_model.fit(raw_matrix)
         raw_labels = _hdbscan_labels(raw_model)
+        raw_cluster_seconds = time.perf_counter() - raw_cluster_started
+    else:
+        raw_cluster_seconds = 0.0
     min_cluster_size = min(config.clustering.hdbscan_min_cluster_size, len(measures))
+    cluster_started = time.perf_counter()
     model = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
         min_samples=min(config.clustering.hdbscan_min_samples, min_cluster_size),
@@ -655,7 +667,9 @@ def run_measure_clustering(
     model.fit(matrix)
     labels = _hdbscan_labels(model)
     probabilities = _hdbscan_probabilities(model, len(measures))
+    cluster_seconds = time.perf_counter() - cluster_started
 
+    baseline_started = time.perf_counter()
     baseline = agglomerative_clustering(
         n_clusters=None,
         distance_threshold=config.clustering.agglomerative_distance_threshold,
@@ -664,7 +678,9 @@ def run_measure_clustering(
     )
     baseline.fit(matrix)
     baseline_labels = [int(value) for value in list(baseline.labels_)]
+    baseline_seconds = time.perf_counter() - baseline_started
 
+    labeling_started = time.perf_counter()
     representative_ids = _representatives(measures, labels, vectors_by_term, config)
     domain_vectors = _domain_embeddings(config, len(measures))
     cluster_domains = _label_clusters(
@@ -672,6 +688,7 @@ def run_measure_clustering(
         _cluster_vectors(measures, labels, raw_vectors_by_term),
         domain_vectors,
     )
+    labeling_seconds = time.perf_counter() - labeling_started
     rows = _cluster_rows(measures, labels, probabilities, representative_ids, cluster_domains)
     baseline_export_rows = _baseline_rows(measures, baseline_labels, config)
     review_rows = _review_rows(rows, config)
@@ -690,6 +707,13 @@ def run_measure_clustering(
         "similarity_threshold": config.clustering.domain_similarity_threshold,
         "similarity_margin": config.clustering.domain_similarity_margin,
     }
+    summary["timing"] = {
+        "raw_embedding_cluster_seconds": raw_cluster_seconds,
+        "contextual_cluster_seconds": cluster_seconds,
+        "agglomerative_baseline_seconds": baseline_seconds,
+        "domain_labeling_seconds": labeling_seconds,
+    }
+    summary["wall_clock_seconds"] = time.perf_counter() - started
     gate = _clustering_gate(config=config, candidate_rows=rows)
     summary["acceptance_gate"] = gate
     summary["exports_promoted"] = bool(gate["accepted"])

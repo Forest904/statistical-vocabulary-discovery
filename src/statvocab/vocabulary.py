@@ -1057,6 +1057,10 @@ def run_extraction(
         "artifact_run_id": artifact_run_id,
         "fragment_count": fragment_count,
         "fragment_bytes": fragment_bytes,
+        "wall_clock_seconds": time.perf_counter() - started_perf,
+        "tables_per_minute": cast(float | None, progress_snapshot(None)["tables_per_minute"]),
+        "parallel_workers": config.extraction.parallel_workers,
+        "parallel_chunk_size": config.extraction.parallel_chunk_size,
     }
     if partial_run_id is not None and partial_artifact_paths is not None:
         diagnostics["partial_run_id"] = partial_run_id

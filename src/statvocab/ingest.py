@@ -9,6 +9,7 @@ import json
 import re
 import sys
 import tarfile
+import time
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
@@ -718,6 +719,7 @@ def run_ingestion(
 ) -> tuple[Path, Path, Path, dict[str, object]]:
     """Run Milestone 1 ingestion and write all core artifacts."""
 
+    started = time.perf_counter()
     manifest = create_manifest(config, "ingest")
     adapter = EurostatStarAdapter(config)
     partial_path = _partial_ingestion_path(config)
@@ -742,6 +744,7 @@ def run_ingestion(
         resources=resources,
         source_repairs=adapter.source_repairs,
     )
+    diagnostics["wall_clock_seconds"] = time.perf_counter() - started
     diagnostics_path = write_ingestion_diagnostics(
         diagnostics,
         config.paths.processed_dir / "ingestion_diagnostics.json",

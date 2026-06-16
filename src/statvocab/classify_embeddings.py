@@ -6,7 +6,7 @@ from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-from statvocab.classification_features import write_parquet_rows
+from statvocab.classification_features import read_parquet_rows, write_parquet_rows
 from statvocab.config import AppConfig
 
 
@@ -27,6 +27,25 @@ def generate_term_embeddings(
     output_path: Path | None = None,
 ) -> Path:
     """Generate and cache PEARL-small embeddings for all feature rows."""
+
+    path = output_path or config.paths.processed_dir / "term_embeddings.parquet"
+    expected = {
+        str(row["term_id"]): str(row["canonical_term"])
+        for row in feature_rows
+    }
+    if path.exists():
+        try:
+            cached_rows = read_parquet_rows(path)
+            cached = {
+                str(row["term_id"]): str(row["canonical_term"])
+                for row in cached_rows
+                if row.get("model") == config.classification.pearl_model
+                and row.get("revision") == config.classification.pearl_revision
+            }
+            if cached == expected:
+                return path
+        except Exception:
+            pass
 
     sentence_transformer = _sentence_transformer_class()
     model_cache = config.paths.cache_dir / "models"
@@ -53,5 +72,4 @@ def generate_term_embeddings(
         }
         for row, embedding in zip(feature_rows, embeddings, strict=True)
     ]
-    path = output_path or config.paths.processed_dir / "term_embeddings.parquet"
     return write_parquet_rows(rows, path)

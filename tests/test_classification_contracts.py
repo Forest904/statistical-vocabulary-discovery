@@ -1,8 +1,17 @@
 import pytest
 from pydantic import ValidationError
 
-from statvocab.classification import _gate_exports, semantic_feature_rows
+from statvocab.classification import (
+    _CalibrationSettings,
+    _gate_exports,
+    _semantic_measure_override,
+    _SemanticOverrideSettings,
+    _settings_payload,
+    semantic_feature_rows,
+)
 from statvocab.classification_evaluate import evaluate_classification
+from statvocab.classification_features import write_parquet_rows
+from statvocab.classify_embeddings import generate_term_embeddings
 from statvocab.classify_llm import validate_llm_response
 from statvocab.config import load_config
 from statvocab.contracts import ClassificationPrediction, VocabularyCategory
@@ -111,6 +120,98 @@ def test_semantic_feature_rows_compute_centroids_and_neighbor_votes() -> None:
         candidate["semantic_centroid_unit"]
     )
     assert candidate["semantic_neighbor_best_class"] == "measure"
+
+
+def test_semantic_measure_override_requires_margin_and_neighbor_agreement() -> None:
+    features = {
+        "semantic_best_centroid_class": "measure",
+        "semantic_neighbor_best_class": "measure",
+        "semantic_centroid_measure": 0.82,
+        "semantic_centroid_other_ambiguous": 0.60,
+        "semantic_centroid_dimension_value": 0.70,
+        "semantic_neighbor_vote_measure": 0.75,
+    }
+
+    assert _semantic_measure_override(
+        features,
+        _SemanticOverrideSettings(
+            mode="centroid-and-neighbor",
+            min_centroid_score=0.80,
+            min_margin=0.10,
+            min_neighbor_vote=0.75,
+        ),
+    )
+    assert (
+        _semantic_measure_override(
+            {**features, "semantic_centroid_dimension_value": 0.81},
+            _SemanticOverrideSettings(
+                mode="centroid-and-neighbor",
+                min_centroid_score=0.80,
+                min_margin=0.10,
+                min_neighbor_vote=0.75,
+            ),
+        )
+        is None
+    )
+    assert (
+        _semantic_measure_override(
+            {**features, "semantic_neighbor_best_class": "dimension_value"},
+            _SemanticOverrideSettings(
+                mode="centroid-and-neighbor",
+                min_centroid_score=0.80,
+                min_margin=0.10,
+                min_neighbor_vote=0.75,
+            ),
+        )
+        is None
+    )
+
+
+def test_settings_payload_contains_calibration_knobs() -> None:
+    payload = _settings_payload(
+        _CalibrationSettings(
+            non_other_threshold=0.8,
+            measure_threshold=0.9,
+            override=_SemanticOverrideSettings(
+                mode="centroid-and-neighbor",
+                min_centroid_score=0.84,
+                min_margin=0.1,
+                min_neighbor_vote=1.0,
+            ),
+        )
+    )
+
+    assert payload["non_other_threshold"] == 0.8
+    assert payload["measure_threshold"] == 0.9
+    assert payload["semantic_override_mode"] == "centroid-and-neighbor"
+
+
+def test_generate_term_embeddings_reuses_matching_cache(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = load_config("configs/evaluation.yaml")
+    path = tmp_path / "term_embeddings.parquet"
+    rows = [{"term_id": "term_a", "canonical_term": "population"}]
+    write_parquet_rows(
+        [
+            {
+                "term_id": "term_a",
+                "canonical_term": "population",
+                "model": config.classification.pearl_model,
+                "revision": config.classification.pearl_revision,
+                "embedding": [1.0, 0.0],
+            }
+        ],
+        path,
+    )
+
+    def fail_loader():
+        raise AssertionError("embedding model should not load when cache matches")
+
+    monkeypatch.setattr("statvocab.classify_embeddings._sentence_transformer_class", fail_loader)
+
+    assert generate_term_embeddings(config, rows, output_path=path) == path
 
 
 def test_classification_evaluation_scores_current_exports(

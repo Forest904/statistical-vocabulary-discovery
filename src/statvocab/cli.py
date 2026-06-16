@@ -18,6 +18,7 @@ from statvocab.artifact_validation import (
     validate_core_release_manifest,
     write_core_release_manifest,
 )
+from statvocab.benchmark_core import write_core_benchmark
 from statvocab.classification import run_classification
 from statvocab.classification_evaluate import evaluate_classification
 from statvocab.cluster_measures import run_measure_clustering
@@ -285,6 +286,22 @@ def build_search_index(
             "document_count": diagnostics["document_count"],
             "embedding_dimension": diagnostics["embedding_dimension"],
             "total_index_size_bytes": diagnostics["total_index_size_bytes"],
+        }
+    )
+
+
+@app.command("benchmark-core")
+def benchmark_core(config: Annotated[Path, _config_option()] = Path("configs/core.yaml")) -> None:
+    """Write current core-corpus performance diagnostics."""
+
+    loaded = load_config(config)
+    metrics_path, payload = write_core_benchmark(loaded)
+    console.print(
+        {
+            "metrics": str(metrics_path),
+            "corpus": payload["corpus"],
+            "expected_table_count": payload["expected_table_count"],
+            "stage_count": len(payload["stages"]),
         }
     )
 

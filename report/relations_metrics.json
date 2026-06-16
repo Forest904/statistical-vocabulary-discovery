@@ -6,12 +6,17 @@
   "corpus": "fixture",
   "latest_run_summary": {
     "accepted_count": 30695,
+    "all_pair_count": 4186171,
     "candidate_count": 45351,
+    "candidate_generation_seconds": 1.2998695999995107,
+    "candidate_pair_generation_seconds": 25.50670539999919,
     "confidence_bands": {
       "0.00-0.69": 114,
       "0.70-0.84": 26832,
       "0.85-1.00": 3749
     },
+    "dedupe_seconds": 0.4083567999987281,
+    "embedding_seconds": 3.1070081000034406,
     "full_accepted_count": 45351,
     "generation_method_distribution": {
       "domains": 13482,
@@ -22,14 +27,19 @@
       "title_family": 831
     },
     "llm_adjudication_enabled": false,
+    "max_candidates_per_measure": 25,
     "rejection_distribution": {},
+    "relation_candidates_per_second": 1427.744322074281,
     "relation_type_distribution": {
       "broader_than": 16382,
       "related_to": 13482,
       "variant_of": 831
     },
-    "run_id": "run_04345a996f5d94cee68f",
-    "submitted_related_confidence_threshold": 0.7
+    "run_id": "run_9431e98d07745bcef11d",
+    "semantic_neighbor_k": 50,
+    "submitted_related_confidence_threshold": 0.7,
+    "topk_pair_count": 97733,
+    "wall_clock_seconds": 31.76409059999787
   },
   "manual_review": {
     "completed_count": 100,

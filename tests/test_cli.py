@@ -167,6 +167,27 @@ def test_build_search_index_cli_invokes_runner(monkeypatch) -> None:
     assert "run_test" in result.output
 
 
+def test_benchmark_core_cli_invokes_writer(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_write(config):
+        _ = config
+        return (
+            Path("report/performance_metrics.json"),
+            {"corpus": "core", "expected_table_count": 2000, "stages": {"ingest": {}}},
+        )
+
+    monkeypatch.setattr(cli, "write_core_benchmark", fake_write)
+
+    result = CliRunner().invoke(app, ["benchmark-core", "--config", "configs/core.yaml"])
+
+    assert result.exit_code == 0
+    assert "performance_metrics" in result.output
+    assert "2000" in result.output
+
+
 def test_retrieval_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
     from pathlib import Path
 

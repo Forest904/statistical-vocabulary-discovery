@@ -8,6 +8,7 @@ import math
 import random
 import re
 import sys
+import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from importlib import import_module
@@ -526,9 +527,13 @@ def _generate_candidates(
     measures: list[_Measure],
     vectors_by_term: dict[str, list[float]],
     config: AppConfig,
-) -> list[_Candidate]:
+) -> tuple[list[_Candidate], dict[str, Any]]:
+    pair_started = time.perf_counter()
+    candidate_pairs = _candidate_pairs(measures, vectors_by_term, config)
+    pair_seconds = time.perf_counter() - pair_started
     candidates_by_measure: dict[str, list[_Candidate]] = defaultdict(list)
-    for left_index, right_index, similarity in _candidate_pairs(measures, vectors_by_term, config):
+    candidate_started = time.perf_counter()
+    for left_index, right_index, similarity in candidate_pairs:
         left = measures[left_index]
         right = measures[right_index]
         candidate = _pair_candidate(left, right, similarity, config)
@@ -536,6 +541,7 @@ def _generate_candidates(
             continue
         candidates_by_measure[candidate.source_term_id].append(candidate)
         candidates_by_measure[candidate.target_term_id].append(candidate)
+    candidate_seconds = time.perf_counter() - candidate_started
 
     selected: dict[tuple[str, str, RelationType], _Candidate] = {}
     for term_candidates in candidates_by_measure.values():
@@ -549,7 +555,16 @@ def _generate_candidates(
             current = selected.get(key)
             if current is None or candidate.confidence > current.confidence:
                 selected[key] = candidate
-    return _adjudicate_candidates(list(selected.values()), config)
+    selected_candidates = _adjudicate_candidates(list(selected.values()), config)
+    all_pair_count = len(measures) * (len(measures) - 1) // 2
+    return selected_candidates, {
+        "all_pair_count": all_pair_count,
+        "topk_pair_count": len(candidate_pairs),
+        "candidate_generation_seconds": candidate_seconds,
+        "candidate_pair_generation_seconds": pair_seconds,
+        "semantic_neighbor_k": config.relations.semantic_neighbor_k,
+        "max_candidates_per_measure": config.relations.max_candidates_per_measure,
+    }
 
 
 def _review_rows(rows: list[dict[str, Any]], config: AppConfig) -> list[dict[str, Any]]:
@@ -642,13 +657,27 @@ def run_measure_relations(
     measures_by_id = {measure.term_id: measure for measure in measures}
     valid_measure_ids = set(measures_by_id)
 
+    started = time.perf_counter()
+    embedding_seconds = 0.0
+    generation_stats: dict[str, Any] = {
+        "all_pair_count": 0,
+        "topk_pair_count": 0,
+        "candidate_generation_seconds": 0.0,
+        "candidate_pair_generation_seconds": 0.0,
+        "semantic_neighbor_k": config.relations.semantic_neighbor_k,
+        "max_candidates_per_measure": config.relations.max_candidates_per_measure,
+    }
     if measures:
+        embedding_started = time.perf_counter()
         vectors_by_term = _ensure_embeddings(config, measures)
-        candidates = _generate_candidates(measures, vectors_by_term, config)
+        embedding_seconds = time.perf_counter() - embedding_started
+        candidates, generation_stats = _generate_candidates(measures, vectors_by_term, config)
     else:
         candidates = []
 
+    dedupe_started = time.perf_counter()
     accepted, rejections = _dedupe(candidates, valid_measure_ids)
+    dedupe_seconds = time.perf_counter() - dedupe_started
     full_relation_rows = [
         _relation_row(candidate, measures_by_id, run_id) for candidate in accepted
     ]
@@ -673,6 +702,15 @@ def run_measure_relations(
         run_id,
         full_accepted_count=len(full_relation_rows),
         llm_adjudication_enabled=config.relations.llm_adjudication_enabled,
+    )
+    summary.update(generation_stats)
+    summary["embedding_seconds"] = embedding_seconds
+    summary["dedupe_seconds"] = dedupe_seconds
+    summary["wall_clock_seconds"] = time.perf_counter() - started
+    summary["relation_candidates_per_second"] = (
+        len(candidate_rows) / summary["wall_clock_seconds"]
+        if summary["wall_clock_seconds"]
+        else None
     )
     summary["submitted_related_confidence_threshold"] = (
         config.relations.submitted_related_confidence_threshold

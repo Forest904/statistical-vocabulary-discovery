@@ -1,0 +1,255 @@
+{
+  "artifact_sizes": {
+    "current_index": {
+      "exists": true,
+      "path": "outputs\\search\\current_index.json",
+      "size_bytes": 460
+    },
+    "measure_clusters": {
+      "exists": true,
+      "path": "outputs\\measure_clusters.csv",
+      "size_bytes": 1366092
+    },
+    "measure_relations": {
+      "exists": true,
+      "path": "outputs\\measure_relations.csv",
+      "size_bytes": 17702469
+    },
+    "measures": {
+      "exists": true,
+      "path": "outputs\\measures.csv",
+      "size_bytes": 593735
+    },
+    "term_embeddings": {
+      "exists": true,
+      "path": "data\\processed\\term_embeddings.parquet",
+      "size_bytes": 31698429
+    },
+    "vocabulary": {
+      "exists": true,
+      "path": "data\\processed\\vocabulary.parquet",
+      "size_bytes": 17925680
+    }
+  },
+  "config_name": "core",
+  "corpus": "core",
+  "expected_table_count": 2000,
+  "peak_rss_bytes": 71278592,
+  "selected_config": {
+    "classification_embedding_batch_size": 64,
+    "extraction_parallel_chunk_size": 25,
+    "extraction_parallel_workers": 4,
+    "relations_max_candidates_per_measure": 25,
+    "relations_semantic_neighbor_k": 50,
+    "search_lexical_top_k": 100,
+    "search_semantic_top_k": 100
+  },
+  "stages": {
+    "classification": {
+      "diagnostics": {
+        "prediction_count": 13235,
+        "run_id": "run_5ca4ceb79c04b291aed5",
+        "timing": {
+          "calibration_sweep_seconds": 125.55111089999991,
+          "embedding_seconds": 2.6467885000020033,
+          "full_prediction_seconds": 0.2634665000005043,
+          "model_fit_seconds": 5.085865600001853,
+          "probability_seconds": 0.3320060000005469,
+          "semantic_feature_seconds": 143.9775198999996
+        },
+        "variant": "semantic-hybrid"
+      },
+      "peak_rss_bytes": null,
+      "stage": "classification",
+      "throughput": {
+        "terms_per_second": 47.632456823595646
+      },
+      "wall_clock_seconds": 277.8567574000044
+    },
+    "clustering": {
+      "diagnostics": {
+        "contextual_features_enabled": true,
+        "coverage": 0.8700760193503801,
+        "measure_count": 2894,
+        "run_id": "run_e1c656105fd6bcd3c088",
+        "timing": {
+          "agglomerative_baseline_seconds": 0.8729492999991635,
+          "contextual_cluster_seconds": 5.190693800002919,
+          "domain_labeling_seconds": 0.3851351000012073,
+          "raw_embedding_cluster_seconds": 4.5769536000007065
+        }
+      },
+      "peak_rss_bytes": null,
+      "stage": "clustering",
+      "throughput": {},
+      "wall_clock_seconds": 16.982830300003116
+    },
+    "extraction": {
+      "diagnostics": {
+        "parallel_chunk_size": 25,
+        "parallel_workers": 4,
+        "table_count": 2000,
+        "vocabulary_count": 13235
+      },
+      "peak_rss_bytes": null,
+      "stage": "extraction",
+      "throughput": {
+        "tables_per_minute": 597.6828380261053,
+        "terms_per_second": 65.91943992269854
+      },
+      "wall_clock_seconds": 200.77537089999896
+    },
+    "ingest": {
+      "diagnostics": {
+        "inventoried_table_count": 2000,
+        "status_counts": {
+          "parsed": 1771,
+          "warning": 229
+        }
+      },
+      "peak_rss_bytes": null,
+      "stage": "ingest",
+      "throughput": {
+        "tables_per_second": 1036.308788308533
+      },
+      "wall_clock_seconds": 1.9299266999987594
+    },
+    "relations": {
+      "diagnostics": {
+        "accepted_count": 30695,
+        "all_pair_count": 4186171,
+        "candidate_count": 45351,
+        "semantic_neighbor_k": 50,
+        "topk_pair_count": 97733
+      },
+      "peak_rss_bytes": null,
+      "stage": "relations",
+      "throughput": {
+        "candidates_per_second": 1427.744322074281,
+        "relation_candidates_per_second": 1427.744322074281
+      },
+      "wall_clock_seconds": 31.76409059999787
+    },
+    "retrieval": {
+      "diagnostics": {
+        "run_id": "run_25cbe2c81e0142ce2757",
+        "selected_preset": "geography_time_heavy",
+        "systems": {
+          "all_vocabulary_bm25": {
+            "original": {
+              "HitRate@1": 0.55,
+              "HitRate@10": 0.95,
+              "HitRate@5": 0.95,
+              "MRR": 0.9225,
+              "Relevance@1": 0.75,
+              "Relevance@5": 0.975,
+              "p50_latency_ms": 164.47379999999612,
+              "p95_latency_ms": 339.0973999999005,
+              "question_count": 20
+            },
+            "reformulated": {
+              "HitRate@1": 0.25,
+              "HitRate@10": 0.6,
+              "HitRate@5": 0.55,
+              "MRR": 0.6876984126984127,
+              "Relevance@1": 0.425,
+              "Relevance@5": 0.675,
+              "p50_latency_ms": 166.7075999998815,
+              "p95_latency_ms": 334.81250000022555,
+              "question_count": 20
+            }
+          },
+          "fused": {
+            "original": {
+              "HitRate@1": 0.5,
+              "HitRate@10": 0.95,
+              "HitRate@5": 0.9,
+              "MRR": 0.9375,
+              "Relevance@1": 0.8,
+              "Relevance@5": 0.95,
+              "p50_latency_ms": 407.78769999997166,
+              "p95_latency_ms": 555.7078000001638,
+              "question_count": 20
+            },
+            "reformulated": {
+              "HitRate@1": 0.35,
+              "HitRate@10": 0.8,
+              "HitRate@5": 0.75,
+              "MRR": 0.9,
+              "Relevance@1": 0.7,
+              "Relevance@5": 0.85,
+              "p50_latency_ms": 372.35899999996036,
+              "p95_latency_ms": 586.9349999998121,
+              "question_count": 20
+            }
+          },
+          "pearl_semantic": {
+            "original": {
+              "HitRate@1": 0.6,
+              "HitRate@10": 0.85,
+              "HitRate@5": 0.8,
+              "MRR": 0.875,
+              "Relevance@1": 0.8,
+              "Relevance@5": 0.875,
+              "p50_latency_ms": 235.4045000001861,
+              "p95_latency_ms": 399.00319999969724,
+              "question_count": 20
+            },
+            "reformulated": {
+              "HitRate@1": 0.5,
+              "HitRate@10": 0.85,
+              "HitRate@5": 0.7,
+              "MRR": 0.8805555555555555,
+              "Relevance@1": 0.75,
+              "Relevance@5": 0.85,
+              "p50_latency_ms": 236.30659999980708,
+              "p95_latency_ms": 399.7724000000744,
+              "question_count": 20
+            }
+          },
+          "title_bm25": {
+            "original": {
+              "HitRate@1": 0.55,
+              "HitRate@10": 0.75,
+              "HitRate@5": 0.75,
+              "MRR": 0.9125,
+              "Relevance@1": 0.725,
+              "Relevance@5": 0.875,
+              "p50_latency_ms": 160.89169999986552,
+              "p95_latency_ms": 333.02039999989574,
+              "question_count": 20
+            },
+            "reformulated": {
+              "HitRate@1": 0.25,
+              "HitRate@10": 0.4,
+              "HitRate@5": 0.3,
+              "MRR": 0.5972222222222222,
+              "Relevance@1": 0.375,
+              "Relevance@5": 0.5,
+              "p50_latency_ms": 168.83529999995517,
+              "p95_latency_ms": 333.230199999889,
+              "question_count": 20
+            }
+          }
+        }
+      },
+      "peak_rss_bytes": null,
+      "stage": "retrieval",
+      "throughput": {},
+      "wall_clock_seconds": null
+    },
+    "search_index": {
+      "diagnostics": {
+        "document_count": 2000,
+        "run_id": "run_391c6ea54050920593d9",
+        "total_index_size_bytes": 50965966
+      },
+      "peak_rss_bytes": 2089689088,
+      "stage": "search_index",
+      "throughput": {
+        "documents_per_second": 48.88036732462018
+      },
+      "wall_clock_seconds": 40.916222800000014
+    }
+  }
+}
