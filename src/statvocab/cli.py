@@ -27,6 +27,7 @@ from statvocab.config import load_config
 from statvocab.contracts import ResourceRecord
 from statvocab.extraction_evaluate import run_extraction_evaluation
 from statvocab.full_corpus import audit_full_corpus_resume, run_full_corpus
+from statvocab.human_loop import compile_human_labels, generate_review_tasks
 from statvocab.ingest import run_ingestion
 from statvocab.knowledge_graph import run_knowledge_graph
 from statvocab.logging import configure_logging
@@ -206,6 +207,45 @@ def prepare_targeted_review(
             "sample": str(sample_path),
             "labels": str(labels_path),
             "relabel": str(relabel_path),
+        }
+    )
+
+
+@app.command("generate-review-tasks")
+def generate_human_review_tasks(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Generate human-in-the-loop review tasks from current artifacts."""
+
+    loaded = load_config(config)
+    path, payload = generate_review_tasks(loaded)
+    console.print(
+        {
+            "tasks": str(path),
+            "task_count": payload["task_count"],
+            "remaining_task_count": payload["remaining_task_count"],
+            "task_type_counts": payload["task_type_counts"],
+        }
+    )
+
+
+@app.command("compile-human-labels")
+def compile_human_review_labels(
+    config: Annotated[Path, _config_option()] = Path("configs/core.yaml"),
+) -> None:
+    """Compile human-loop answers into labels and refresh classification evaluation."""
+
+    loaded = load_config(config)
+    path, payload = compile_human_labels(loaded)
+    console.print(
+        {
+            "metrics": str(path),
+            "compiled_classification_label_count": payload[
+                "compiled_classification_label_count"
+            ],
+            "compiled_relation_label_count": payload["compiled_relation_label_count"],
+            "classification_label_splits": payload["classification_label_splits"],
+            "classification_metrics_summary": payload["classification_metrics_summary"],
         }
     )
 

@@ -258,6 +258,162 @@ select {
   min-height: 36px;
 }
 
+.review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
+  gap: 18px;
+  align-items: start;
+}
+
+.review-main,
+.review-side,
+.review-card,
+.review-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.review-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--surface);
+}
+
+.review-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.review-prompt p {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.review-prompt h2 {
+  margin-bottom: 6px;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  overflow-wrap: anywhere;
+}
+
+.review-prompt h3 {
+  margin: 0;
+  color: var(--teal);
+  overflow-wrap: anywhere;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.answer-grid button {
+  justify-content: flex-start;
+  min-height: 46px;
+}
+
+kbd {
+  min-width: 24px;
+  border: 1px solid #bfccc6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  background: #f7f9f7;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.review-evidence {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.review-evidence dl,
+.compile-result dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.review-evidence dl div,
+.compile-result dl div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.review-evidence dt,
+.compile-result dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.review-evidence dd,
+.compile-result dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.review-evidence details {
+  margin-top: 12px;
+}
+
+.review-evidence pre {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  background: #fbfcfb;
+}
+
+.review-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.review-stats-grid span {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  background: #ffffff;
+  color: var(--muted);
+}
+
+.review-stats-grid strong {
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.review-count-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-count-list li,
+.compile-result p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compile-result {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
 .results-layout,
 .two-column {
   display: grid;

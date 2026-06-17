@@ -305,14 +305,26 @@ def completed_gold_labels(config: AppConfig) -> list[dict[str, str]]:
     labels_path = config.evaluation.extraction_gold_dir / "vocabulary_gold_labels.csv"
     allowed = set(CATEGORY_VALUES)
     completed: list[dict[str, str]] = []
+    seen_term_ids: set[str] = set()
     for row in read_csv_rows(labels_path):
         if row.get("category", "").strip() in allowed:
             row["audit_source"] = row.get("audit_source") or "random_sample"
             completed.append(row)
+            seen_term_ids.add(str(row["term_id"]))
 
     targeted_path = config.evaluation.extraction_gold_dir / "vocabulary_reclaim_labels.csv"
     for row in read_csv_rows(targeted_path):
-        if row.get("category", "").strip() in allowed:
+        term_id = str(row.get("term_id") or "")
+        if row.get("category", "").strip() in allowed and term_id not in seen_term_ids:
             row["audit_source"] = row.get("audit_source") or "targeted_reclaim"
             completed.append(row)
+            seen_term_ids.add(term_id)
+
+    human_path = config.evaluation.extraction_gold_dir / "human_loop_classification_labels.csv"
+    for row in read_csv_rows(human_path):
+        term_id = str(row.get("term_id") or "")
+        if row.get("category", "").strip() in allowed and term_id not in seen_term_ids:
+            row["audit_source"] = row.get("audit_source") or "human_loop"
+            completed.append(row)
+            seen_term_ids.add(term_id)
     return completed

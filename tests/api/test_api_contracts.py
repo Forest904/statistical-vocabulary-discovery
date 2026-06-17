@@ -11,6 +11,7 @@ from statvocab.search.explain import NOTICE
 
 
 class FakeState:
+    config = None
     evaluation = {
         "retrieval": {"status": "available", "path": "report/retrieval_metrics.json", "data": {}},
         "classification": {
@@ -239,7 +240,12 @@ class FakeState:
 
 def _client() -> TestClient:
     app = create_app(load_on_startup=False)
-    app.state.api_state = FakeState()
+    state = FakeState()
+    if state.config is None:
+        from statvocab.config import load_config
+
+        state.config = load_config("configs/evaluation.yaml")
+    app.state.api_state = state
     return TestClient(app)
 
 
@@ -258,7 +264,84 @@ def test_openapi_documents_milestone_7_endpoints() -> None:
     assert "/api/graph/focus-options" in paths
     assert "/api/graph/summary" in paths
     assert "/api/evaluation" in paths
+    assert "/api/review/task" in paths
+    assert "/api/review/answer" in paths
+    assert "/api/review/stats" in paths
+    assert "/api/review/compile" in paths
     assert "/api/health" in paths
+
+
+def test_review_endpoints_use_human_loop_service(monkeypatch) -> None:
+    import api.app.routes.review as review
+
+    client = _client()
+
+    monkeypatch.setattr(
+        review,
+        "next_review_task",
+        lambda config, *, mode="all": {
+            "task_id": "task_1",
+            "task_type": "term_classification",
+            "question": "What is this term?",
+            "term_id": "term_1",
+            "canonical_term": "Employment",
+            "paired_term_id": "",
+            "paired_canonical_term": "",
+            "choices": [{"value": "measure", "label": "Measure", "shortcut": "1"}],
+            "context": {},
+            "metadata": {},
+            "priority": 1,
+            "hidden_qc": False,
+        },
+    )
+    monkeypatch.setattr(
+        review,
+        "append_review_answer",
+        lambda config, **kwargs: {"event": {"task_id": kwargs["task_id"]}, "stats": {}},
+    )
+    monkeypatch.setattr(
+        review,
+        "review_stats",
+        lambda config: {
+            "task_count": 1,
+            "answered_task_count": 0,
+            "remaining_task_count": 1,
+            "event_count": 0,
+            "task_type_counts": {"term_classification": 1},
+            "answer_counts": {},
+            "reviewer_counts": {},
+            "tasks_path": "data/review/human_loop_tasks.jsonl",
+            "events_path": "data/review/human_loop_events.jsonl",
+        },
+    )
+    monkeypatch.setattr(
+        review,
+        "compile_human_labels",
+        lambda config: (
+            "report/human_loop_metrics.json",
+            {
+                "compiled_at": "2026-06-16T00:00:00+00:00",
+                "events_count": 1,
+                "compiled_classification_label_count": 1,
+                "compiled_relation_label_count": 0,
+                "classification_label_splits": {"train_dev": 1},
+                "relation_label_splits": {},
+                "agreement": {},
+                "outputs": {},
+                "classification_metrics_summary": {},
+            },
+        ),
+    )
+
+    assert client.get("/api/review/task").json()["task_id"] == "task_1"
+    assert client.post(
+        "/api/review/answer",
+        json={"task_id": "task_1", "answer": "measure"},
+    ).json()["event"]["task_id"] == "task_1"
+    assert client.get("/api/review/stats").json()["task_count"] == 1
+    assert client.post("/api/review/compile").json()[
+        "compiled_classification_label_count"
+    ] == 1
 
 
 def test_checked_in_openapi_matches_live_schema() -> None:

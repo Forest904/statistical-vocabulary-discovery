@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from api.app.routes import artifacts, health, search
+from api.app.routes import artifacts, health, review, search
 from api.app.settings import load_settings
 from api.app.state import ApiStartupError, load_api_state
 
@@ -41,11 +41,15 @@ def create_app(*, load_on_startup: bool = True) -> FastAPI:
     app = FastAPI(
         title="StatVocab API",
         version="0.1.0",
-        description="Read-only APIs over grounded StatVocab artifacts and search indexes.",
+        description=(
+            "APIs over grounded StatVocab artifacts, search indexes, "
+            "and human review workflows."
+        ),
         lifespan=lifespan,
     )
     app.include_router(search.router)
     app.include_router(artifacts.router)
+    app.include_router(review.router)
     app.include_router(health.router)
 
     @app.exception_handler(ApiStartupError)

@@ -1,0 +1,32 @@
+{
+  "agreement": {
+    "agreement_rate": 1.0,
+    "disagreement_count": 0,
+    "repeated_item_count": 15
+  },
+  "classification_label_splits": {
+    "train_dev": 1
+  },
+  "classification_metrics_summary": {
+    "gold_status": "available",
+    "macro_f1": 0.6409423016190954,
+    "metrics_status": "available",
+    "promotion_gate_summary": {
+      "random_final_macro_f1": 0.8842242242242243,
+      "status": "available",
+      "targeted_final_macro_f1": 0.05128205128205129,
+      "targeted_measure_recall": 0.0,
+      "targeted_non_other_precision": 0.7142857142857143
+    }
+  },
+  "compiled_at": "2026-06-17T11:59:11.714943+00:00",
+  "compiled_classification_label_count": 1,
+  "compiled_relation_label_count": 0,
+  "events_count": 31,
+  "outputs": {
+    "classification_labels": "data\\gold\\human_loop_classification_labels.csv",
+    "classification_metrics": "report\\classification_metrics.json",
+    "relation_labels": "data\\gold\\human_loop_relation_labels.csv"
+  },
+  "relation_label_splits": {}
+}

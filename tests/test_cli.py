@@ -188,6 +188,63 @@ def test_benchmark_core_cli_invokes_writer(monkeypatch) -> None:
     assert "2000" in result.output
 
 
+def test_generate_review_tasks_cli_invokes_service(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_generate(config):
+        _ = config
+        return (
+            Path("data/review/human_loop_tasks.jsonl"),
+            {
+                "task_count": 2,
+                "remaining_task_count": 2,
+                "task_type_counts": {"term_classification": 1, "same_as": 1},
+            },
+        )
+
+    monkeypatch.setattr(cli, "generate_review_tasks", fake_generate)
+
+    result = CliRunner().invoke(
+        app,
+        ["generate-review-tasks", "--config", "configs/evaluation.yaml"],
+    )
+
+    assert result.exit_code == 0
+    assert "human_loop_tasks" in result.output
+    assert "term_classification" in result.output
+
+
+def test_compile_human_labels_cli_invokes_service(monkeypatch) -> None:
+    from pathlib import Path
+
+    import statvocab.cli as cli
+
+    def fake_compile(config):
+        _ = config
+        return (
+            Path("report/human_loop_metrics.json"),
+            {
+                "compiled_classification_label_count": 1,
+                "compiled_relation_label_count": 1,
+                "classification_label_splits": {"train_dev": 1},
+                "classification_metrics_summary": {"metrics_status": "available"},
+            },
+        )
+
+    monkeypatch.setattr(cli, "compile_human_labels", fake_compile)
+
+    result = CliRunner().invoke(
+        app,
+        ["compile-human-labels", "--config", "configs/evaluation.yaml"],
+    )
+
+    assert result.exit_code == 0
+    assert "human_loop_metrics" in result.output
+    assert "available" in result.output
+
+
 def test_retrieval_evaluate_cli_invokes_evaluator(monkeypatch) -> None:
     from pathlib import Path
 

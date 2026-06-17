@@ -23,8 +23,8 @@
     "other_ambiguous": 9114,
     "unit": 261
   },
-  "config_name": "evaluation",
-  "corpus": "fixture",
+  "config_name": "core",
+  "corpus": "core",
   "evaluated_prediction_source": "current_category_exports",
   "final_test_metrics": {
     "accuracy": 0.6533333333333333,
@@ -108,7 +108,7 @@
   "gold_sample": "data\\gold\\vocabulary_gold_sample.csv",
   "gold_status": "available",
   "metrics": {
-    "accuracy": 0.6786666666666666,
+    "accuracy": 0.6790945406125166,
     "confusion_matrix": {
       "dimension_name": {
         "dimension_name": 84,
@@ -119,7 +119,7 @@
       },
       "dimension_value": {
         "dimension_name": 0,
-        "dimension_value": 58,
+        "dimension_value": 59,
         "measure": 0,
         "other_ambiguous": 72,
         "unit": 0
@@ -146,8 +146,8 @@
         "unit": 19
       }
     },
-    "gold_count": 750,
-    "macro_f1": 0.6400967861884388,
+    "gold_count": 751,
+    "macro_f1": 0.6409423016190954,
     "missing_predictions": [],
     "per_class": {
       "dimension_name": {
@@ -157,10 +157,10 @@
         "support": 86
       },
       "dimension_value": {
-        "f1": 0.5497630331753554,
-        "precision": 0.7160493827160493,
-        "recall": 0.4461538461538462,
-        "support": 130
+        "f1": 0.5539906103286385,
+        "precision": 0.7195121951219512,
+        "recall": 0.45038167938931295,
+        "support": 131
       },
       "measure": {
         "f1": 0.24719101123595508,
@@ -181,8 +181,8 @@
         "support": 37
       }
     },
-    "scored_count": 750,
-    "weighted_f1": 0.6284652921158962
+    "scored_count": 751,
+    "weighted_f1": 0.6290979290641513
   },
   "promotion_gate_summary": {
     "random_final_macro_f1": 0.8842242242242243,
@@ -192,6 +192,241 @@
     "targeted_non_other_precision": 0.7142857142857143
   },
   "source_metrics": {
+    "human_loop": {
+      "final_test_metrics": {
+        "accuracy": 0.0,
+        "confusion_matrix": {
+          "dimension_name": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "dimension_value": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "measure": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "other_ambiguous": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "unit": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          }
+        },
+        "gold_count": 0,
+        "macro_f1": 0.0,
+        "missing_predictions": [],
+        "per_class": {
+          "dimension_name": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "dimension_value": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "measure": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "other_ambiguous": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "unit": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          }
+        },
+        "scored_count": 0,
+        "weighted_f1": 0.0
+      },
+      "final_test_non_other_precision": null,
+      "metrics": {
+        "accuracy": 1.0,
+        "confusion_matrix": {
+          "dimension_name": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "dimension_value": {
+            "dimension_name": 0,
+            "dimension_value": 1,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "measure": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "other_ambiguous": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "unit": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          }
+        },
+        "gold_count": 1,
+        "macro_f1": 0.2,
+        "missing_predictions": [],
+        "per_class": {
+          "dimension_name": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "dimension_value": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 1
+          },
+          "measure": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "other_ambiguous": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "unit": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          }
+        },
+        "scored_count": 1,
+        "weighted_f1": 1.0
+      },
+      "validation_metrics": {
+        "accuracy": 0.0,
+        "confusion_matrix": {
+          "dimension_name": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "dimension_value": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "measure": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "other_ambiguous": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          },
+          "unit": {
+            "dimension_name": 0,
+            "dimension_value": 0,
+            "measure": 0,
+            "other_ambiguous": 0,
+            "unit": 0
+          }
+        },
+        "gold_count": 0,
+        "macro_f1": 0.0,
+        "missing_predictions": [],
+        "per_class": {
+          "dimension_name": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "dimension_value": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "measure": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "other_ambiguous": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          },
+          "unit": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 0
+          }
+        },
+        "scored_count": 0,
+        "weighted_f1": 0.0
+      },
+      "validation_non_other_precision": null
+    },
     "random_sample": {
       "final_test_metrics": {
         "accuracy": 0.93,

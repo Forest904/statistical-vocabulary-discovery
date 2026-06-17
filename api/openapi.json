@@ -1,330 +1,1344 @@
 {
-  "openapi": "3.1.0",
+  "components": {
+    "schemas": {
+      "ClusterListResponse": {
+        "description": "Paginated cluster summaries.",
+        "properties": {
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "pagination",
+          "items"
+        ],
+        "title": "ClusterListResponse",
+        "type": "object"
+      },
+      "EvaluationResponse": {
+        "description": "Read-only evaluation summary response.",
+        "properties": {
+          "summaries": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Summaries",
+            "type": "object"
+          }
+        },
+        "required": [
+          "summaries"
+        ],
+        "title": "EvaluationResponse",
+        "type": "object"
+      },
+      "GraphEdge": {
+        "description": "Canvas-ready knowledge graph edge.",
+        "properties": {
+          "derived": {
+            "title": "Derived",
+            "type": "boolean"
+          },
+          "directed": {
+            "title": "Directed",
+            "type": "boolean"
+          },
+          "edge_id": {
+            "title": "Edge Id",
+            "type": "string"
+          },
+          "edge_type": {
+            "title": "Edge Type",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "Properties",
+            "type": "object"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          },
+          "weight": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "edge_id",
+          "source_id",
+          "target_id",
+          "edge_type",
+          "weight",
+          "directed",
+          "derived"
+        ],
+        "title": "GraphEdge",
+        "type": "object"
+      },
+      "GraphFocusOption": {
+        "description": "Search candidate for a graph focus node.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "node_type": {
+            "enum": [
+              "table",
+              "term",
+              "cluster",
+              "domain"
+            ],
+            "title": "Node Type",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "node_id",
+          "node_type",
+          "label",
+          "score"
+        ],
+        "title": "GraphFocusOption",
+        "type": "object"
+      },
+      "GraphFocusOptionsResponse": {
+        "description": "Graph focus node search results.",
+        "properties": {
+          "focus_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Type"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GraphFocusOption"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "items"
+        ],
+        "title": "GraphFocusOptionsResponse",
+        "type": "object"
+      },
+      "GraphNode": {
+        "description": "Canvas-ready knowledge graph node.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "node_id": {
+            "title": "Node Id",
+            "type": "string"
+          },
+          "node_type": {
+            "enum": [
+              "table",
+              "term",
+              "category",
+              "cluster",
+              "domain"
+            ],
+            "title": "Node Type",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "Properties",
+            "type": "object"
+          }
+        },
+        "required": [
+          "node_id",
+          "node_type",
+          "label"
+        ],
+        "title": "GraphNode",
+        "type": "object"
+      },
+      "GraphResponse": {
+        "description": "Bounded graph neighborhood response.",
+        "properties": {
+          "depth": {
+            "title": "Depth",
+            "type": "integer"
+          },
+          "edge_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Edge Types",
+            "type": "array"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "focus": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Focus",
+            "type": "object"
+          },
+          "limits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Limits",
+            "type": "object"
+          },
+          "min_weight": {
+            "title": "Min Weight",
+            "type": "number"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "total_available": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Total Available",
+            "type": "object"
+          }
+        },
+        "required": [
+          "focus",
+          "depth",
+          "min_weight",
+          "edge_types",
+          "nodes",
+          "edges",
+          "limits",
+          "total_available"
+        ],
+        "title": "GraphResponse",
+        "type": "object"
+      },
+      "GraphSummaryResponse": {
+        "description": "Knowledge graph artifact summary.",
+        "properties": {
+          "edge_count": {
+            "title": "Edge Count",
+            "type": "integer"
+          },
+          "edge_type_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Edge Type Counts",
+            "type": "object"
+          },
+          "node_count": {
+            "title": "Node Count",
+            "type": "integer"
+          },
+          "node_type_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Node Type Counts",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "node_count",
+          "edge_count",
+          "node_type_counts",
+          "edge_type_counts"
+        ],
+        "title": "GraphSummaryResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "description": "API readiness response.",
+        "properties": {
+          "artifact_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Artifact Counts",
+            "type": "object"
+          },
+          "config_name": {
+            "title": "Config Name",
+            "type": "string"
+          },
+          "corpus": {
+            "title": "Corpus",
+            "type": "string"
+          },
+          "document_count": {
+            "title": "Document Count",
+            "type": "integer"
+          },
+          "loaded_search_run_id": {
+            "title": "Loaded Search Run Id",
+            "type": "string"
+          },
+          "readiness": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "title": "Readiness",
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "status",
+          "config_name",
+          "corpus",
+          "loaded_search_run_id",
+          "document_count",
+          "readiness",
+          "artifact_counts",
+          "warnings"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "Pagination": {
+        "description": "Page-number pagination metadata.",
+        "properties": {
+          "page": {
+            "minimum": 1.0,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Pagination",
+        "type": "object"
+      },
+      "RelationListResponse": {
+        "description": "Paginated relation summaries.",
+        "properties": {
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "pagination",
+          "items"
+        ],
+        "title": "RelationListResponse",
+        "type": "object"
+      },
+      "ReviewAnswerRequest": {
+        "description": "Human-loop review answer request.",
+        "properties": {
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "default": "local_user",
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "answer"
+        ],
+        "title": "ReviewAnswerRequest",
+        "type": "object"
+      },
+      "ReviewAnswerResponse": {
+        "description": "Human-loop review answer response.",
+        "properties": {
+          "event": {
+            "additionalProperties": true,
+            "title": "Event",
+            "type": "object"
+          },
+          "stats": {
+            "additionalProperties": true,
+            "title": "Stats",
+            "type": "object"
+          }
+        },
+        "required": [
+          "event",
+          "stats"
+        ],
+        "title": "ReviewAnswerResponse",
+        "type": "object"
+      },
+      "ReviewChoice": {
+        "description": "One review answer choice.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "shortcut": {
+            "title": "Shortcut",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "label",
+          "shortcut"
+        ],
+        "title": "ReviewChoice",
+        "type": "object"
+      },
+      "ReviewCompileResponse": {
+        "description": "Human-loop compile and evaluation response.",
+        "properties": {
+          "agreement": {
+            "additionalProperties": true,
+            "title": "Agreement",
+            "type": "object"
+          },
+          "classification_label_splits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Classification Label Splits",
+            "type": "object"
+          },
+          "classification_metrics_summary": {
+            "additionalProperties": true,
+            "title": "Classification Metrics Summary",
+            "type": "object"
+          },
+          "compiled_at": {
+            "title": "Compiled At",
+            "type": "string"
+          },
+          "compiled_classification_label_count": {
+            "title": "Compiled Classification Label Count",
+            "type": "integer"
+          },
+          "compiled_relation_label_count": {
+            "title": "Compiled Relation Label Count",
+            "type": "integer"
+          },
+          "events_count": {
+            "title": "Events Count",
+            "type": "integer"
+          },
+          "outputs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Outputs",
+            "type": "object"
+          },
+          "relation_label_splits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Relation Label Splits",
+            "type": "object"
+          }
+        },
+        "required": [
+          "compiled_at",
+          "events_count",
+          "compiled_classification_label_count",
+          "compiled_relation_label_count",
+          "classification_label_splits",
+          "relation_label_splits",
+          "agreement",
+          "outputs",
+          "classification_metrics_summary"
+        ],
+        "title": "ReviewCompileResponse",
+        "type": "object"
+      },
+      "ReviewStatsResponse": {
+        "description": "Human-loop progress counters.",
+        "properties": {
+          "answer_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Answer Counts",
+            "type": "object"
+          },
+          "answered_task_count": {
+            "title": "Answered Task Count",
+            "type": "integer"
+          },
+          "event_count": {
+            "title": "Event Count",
+            "type": "integer"
+          },
+          "events_path": {
+            "title": "Events Path",
+            "type": "string"
+          },
+          "remaining_task_count": {
+            "title": "Remaining Task Count",
+            "type": "integer"
+          },
+          "reviewer_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Reviewer Counts",
+            "type": "object"
+          },
+          "task_count": {
+            "title": "Task Count",
+            "type": "integer"
+          },
+          "task_type_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Task Type Counts",
+            "type": "object"
+          },
+          "tasks_path": {
+            "title": "Tasks Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_count",
+          "answered_task_count",
+          "remaining_task_count",
+          "event_count",
+          "task_type_counts",
+          "answer_counts",
+          "reviewer_counts",
+          "tasks_path",
+          "events_path"
+        ],
+        "title": "ReviewStatsResponse",
+        "type": "object"
+      },
+      "ReviewTaskResponse": {
+        "description": "One human-loop review task.",
+        "properties": {
+          "canonical_term": {
+            "title": "Canonical Term",
+            "type": "string"
+          },
+          "choices": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewChoice"
+            },
+            "title": "Choices",
+            "type": "array"
+          },
+          "context": {
+            "additionalProperties": true,
+            "title": "Context",
+            "type": "object"
+          },
+          "hidden_qc": {
+            "default": false,
+            "title": "Hidden Qc",
+            "type": "boolean"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "paired_canonical_term": {
+            "default": "",
+            "title": "Paired Canonical Term",
+            "type": "string"
+          },
+          "paired_term_id": {
+            "default": "",
+            "title": "Paired Term Id",
+            "type": "string"
+          },
+          "priority": {
+            "default": 0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_type": {
+            "enum": [
+              "term_classification",
+              "measure_vs_breakdown",
+              "title_reclaim",
+              "evidence_validation",
+              "same_as"
+            ],
+            "title": "Task Type",
+            "type": "string"
+          },
+          "term_id": {
+            "title": "Term Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "task_type",
+          "question",
+          "term_id",
+          "canonical_term",
+          "choices"
+        ],
+        "title": "ReviewTaskResponse",
+        "type": "object"
+      },
+      "SearchRequest": {
+        "description": "Search request body.",
+        "properties": {
+          "page": {
+            "default": 1,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "default": 20,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "query": {
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "system": {
+            "default": "fused",
+            "enum": [
+              "fused",
+              "title_bm25",
+              "all_vocabulary_bm25",
+              "pearl_semantic"
+            ],
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "SearchRequest",
+        "type": "object"
+      },
+      "SearchResponse": {
+        "description": "Grounded table-search response.",
+        "properties": {
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "query": {
+            "additionalProperties": true,
+            "title": "Query",
+            "type": "object"
+          },
+          "results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "query",
+          "notice",
+          "pagination",
+          "results"
+        ],
+        "title": "SearchResponse",
+        "type": "object"
+      },
+      "TableDetailResponse": {
+        "description": "Denormalized source-table detail.",
+        "properties": {
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "geographies": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Geographies",
+            "type": "array"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "parse_status": {
+            "title": "Parse Status",
+            "type": "string"
+          },
+          "related_terms": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Related Terms",
+            "type": "array"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          },
+          "times": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Times",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "vocabulary": {
+            "additionalProperties": true,
+            "title": "Vocabulary",
+            "type": "object"
+          }
+        },
+        "required": [
+          "table_id",
+          "title",
+          "source_url",
+          "parse_status",
+          "metadata",
+          "vocabulary",
+          "geographies",
+          "times",
+          "evidence",
+          "related_terms"
+        ],
+        "title": "TableDetailResponse",
+        "type": "object"
+      },
+      "TermDetailResponse": {
+        "description": "Denormalized vocabulary-term detail.",
+        "properties": {
+          "canonical_term": {
+            "title": "Canonical Term",
+            "type": "string"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "cluster": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "occurrence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Occurrence Ids",
+            "type": "array"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "relations": {
+            "additionalProperties": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "title": "Relations",
+            "type": "object"
+          },
+          "table_appearances": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Table Appearances",
+            "type": "array"
+          },
+          "term_id": {
+            "title": "Term Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "term_id",
+          "canonical_term"
+        ],
+        "title": "TermDetailResponse",
+        "type": "object"
+      },
+      "TermListResponse": {
+        "description": "Paginated vocabulary-term summaries.",
+        "properties": {
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "pagination",
+          "items"
+        ],
+        "title": "TermListResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
   "info": {
+    "description": "APIs over grounded StatVocab artifacts, search indexes, and human review workflows.",
     "title": "StatVocab API",
-    "description": "Read-only APIs over grounded StatVocab artifacts and search indexes.",
     "version": "0.1.0"
   },
+  "openapi": "3.1.0",
   "paths": {
-    "/api/search": {
-      "post": {
-        "tags": [
-          "search"
-        ],
-        "summary": "Search",
-        "description": "Search source tables with grounded evidence.",
-        "operationId": "search_api_search_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tables/{table_id}": {
-      "get": {
-        "tags": [
-          "artifacts"
-        ],
-        "summary": "Table Detail",
-        "description": "Return one source-table detail payload.",
-        "operationId": "table_detail_api_tables__table_id__get",
-        "parameters": [
-          {
-            "name": "table_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Table Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableDetailResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/terms": {
-      "get": {
-        "tags": [
-          "artifacts"
-        ],
-        "summary": "Terms",
-        "description": "Return paginated vocabulary-term summaries.",
-        "operationId": "terms_api_terms_get",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 1,
-              "title": "Page"
-            }
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 100,
-              "minimum": 1,
-              "default": 20,
-              "title": "Page Size"
-            }
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "measure",
-                    "dimension_name",
-                    "dimension_value",
-                    "unit",
-                    "other_ambiguous"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Category"
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Q"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TermListResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/terms/{term_id}": {
-      "get": {
-        "tags": [
-          "artifacts"
-        ],
-        "summary": "Term Detail",
-        "description": "Return one vocabulary-term detail payload.",
-        "operationId": "term_detail_api_terms__term_id__get",
-        "parameters": [
-          {
-            "name": "term_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Term Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TermDetailResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/clusters": {
       "get": {
-        "tags": [
-          "artifacts"
-        ],
-        "summary": "Clusters",
         "description": "Return paginated measure-cluster summaries.",
         "operationId": "clusters_api_clusters_get",
         "parameters": [
           {
-            "name": "page",
             "in": "query",
+            "name": "page",
             "required": false,
             "schema": {
-              "type": "integer",
+              "default": 1,
               "maximum": 1000,
               "minimum": 1,
-              "default": 1,
-              "title": "Page"
+              "title": "Page",
+              "type": "integer"
             }
           },
           {
-            "name": "page_size",
             "in": "query",
+            "name": "page_size",
             "required": false,
             "schema": {
-              "type": "integer",
+              "default": 20,
               "maximum": 100,
               "minimum": 1,
-              "default": 20,
-              "title": "Page Size"
+              "title": "Page Size",
+              "type": "integer"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ClusterListResponse"
                 }
               }
-            }
+            },
+            "description": "Successful Response"
           },
           "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Clusters",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/evaluation": {
+      "get": {
+        "description": "Return available evaluation summaries.",
+        "operationId": "evaluation_api_evaluation_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Evaluation",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/graph": {
+      "get": {
+        "description": "Return a bounded knowledge graph neighborhood.",
+        "operationId": "graph_api_graph_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "focus_type",
+            "required": true,
+            "schema": {
+              "title": "Focus Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "focus_id",
+            "required": true,
+            "schema": {
+              "title": "Focus Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "depth",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "maximum": 10,
+              "minimum": 1,
+              "title": "Depth",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_weight",
+            "required": false,
+            "schema": {
+              "default": 0.0,
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Min Weight",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "edge_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edge Type"
             }
           }
-        }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Graph",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/graph/focus-options": {
+      "get": {
+        "description": "Search graph nodes that can be used as a graph focus.",
+        "operationId": "graph_focus_options_api_graph_focus_options_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "focus_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Focus Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 25,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphFocusOptionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Graph Focus Options",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/graph/summary": {
+      "get": {
+        "description": "Return the loaded knowledge graph artifact summary.",
+        "operationId": "graph_summary_api_graph_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Graph Summary",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "description": "Return loaded-run and artifact readiness.",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
       }
     },
     "/api/relations": {
       "get": {
-        "tags": [
-          "artifacts"
-        ],
-        "summary": "Relations",
         "description": "Return paginated measure relations.",
         "operationId": "relations_api_relations_get",
         "parameters": [
           {
-            "name": "page",
             "in": "query",
+            "name": "page",
             "required": false,
             "schema": {
-              "type": "integer",
+              "default": 1,
               "maximum": 1000,
               "minimum": 1,
-              "default": 1,
-              "title": "Page"
+              "title": "Page",
+              "type": "integer"
             }
           },
           {
-            "name": "page_size",
             "in": "query",
+            "name": "page_size",
             "required": false,
             "schema": {
-              "type": "integer",
+              "default": 20,
               "maximum": 100,
               "minimum": 1,
-              "default": 20,
-              "title": "Page Size"
+              "title": "Page Size",
+              "type": "integer"
             }
           },
           {
-            "name": "term_id",
             "in": "query",
+            "name": "term_id",
             "required": false,
             "schema": {
               "anyOf": [
@@ -339,8 +1353,8 @@
             }
           },
           {
-            "name": "relation_type",
             "in": "query",
+            "name": "relation_type",
             "required": false,
             "schema": {
               "anyOf": [
@@ -363,988 +1377,401 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RelationListResponse"
                 }
               }
-            }
+            },
+            "description": "Successful Response"
           },
           "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
-            }
+            },
+            "description": "Validation Error"
           }
-        }
-      }
-    },
-    "/api/graph/summary": {
-      "get": {
+        },
+        "summary": "Relations",
         "tags": [
           "artifacts"
-        ],
-        "summary": "Graph Summary",
-        "description": "Return the loaded knowledge graph artifact summary.",
-        "operationId": "graph_summary_api_graph_summary_get",
+        ]
+      }
+    },
+    "/api/review/answer": {
+      "post": {
+        "description": "Append one human-loop review answer.",
+        "operationId": "review_answer_api_review_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GraphSummaryResponse"
+                  "$ref": "#/components/schemas/ReviewAnswerResponse"
                 }
               }
-            }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
-        }
+        },
+        "summary": "Review Answer",
+        "tags": [
+          "review"
+        ]
       }
     },
-    "/api/graph/focus-options": {
-      "get": {
+    "/api/review/compile": {
+      "post": {
+        "description": "Compile human-loop labels and refresh evaluation.",
+        "operationId": "review_compile_api_review_compile_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewCompileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Review Compile",
         "tags": [
-          "artifacts"
-        ],
-        "summary": "Graph Focus Options",
-        "description": "Search graph nodes that can be used as a graph focus.",
-        "operationId": "graph_focus_options_api_graph_focus_options_get",
+          "review"
+        ]
+      }
+    },
+    "/api/review/stats": {
+      "get": {
+        "description": "Return human-loop review progress.",
+        "operationId": "review_progress_api_review_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewStatsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Review Progress",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/review/task": {
+      "get": {
+        "description": "Return the next human-loop review task.",
+        "operationId": "review_task_api_review_task_get",
         "parameters": [
           {
-            "name": "q",
             "in": "query",
+            "name": "mode",
             "required": false,
             "schema": {
-              "type": "string",
-              "default": "",
+              "default": "all",
+              "enum": [
+                "all",
+                "term_classification",
+                "measure_vs_breakdown",
+                "title_reclaim",
+                "evidence_validation",
+                "same_as"
+              ],
+              "title": "Mode",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ReviewTaskResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Review Task Api Review Task Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Task",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/search": {
+      "post": {
+        "description": "Search source tables with grounded evidence.",
+        "operationId": "search_api_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/api/tables/{table_id}": {
+      "get": {
+        "description": "Return one source-table detail payload.",
+        "operationId": "table_detail_api_tables__table_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Table Detail",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/api/terms": {
+      "get": {
+        "description": "Return paginated vocabulary-term summaries.",
+        "operationId": "terms_api_terms_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "measure",
+                    "dimension_name",
+                    "dimension_value",
+                    "unit",
+                    "other_ambiguous"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "title": "Q"
             }
-          },
-          {
-            "name": "focus_type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Focus Type"
-            }
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 25,
-              "minimum": 1,
-              "default": 10,
-              "title": "Page Size"
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GraphFocusOptionsResponse"
+                  "$ref": "#/components/schemas/TermListResponse"
                 }
               }
-            }
+            },
+            "description": "Successful Response"
           },
           "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
-            }
+            },
+            "description": "Validation Error"
           }
-        }
-      }
-    },
-    "/api/graph": {
-      "get": {
+        },
+        "summary": "Terms",
         "tags": [
           "artifacts"
-        ],
-        "summary": "Graph",
-        "description": "Return a bounded knowledge graph neighborhood.",
-        "operationId": "graph_api_graph_get",
+        ]
+      }
+    },
+    "/api/terms/{term_id}": {
+      "get": {
+        "description": "Return one vocabulary-term detail payload.",
+        "operationId": "term_detail_api_terms__term_id__get",
         "parameters": [
           {
-            "name": "focus_type",
-            "in": "query",
+            "in": "path",
+            "name": "term_id",
             "required": true,
             "schema": {
-              "type": "string",
-              "title": "Focus Type"
-            }
-          },
-          {
-            "name": "focus_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Focus Id"
-            }
-          },
-          {
-            "name": "depth",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 10,
-              "minimum": 1,
-              "default": 1,
-              "title": "Depth"
-            }
-          },
-          {
-            "name": "min_weight",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "maximum": 1.0,
-              "minimum": 0.0,
-              "default": 0.0,
-              "title": "Min Weight"
-            }
-          },
-          {
-            "name": "edge_type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Edge Type"
+              "title": "Term Id",
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GraphResponse"
+                  "$ref": "#/components/schemas/TermDetailResponse"
                 }
               }
-            }
+            },
+            "description": "Successful Response"
           },
           "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
-            }
+            },
+            "description": "Validation Error"
           }
-        }
-      }
-    },
-    "/api/evaluation": {
-      "get": {
+        },
+        "summary": "Term Detail",
         "tags": [
           "artifacts"
-        ],
-        "summary": "Evaluation",
-        "description": "Return available evaluation summaries.",
-        "operationId": "evaluation_api_evaluation_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EvaluationResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/health": {
-      "get": {
-        "tags": [
-          "health"
-        ],
-        "summary": "Health",
-        "description": "Return loaded-run and artifact readiness.",
-        "operationId": "health_api_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "ClusterListResponse": {
-        "properties": {
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          },
-          "items": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "pagination",
-          "items"
-        ],
-        "title": "ClusterListResponse",
-        "description": "Paginated cluster summaries."
-      },
-      "EvaluationResponse": {
-        "properties": {
-          "summaries": {
-            "additionalProperties": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "object",
-            "title": "Summaries"
-          }
-        },
-        "type": "object",
-        "required": [
-          "summaries"
-        ],
-        "title": "EvaluationResponse",
-        "description": "Read-only evaluation summary response."
-      },
-      "GraphEdge": {
-        "properties": {
-          "edge_id": {
-            "type": "string",
-            "title": "Edge Id"
-          },
-          "source_id": {
-            "type": "string",
-            "title": "Source Id"
-          },
-          "target_id": {
-            "type": "string",
-            "title": "Target Id"
-          },
-          "edge_type": {
-            "type": "string",
-            "title": "Edge Type"
-          },
-          "weight": {
-            "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Weight"
-          },
-          "directed": {
-            "type": "boolean",
-            "title": "Directed"
-          },
-          "derived": {
-            "type": "boolean",
-            "title": "Derived"
-          },
-          "evidence_ids": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Evidence Ids"
-          },
-          "properties": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Properties"
-          }
-        },
-        "type": "object",
-        "required": [
-          "edge_id",
-          "source_id",
-          "target_id",
-          "edge_type",
-          "weight",
-          "directed",
-          "derived"
-        ],
-        "title": "GraphEdge",
-        "description": "Canvas-ready knowledge graph edge."
-      },
-      "GraphFocusOption": {
-        "properties": {
-          "node_id": {
-            "type": "string",
-            "title": "Node Id"
-          },
-          "node_type": {
-            "type": "string",
-            "enum": [
-              "table",
-              "term",
-              "cluster",
-              "domain"
-            ],
-            "title": "Node Type"
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          },
-          "score": {
-            "type": "number",
-            "title": "Score"
-          },
-          "metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Metadata"
-          }
-        },
-        "type": "object",
-        "required": [
-          "node_id",
-          "node_type",
-          "label",
-          "score"
-        ],
-        "title": "GraphFocusOption",
-        "description": "Search candidate for a graph focus node."
-      },
-      "GraphFocusOptionsResponse": {
-        "properties": {
-          "query": {
-            "type": "string",
-            "title": "Query"
-          },
-          "focus_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Focus Type"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/GraphFocusOption"
-            },
-            "type": "array",
-            "title": "Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "query",
-          "items"
-        ],
-        "title": "GraphFocusOptionsResponse",
-        "description": "Graph focus node search results."
-      },
-      "GraphNode": {
-        "properties": {
-          "node_id": {
-            "type": "string",
-            "title": "Node Id"
-          },
-          "node_type": {
-            "type": "string",
-            "enum": [
-              "table",
-              "term",
-              "category",
-              "cluster",
-              "domain"
-            ],
-            "title": "Node Type"
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          },
-          "properties": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Properties"
-          }
-        },
-        "type": "object",
-        "required": [
-          "node_id",
-          "node_type",
-          "label"
-        ],
-        "title": "GraphNode",
-        "description": "Canvas-ready knowledge graph node."
-      },
-      "GraphResponse": {
-        "properties": {
-          "focus": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": "object",
-            "title": "Focus"
-          },
-          "depth": {
-            "type": "integer",
-            "title": "Depth"
-          },
-          "min_weight": {
-            "type": "number",
-            "title": "Min Weight"
-          },
-          "edge_types": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Edge Types"
-          },
-          "nodes": {
-            "items": {
-              "$ref": "#/components/schemas/GraphNode"
-            },
-            "type": "array",
-            "title": "Nodes"
-          },
-          "edges": {
-            "items": {
-              "$ref": "#/components/schemas/GraphEdge"
-            },
-            "type": "array",
-            "title": "Edges"
-          },
-          "limits": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Limits"
-          },
-          "total_available": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Total Available"
-          }
-        },
-        "type": "object",
-        "required": [
-          "focus",
-          "depth",
-          "min_weight",
-          "edge_types",
-          "nodes",
-          "edges",
-          "limits",
-          "total_available"
-        ],
-        "title": "GraphResponse",
-        "description": "Bounded graph neighborhood response."
-      },
-      "GraphSummaryResponse": {
-        "properties": {
-          "run_id": {
-            "type": "string",
-            "title": "Run Id"
-          },
-          "node_count": {
-            "type": "integer",
-            "title": "Node Count"
-          },
-          "edge_count": {
-            "type": "integer",
-            "title": "Edge Count"
-          },
-          "node_type_counts": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Node Type Counts"
-          },
-          "edge_type_counts": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Edge Type Counts"
-          }
-        },
-        "type": "object",
-        "required": [
-          "run_id",
-          "node_count",
-          "edge_count",
-          "node_type_counts",
-          "edge_type_counts"
-        ],
-        "title": "GraphSummaryResponse",
-        "description": "Knowledge graph artifact summary."
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
-      "HealthResponse": {
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "ok",
-              "degraded"
-            ],
-            "title": "Status"
-          },
-          "config_name": {
-            "type": "string",
-            "title": "Config Name"
-          },
-          "corpus": {
-            "type": "string",
-            "title": "Corpus"
-          },
-          "loaded_search_run_id": {
-            "type": "string",
-            "title": "Loaded Search Run Id"
-          },
-          "document_count": {
-            "type": "integer",
-            "title": "Document Count"
-          },
-          "readiness": {
-            "additionalProperties": {
-              "type": "boolean"
-            },
-            "type": "object",
-            "title": "Readiness"
-          },
-          "artifact_counts": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Artifact Counts"
-          },
-          "warnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Warnings"
-          }
-        },
-        "type": "object",
-        "required": [
-          "status",
-          "config_name",
-          "corpus",
-          "loaded_search_run_id",
-          "document_count",
-          "readiness",
-          "artifact_counts",
-          "warnings"
-        ],
-        "title": "HealthResponse",
-        "description": "API readiness response."
-      },
-      "Pagination": {
-        "properties": {
-          "page": {
-            "type": "integer",
-            "minimum": 1.0,
-            "title": "Page"
-          },
-          "page_size": {
-            "type": "integer",
-            "maximum": 100.0,
-            "minimum": 1.0,
-            "title": "Page Size"
-          },
-          "total": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Total"
-          }
-        },
-        "type": "object",
-        "required": [
-          "page",
-          "page_size",
-          "total"
-        ],
-        "title": "Pagination",
-        "description": "Page-number pagination metadata."
-      },
-      "RelationListResponse": {
-        "properties": {
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          },
-          "items": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "pagination",
-          "items"
-        ],
-        "title": "RelationListResponse",
-        "description": "Paginated relation summaries."
-      },
-      "SearchRequest": {
-        "properties": {
-          "query": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Query"
-          },
-          "page": {
-            "type": "integer",
-            "maximum": 1000.0,
-            "minimum": 1.0,
-            "title": "Page",
-            "default": 1
-          },
-          "page_size": {
-            "type": "integer",
-            "maximum": 100.0,
-            "minimum": 1.0,
-            "title": "Page Size",
-            "default": 20
-          },
-          "system": {
-            "type": "string",
-            "enum": [
-              "fused",
-              "title_bm25",
-              "all_vocabulary_bm25",
-              "pearl_semantic"
-            ],
-            "title": "System",
-            "default": "fused"
-          }
-        },
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "title": "SearchRequest",
-        "description": "Search request body."
-      },
-      "SearchResponse": {
-        "properties": {
-          "query": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Query"
-          },
-          "notice": {
-            "type": "string",
-            "title": "Notice"
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          },
-          "results": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Results"
-          }
-        },
-        "type": "object",
-        "required": [
-          "query",
-          "notice",
-          "pagination",
-          "results"
-        ],
-        "title": "SearchResponse",
-        "description": "Grounded table-search response."
-      },
-      "TableDetailResponse": {
-        "properties": {
-          "table_id": {
-            "type": "string",
-            "title": "Table Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "source_url": {
-            "type": "string",
-            "title": "Source Url"
-          },
-          "parse_status": {
-            "type": "string",
-            "title": "Parse Status"
-          },
-          "metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Metadata"
-          },
-          "vocabulary": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Vocabulary"
-          },
-          "geographies": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Geographies"
-          },
-          "times": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Times"
-          },
-          "evidence": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Evidence"
-          },
-          "related_terms": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Related Terms"
-          }
-        },
-        "type": "object",
-        "required": [
-          "table_id",
-          "title",
-          "source_url",
-          "parse_status",
-          "metadata",
-          "vocabulary",
-          "geographies",
-          "times",
-          "evidence",
-          "related_terms"
-        ],
-        "title": "TableDetailResponse",
-        "description": "Denormalized source-table detail."
-      },
-      "TermDetailResponse": {
-        "properties": {
-          "term_id": {
-            "type": "string",
-            "title": "Term Id"
-          },
-          "canonical_term": {
-            "type": "string",
-            "title": "Canonical Term"
-          },
-          "category": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Category"
-          },
-          "confidence": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Confidence"
-          },
-          "provenance": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Provenance"
-          },
-          "occurrence_ids": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Occurrence Ids"
-          },
-          "table_appearances": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Table Appearances"
-          },
-          "cluster": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cluster"
-          },
-          "relations": {
-            "additionalProperties": {
-              "items": {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              "type": "array"
-            },
-            "type": "object",
-            "title": "Relations"
-          }
-        },
-        "type": "object",
-        "required": [
-          "term_id",
-          "canonical_term"
-        ],
-        "title": "TermDetailResponse",
-        "description": "Denormalized vocabulary-term detail."
-      },
-      "TermListResponse": {
-        "properties": {
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          },
-          "items": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "pagination",
-          "items"
-        ],
-        "title": "TermListResponse",
-        "description": "Paginated vocabulary-term summaries."
-      },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
+        ]
       }
     }
   }

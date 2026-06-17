@@ -1,4 +1,4 @@
-import { Activity, BookOpen, GitBranch, Network, Search, Share2, Tags } from "lucide-react";
+import { Activity, BookOpen, ClipboardCheck, GitBranch, Network, Search, Share2, Tags } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -7,6 +7,7 @@ const links = [
   { to: "/vocabulary", label: "Vocabulary", icon: Tags },
   { to: "/domains", label: "Domains", icon: Network },
   { to: "/relations", label: "Relations", icon: GitBranch },
+  { to: "/review", label: "Review", icon: ClipboardCheck },
   { to: "/graph", label: "Graph", icon: Share2 },
   { to: "/methods", label: "Methods", icon: BookOpen }
 ];

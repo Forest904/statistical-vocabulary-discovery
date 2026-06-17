@@ -189,3 +189,89 @@ class GraphSummaryResponse(BaseModel):
     edge_count: int
     node_type_counts: dict[str, int]
     edge_type_counts: dict[str, int]
+
+
+ReviewTaskTypeValue = Literal[
+    "term_classification",
+    "measure_vs_breakdown",
+    "title_reclaim",
+    "evidence_validation",
+    "same_as",
+]
+ReviewModeValue = Literal[
+    "all",
+    "term_classification",
+    "measure_vs_breakdown",
+    "title_reclaim",
+    "evidence_validation",
+    "same_as",
+]
+
+
+class ReviewChoice(BaseModel):
+    """One review answer choice."""
+
+    value: str
+    label: str
+    shortcut: str
+
+
+class ReviewTaskResponse(BaseModel):
+    """One human-loop review task."""
+
+    task_id: str
+    task_type: ReviewTaskTypeValue
+    question: str
+    term_id: str
+    canonical_term: str
+    paired_term_id: str = ""
+    paired_canonical_term: str = ""
+    choices: list[ReviewChoice]
+    context: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    priority: int = 0
+    hidden_qc: bool = False
+
+
+class ReviewAnswerRequest(BaseModel):
+    """Human-loop review answer request."""
+
+    task_id: str
+    answer: str
+    reviewer_id: str = "local_user"
+    notes: str = ""
+
+
+class ReviewAnswerResponse(BaseModel):
+    """Human-loop review answer response."""
+
+    event: dict[str, Any]
+    stats: dict[str, Any]
+
+
+class ReviewStatsResponse(BaseModel):
+    """Human-loop progress counters."""
+
+    task_count: int
+    answered_task_count: int
+    remaining_task_count: int
+    event_count: int
+    task_type_counts: dict[str, int]
+    answer_counts: dict[str, int]
+    reviewer_counts: dict[str, int]
+    tasks_path: str
+    events_path: str
+
+
+class ReviewCompileResponse(BaseModel):
+    """Human-loop compile and evaluation response."""
+
+    compiled_at: str
+    events_count: int
+    compiled_classification_label_count: int
+    compiled_relation_label_count: int
+    classification_label_splits: dict[str, int]
+    relation_label_splits: dict[str, int]
+    agreement: dict[str, Any]
+    outputs: dict[str, str]
+    classification_metrics_summary: dict[str, Any]

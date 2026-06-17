@@ -5,6 +5,7 @@ import { DomainsPage } from "./pages/DomainsPage";
 import { GraphPage } from "./pages/GraphPage";
 import { MethodsPage } from "./pages/MethodsPage";
 import { RelationsPage } from "./pages/RelationsPage";
+import { ReviewPage } from "./pages/ReviewPage";
 import { SearchPage } from "./pages/SearchPage";
 import { TableDetailPage } from "./pages/TableDetailPage";
 import { TermDetailPage } from "./pages/TermDetailPage";
@@ -20,6 +21,7 @@ export function App() {
         <Route path="/terms/:termId" element={<TermDetailPage />} />
         <Route path="/domains" element={<DomainsPage />} />
         <Route path="/relations" element={<RelationsPage />} />
+        <Route path="/review" element={<ReviewPage />} />
         <Route path="/graph" element={<GraphPage />} />
         <Route path="/methods" element={<MethodsPage />} />
       </Routes>
