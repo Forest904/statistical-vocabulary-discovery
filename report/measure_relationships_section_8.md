@@ -23,9 +23,9 @@ so the core command remains deterministic and reproducible.
 The relation command writes:
 
 - `outputs/measure_relations.csv`
-- `outputs/relations/run_e6e523656ea9857ecac9/relation_candidates.csv`
-- `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv`
-- `outputs/relations/run_e6e523656ea9857ecac9/relation_summary.json`
+- `outputs/relations/run_9431e98d07745bcef11d/relation_candidates.csv`
+- `outputs/relations/run_9431e98d07745bcef11d/manual_relation_review_sample.csv`
+- `outputs/relations/run_9431e98d07745bcef11d/relation_summary.json`
 
 ## Evaluation
 
@@ -37,22 +37,23 @@ an optional corrected type, a false-positive category, and notes. When completed
 available, the evaluator reports precision@10, precision@25, precision@50, typed accuracy, and
 false-positive taxonomy counts.
 
-The submitted deterministic export contains 1,719 candidate relationships:
+The submitted deterministic export contains 30,695 candidate relationships:
 
 | Type | Count |
 |---|---:|
-| `broader_than` | 442 |
-| `related_to` | 1,275 |
-| `variant_of` | 2 |
+| `broader_than` | 16,382 |
+| `related_to` | 13,482 |
+| `variant_of` | 831 |
 
 The structural validator passes: endpoints reference known final measures, relation IDs and pairs are
 not duplicated, no self-relations are present, relation types are allowed, and evidence/confidence
 fields are populated.
 
-The refreshed manual review sample contains 100 completed candidates. It reports precision@10
-`1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, and typed accuracy
-`0.888`. The false-positive taxonomy is dominated by generic qualifier and denominator-fragment
-matches.
+The completed 100-row manual review sample recorded in `report/relations_metrics.json` reports
+precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, and typed
+accuracy `0.888`. The false-positive taxonomy is dominated by generic qualifier and
+denominator-fragment matches. Structural validation covers the refreshed 30,695-row export; the
+current run's own review sample is available for the next review pass.
 
 ## Current Limitations
 

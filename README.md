@@ -18,7 +18,7 @@ Supplementary outputs include `outputs/other_ambiguous.csv`, `outputs/measure_cl
 3. Validate the required CSVs with:
 
 ```bash
-statvocab validate-artifacts --run-id run_75b90575bb9e48ce7918
+statvocab validate-artifacts --config configs/core.yaml --run-id run_75b90575bb9e48ce7918
 ```
 
 The report follows the assignment numbering exactly:
@@ -73,6 +73,7 @@ statvocab relations --config configs/core.yaml
 statvocab build-knowledge-graph --config configs/core.yaml
 statvocab build-search-index --config configs/core.yaml
 statvocab evaluate --config configs/evaluation.yaml --area extraction
+statvocab evaluate --config configs/evaluation.yaml --area classification
 statvocab evaluate --config configs/evaluation.yaml --area clustering
 statvocab evaluate --config configs/evaluation.yaml --area relations
 statvocab evaluate --config configs/evaluation.yaml --area retrieval
@@ -83,24 +84,27 @@ Final local validation:
 ```bash
 pytest tests/test_notebooks.py
 pytest tests/test_classification_contracts.py tests/test_grounding.py tests/test_relations.py tests/test_notebooks.py
-statvocab validate-artifacts --run-id run_75b90575bb9e48ce7918
+statvocab validate-artifacts --config configs/core.yaml --run-id run_75b90575bb9e48ce7918
+statvocab validate-core-release --config configs/core.yaml
 ```
 
 ## Current Core Outputs
 
 | Output | Count | Role |
 |---|---:|---|
-| `outputs/measures.csv` | 632 | Required assignment `M` |
-| `outputs/dimension_names.csv` | 365 | Required assignment `N` |
-| `outputs/dimension_values.csv` | 548 | Required assignment `A` |
-| `outputs/units.csv` | 214 | Required assignment `U` |
-| `outputs/other_ambiguous.csv` | 7,812 | Justified extra category |
-| `outputs/measure_clusters.csv` | 632 | Step 7 domain grouping |
-| `outputs/measure_relations.csv` | 1,719 | Step 8 filtered bonus candidates |
+| `outputs/measures.csv` | 2,894 | Required assignment `M` |
+| `outputs/dimension_names.csv` | 359 | Required assignment `N` |
+| `outputs/dimension_values.csv` | 607 | Required assignment `A` |
+| `outputs/units.csv` | 261 | Required assignment `U` |
+| `outputs/other_ambiguous.csv` | 9,114 | Justified extra category |
+| `outputs/measure_clusters.csv` | 2,894 | Step 7 domain grouping |
+| `outputs/measure_relations.csv` | 30,695 | Step 8 bonus candidate graph |
 | `data/processed/knowledge_graph_nodes.parquet` | generated | Supplementary semantic graph nodes |
 | `data/processed/knowledge_graph_edges.parquet` | generated | Supplementary semantic graph edges |
 
-Final classification run: `run_75b90575bb9e48ce7918`.
+Active validated classification/artifact candidate: `run_75b90575bb9e48ce7918`.
+`report/core_release_manifest.json` is a current artifact snapshot, not a final frozen
+release tag.
 
 ## Pipeline Diagram
 
@@ -147,21 +151,34 @@ flowchart TB
 
 ## Product Demo
 
-The repository also includes a minimal journalism-search product. It is supplementary to the assignment submission.
+The repository also includes a grounded journalism-search product. It is supplementary
+to the assignment submission and should be read after the assignment outputs and report
+sections.
 
 ```bash
 docker compose up --build
 ```
 
-The FastAPI backend serves grounded search/evidence endpoints, and the React frontend lets a user search for relevant Eurostat source tables. The product does not answer numeric questions.
+The FastAPI backend serves grounded search/evidence, artifact, relation, graph, and
+review endpoints. The React frontend lets a user search for relevant Eurostat source
+tables, inspect vocabulary and relation artifacts, explore bounded graph neighborhoods,
+and perform human-loop review. The product does not answer numeric questions.
 
 The supplementary knowledge graph stage materializes table, term, category, cluster, and domain nodes plus provenance-backed edges. The API serves bounded graph neighborhoods for the React Cytoscape.js explorer rather than rendering the full graph by default.
 
 ## Known Limitations
 
 - Step-6 labels were completed through a rule-assisted repository audit; the duplicate relabel file is filled and agreement is reported, but it is not a fully independent second-human annotation study.
-- The local classifier is conservative: many uncertain measure-like terms are placed in `other_ambiguous`. The 250-row targeted reclaim audit is now labeled, but the latest gated classifier attempt did not satisfy the promotion gate and remains in a proposed run directory.
-- The refreshed clustering and relationship exports are structurally validated, and their 100-row manual review samples are completed in the current report metrics.
+- The active classifier is intentionally conservative: uncertain or conflicting terms
+  are placed in `other_ambiguous` rather than forced into required assignment files.
+  The 250-row targeted reclaim audit is labeled and is used as future improvement data;
+  the latest gated reclaim attempt did not satisfy the promotion gate.
+- The refreshed clustering export is structurally validated against the current
+  2,894-measure artifact set. Its current manual review sample is pending, while older
+  completed cluster-review figures are historical.
+- The refreshed relationship export contains 30,695 structurally valid candidates. Its
+  100-row manual review sample is completed and reported as a precision sample rather
+  than an exhaustive guarantee.
 - The 7,605-table full-corpus scale experiment has been started as an operational
   hardening exercise, but no full-scale semantic results are claimed. The full archive
   and extracted CSV cache are present locally, and ingestion has a completed checkpoint;

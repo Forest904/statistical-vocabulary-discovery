@@ -42,30 +42,31 @@ The classification command writes:
 ## Evaluation
 
 `report/classification_metrics.json` records completed audit-label metrics, duplicate relabel
-agreement, validation metrics, final-test metrics, and source-specific metrics for the random and
-targeted reclaim audits. The accepted local-hybrid export remains `run_75b90575bb9e48ce7918`.
+agreement, validation metrics, final-test metrics, and source-specific metrics for the random,
+targeted reclaim, and compiled human-loop sources. The active validated artifact candidate remains
+`run_75b90575bb9e48ce7918`.
 
 Headline random-audit results:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All random rows | 0.948 | 0.920 | 0.940 |
-| Random validation | 0.940 | 0.892 | 0.926 |
-| Random final test | 0.960 | 0.927 | 0.954 |
+| All random rows | 0.916 | 0.869 | 0.909 |
+| Random validation | 0.930 | 0.881 | 0.916 |
+| Random final test | 0.930 | 0.884 | 0.926 |
 
 Targeted reclaim diagnostic stress test:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All targeted rows | 0.084 | 0.031 | 0.013 |
+| All targeted rows | 0.204 | 0.121 | 0.196 |
 | Targeted validation | 0.020 | 0.008 | 0.001 |
-| Targeted final test | 0.000 | 0.000 | 0.000 |
+| Targeted final test | 0.100 | 0.051 | 0.164 |
 
-The targeted reclaim audit covers 250 newly completed rows sampled from terms previously assigned to
+The targeted reclaim audit covers 250 completed rows sampled from terms previously assigned to
 `other_ambiguous`. It is reported as a diagnostic stress test rather than the headline submission
-quality metric because it intentionally probes the accepted classifier's known conservative
-abstention behavior. The random duplicate relabel audit covers 50 rows, and the targeted duplicate
-relabel audit covers 25 rows; both report raw agreement `1.000` and Cohen's kappa `1.000`. Accepted
+quality metric because it intentionally probes the accepted classifier's conservative abstention
+behavior. The random duplicate relabel audit covers 50 rows, and the targeted duplicate relabel
+audit covers 25 rows; both report raw agreement `1.000` and Cohen's kappa `1.000`. Accepted
 hallucination count is `0`.
 
 ## Current Limitations
@@ -76,4 +77,5 @@ than a fully independent second-human annotation study. A gated reclaim run,
 `run_5f8127cf8e6be829b1ac`, was not promoted because it exceeded the random final-test macro-F1
 drop allowance (`0.036 > 0.020`), missed the targeted non-other precision floor
 (`0.714 < 0.850`), and reduced `other_ambiguous` by only `0.007 < 0.200`. Accepted outputs remain
-unchanged, and no `other_ambiguous` reduction is claimed.
+conservative, and no automatic `other_ambiguous` reduction is claimed. Human-loop review events are
+treated as continuous ground-truth expansion for future classifier versions, not as a one-time gate.

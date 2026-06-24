@@ -24,10 +24,10 @@ assignments are exported alongside the HDBSCAN artifacts for comparison.
 The clustering command writes:
 
 - `outputs/measure_clusters.csv`
-- `outputs/clustering/run_eb9d50c4e3e315dafd9d/agglomerative_baseline.csv`
-- `outputs/clustering/run_eb9d50c4e3e315dafd9d/domain_taxonomy.json`
-- `outputs/clustering/run_eb9d50c4e3e315dafd9d/manual_cluster_review_sample.csv`
-- `outputs/clustering/run_eb9d50c4e3e315dafd9d/clustering_summary.json`
+- `outputs/clustering/run_e1c656105fd6bcd3c088/agglomerative_baseline.csv`
+- `outputs/clustering/run_e1c656105fd6bcd3c088/domain_taxonomy.json`
+- `outputs/clustering/run_e1c656105fd6bcd3c088/manual_cluster_review_sample.csv`
+- `outputs/clustering/run_e1c656105fd6bcd3c088/clustering_summary.json`
 
 ## Evaluation
 
@@ -39,21 +39,21 @@ Current refreshed run:
 
 | Metric | Value |
 |---|---:|
-| Run ID | `run_eb9d50c4e3e315dafd9d` |
-| Measures | 632 |
-| HDBSCAN clusters | 35 |
-| Agglomerative baseline clusters | 42 |
-| Non-noise coverage | 0.574 |
-| Unclustered measures | 269 |
-| HDBSCAN stability proxy | 0.546 |
+| Run ID | `run_e1c656105fd6bcd3c088` |
+| Measures | 2,894 |
+| HDBSCAN clusters | 216 |
+| Agglomerative baseline clusters | 48 |
+| Non-noise coverage | 0.870 |
+| Unclustered measures | 376 |
+| HDBSCAN stability proxy | 0.828 |
 
 Manual review records coherence, domain-label quality, representative quality, and error examples.
-The current 100-row review is complete: mean coherence is `1.160`, coherent fraction is `0.690`,
-domain-label accuracy is `0.710`, and representative-good fraction is `0.470`.
+The current refreshed review sample is pending in `report/clustering_metrics.json`; older completed
+review figures are historical and should not be mixed with the 2,894-measure clustering export.
 
 ## Current Limitations
 
 The first implementation prioritizes reproducible artifacts and explicit review data over tuned
-cluster quality. The manual review shows useful coherent clusters, but also a large unclustered
-bucket and several domain-label misses where coherent clusters should be assigned to a more specific
-controlled domain.
+cluster quality. The refreshed export has high structural coverage but still leaves 376 measures
+unclustered and places many rows in `cross-domain or other`. The next improvement is to complete
+the refreshed manual review sample and tune domain-label thresholds from that evidence.

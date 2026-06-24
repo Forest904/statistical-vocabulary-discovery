@@ -1,7 +1,7 @@
 ---
 title: "STAR Statistic Vocabularies Parsing and Structuring"
 author: "Luca Foresti"
-date: "2026-06-09"
+date: "2026-06-24"
 ---
 
 # Repository Details & Overview
@@ -23,32 +23,36 @@ python -m pip install -e ".[dev,notebooks,ml,api]"
 
 External resources are recorded in `data/processed/resource_manifest.json` and summarized in `report/resource_register.md`. They include the STAR 2,000-table archive from Zenodo record `15681384`, the table-title catalog, Eurostat NUTS 2024 geography data, the Eurostat `GEO` codelist used by the enhanced geography variant, STAR retrieval resources, and the PEARL-small embedding model. Prompt templates are stored separately in `prompts/classify_term.md`, `prompts/label_cluster.md`, and `prompts/classify_relation.md`. Paid LLM calls are optional and disabled for the submitted core run.
 
-Final core run IDs:
+Current core run IDs and snapshots:
 
 | Stage | Run ID |
 |---|---|
-| Classification | `run_75b90575bb9e48ce7918` |
+| Active validated classification/artifact candidate | `run_75b90575bb9e48ce7918` |
 | Latest gated reclaim attempt | `run_5f8127cf8e6be829b1ac` |
-| Clustering | `run_eb9d50c4e3e315dafd9d` |
-| Relationships | `run_e6e523656ea9857ecac9` |
-| Search appendix | `run_c52b745f8105938306a7` |
+| Current clustering export | `run_e1c656105fd6bcd3c088` |
+| Current relationships export | `run_9431e98d07745bcef11d` |
+| Current search index | `run_391c6ea54050920593d9` |
+
+`report/core_release_manifest.json` is a current checksum snapshot of the professor-facing
+artifacts. It is not a final release tag; the final freeze remains future work after this
+consistency pass.
 
 Required assignment outputs:
 
 | Output | Count |
 |---|---:|
-| `outputs/measures.csv` | 632 |
-| `outputs/dimension_names.csv` | 365 |
-| `outputs/dimension_values.csv` | 548 |
-| `outputs/units.csv` | 214 |
+| `outputs/measures.csv` | 2,894 |
+| `outputs/dimension_names.csv` | 359 |
+| `outputs/dimension_values.csv` | 607 |
+| `outputs/units.csv` | 261 |
 
 Supplementary outputs:
 
 | Output | Count | Role |
 |---|---:|---|
-| `outputs/other_ambiguous.csv` | 7,812 | Justified extra category for unsafe terms |
-| `outputs/measure_clusters.csv` | 632 | Step 7 domain grouping |
-| `outputs/measure_relations.csv` | 1,719 | Step 8 filtered bonus candidate graph |
+| `outputs/other_ambiguous.csv` | 9,114 | Justified extra category for unsafe terms |
+| `outputs/measure_clusters.csv` | 2,894 | Step 7 domain grouping |
+| `outputs/measure_relations.csv` | 30,695 | Step 8 bonus candidate graph |
 
 # 1. Extraction of Time Intervals, `D(t)`
 
@@ -114,7 +118,7 @@ Code reference. Normalization is implemented in `src/statvocab/normalize.py`; vo
 
 # 6. Vocabulary Categorization and Partitioning
 
-Partitioning methodology. The required partition divides `V` into measures `M`, dimension names `N`, dimension values `A`, and unit information `U`. The submitted `local-hybrid` classifier combines protected high-precision rules, structural evidence features, PEARL-small embeddings, and a calibrated local classifier trained on completed audit labels. Low-confidence or conflicting model outputs abstain to `other_ambiguous`.
+Partitioning methodology. The required partition divides `V` into measures `M`, dimension names `N`, dimension values `A`, and unit information `U`. The active validated artifact candidate is `run_75b90575bb9e48ce7918`. It combines protected high-precision rules, structural evidence features, PEARL-small embeddings, and local model evidence, while routing low-confidence or conflicting outputs to `other_ambiguous`.
 
 Extended category. `other_ambiguous` is used because the assignment allows an extra category when needed. It contains fragmentary terms, conflicting evidence cases, and terms whose category would otherwise require unsafe inference. This category is not one of the four required output files, but it prevents low-confidence terms from polluting `M`, `N`, `A`, or `U`.
 
@@ -124,33 +128,33 @@ Artifact mapping:
 
 | Category | File | Count |
 |---|---|---:|
-| Measures `M` | `outputs/measures.csv` | 632 |
-| Dimension names `N` | `outputs/dimension_names.csv` | 365 |
-| Dimension values `A` | `outputs/dimension_values.csv` | 548 |
-| Units `U` | `outputs/units.csv` | 214 |
-| Other/ambiguous | `outputs/other_ambiguous.csv` | 7,812 |
+| Measures `M` | `outputs/measures.csv` | 2,894 |
+| Dimension names `N` | `outputs/dimension_names.csv` | 359 |
+| Dimension values `A` | `outputs/dimension_values.csv` | 607 |
+| Units `U` | `outputs/units.csv` | 261 |
+| Other/ambiguous | `outputs/other_ambiguous.csv` | 9,114 |
 
-Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, and `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The headline submission metrics use the random audit from `report/classification_metrics.json`:
+Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed random audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows, and the small compiled human-loop label set when present. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The headline submission metrics use the random audit slice from `report/classification_metrics.json`:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All random rows | 0.948 | 0.920 | 0.940 |
-| Random validation | 0.940 | 0.892 | 0.926 |
-| Random final test | 0.960 | 0.927 | 0.954 |
+| All random rows | 0.916 | 0.869 | 0.909 |
+| Random validation | 0.930 | 0.881 | 0.916 |
+| Random final test | 0.930 | 0.884 | 0.926 |
 
 The completed targeted reclaim audit is reported separately as a diagnostic stress test over terms previously assigned to `other_ambiguous`:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
-| All targeted rows | 0.084 | 0.031 | 0.013 |
+| All targeted rows | 0.204 | 0.121 | 0.196 |
 | Targeted validation | 0.020 | 0.008 | 0.001 |
-| Targeted final test | 0.000 | 0.000 | 0.000 |
+| Targeted final test | 0.100 | 0.051 | 0.164 |
 
-These diagnostic metrics are low because the accepted classifier still abstains heavily on reclaim candidates. They are not used as the headline submission metric.
+These diagnostic metrics are low because the accepted classifier still abstains heavily on reclaim candidates. That behavior is intentional: the current artifacts prefer high-precision assignment files over forcing ambiguous terms into `M`, `N`, `A`, or `U`.
 
-Targeted reclaim audit. To address the large `other_ambiguous` bucket without overclaiming, the repository now includes a completed targeted review: `data/gold/vocabulary_reclaim_sample.csv` and `data/gold/vocabulary_reclaim_labels.csv` contain 250 candidate terms, with 25 blind duplicate rows in `data/gold/vocabulary_reclaim_relabel.csv`. The sample targets title terms, title clauses, frequent metadata values, unit/range/digit metadata values, short codes, conflicts, and noise-like terms. A gated classifier attempt, `run_5f8127cf8e6be829b1ac`, was not promoted: random final-test macro-F1 dropped by `0.036 > 0.020`, targeted final-test non-other precision was `0.714 < 0.850`, and the `other_ambiguous` reduction was only `0.007 < 0.200`.
+Targeted reclaim and human loop. To address the large `other_ambiguous` bucket without overclaiming, the repository includes a completed targeted review: `data/gold/vocabulary_reclaim_sample.csv` and `data/gold/vocabulary_reclaim_labels.csv` contain 250 candidate terms, with 25 blind duplicate rows in `data/gold/vocabulary_reclaim_relabel.csv`. The human-loop review UI adds a continuous route for expanding ground truth and improving later classifier versions. A gated classifier attempt, `run_5f8127cf8e6be829b1ac`, was not promoted: random final-test macro-F1 dropped by `0.036 > 0.020`, targeted final-test non-other precision was `0.714 < 0.850`, and the `other_ambiguous` reduction was only `0.007 < 0.200`.
 
-Limitations. The completed labels were produced through repository audits rather than a fully independent second-human annotation study. Because the latest reclaim attempt failed the acceptance gate, accepted outputs remain unchanged and no reduction of `other_ambiguous` is claimed here.
+Limitations. The completed labels were produced through repository audits rather than a fully independent second-human annotation study. Because the latest reclaim attempt failed the acceptance gate, the accepted outputs remain conservative and no automatic reduction of `other_ambiguous` is claimed here.
 
 Code reference. Partition orchestration and acceptance gating are in `src/statvocab/classification.py`; deterministic rules are in `src/statvocab/classify_rules.py`; embedding support is in `src/statvocab/classify_embeddings.py`; targeted review sampling is in `src/statvocab/targeted_review.py`; optional LLM adjudication is in `src/statvocab/classify_llm.py`. Tests include `tests/test_classification_contracts.py`, `tests/test_classify_rules.py`, and `tests/test_grounding.py`.
 
@@ -160,25 +164,25 @@ Clustering approach. Step 7 starts from the final measures in `outputs/measures.
 
 Knowledge sourcing. Domain labels come from a controlled top-level domain vocabulary. For each non-noise cluster, representative measures nearest the cluster centroid are compared with embedded domain descriptions. A domain is assigned only when the best score clears the configured threshold and margin; otherwise the cluster is labeled `cross-domain or other`. Agglomerative clustering with cosine distance and average linkage is exported as a baseline.
 
-Outputs. The main clustering artifact is `outputs/measure_clusters.csv`. Supporting artifacts are in `outputs/clustering/run_eb9d50c4e3e315dafd9d/`: `agglomerative_baseline.csv`, `domain_taxonomy.json`, `manual_cluster_review_sample.csv`, and `clustering_summary.json`.
+Outputs. The main clustering artifact is `outputs/measure_clusters.csv`, which contains one row for each of the 2,894 current measures. Supporting artifacts for the current export are in `outputs/clustering/run_e1c656105fd6bcd3c088/`: `agglomerative_baseline.csv`, `domain_taxonomy.json`, `manual_cluster_review_sample.csv`, and `clustering_summary.json`.
 
 Quality evaluation. Current metrics from `report/clustering_metrics.json` are:
 
 | Metric | Value |
 |---|---:|
-| Measures | 632 |
-| HDBSCAN clusters | 35 |
-| Agglomerative baseline clusters | 42 |
-| Non-noise coverage | 0.574 |
-| Unclustered measures | 269 |
-| HDBSCAN stability proxy | 0.546 |
+| Measures | 2,894 |
+| HDBSCAN clusters | 216 |
+| Agglomerative baseline clusters | 48 |
+| Non-noise coverage | 0.870 |
+| Unclustered measures | 376 |
+| HDBSCAN stability proxy | 0.828 |
 | Validation passed | true |
 
-Domain distribution is conservative: `cross-domain or other` contains 414 measures. Large visible domains include economy and finance, transport, labour market, agriculture, education, and industry/trade/services.
+Domain distribution is conservative: `cross-domain or other` contains 1,333 measures. Large visible domains include economy and finance, population and demography, labour market, agriculture, health, education, transport, and industry/trade/services.
 
-Manual review status. The 100-row manual cluster-review file at `outputs/clustering/run_eb9d50c4e3e315dafd9d/manual_cluster_review_sample.csv` is complete. It reports mean coherence `1.160`, coherent fraction `0.690`, strongly coherent fraction `0.470`, domain-label accuracy `0.710`, and representative-good fraction `0.470`.
+Manual review status. The current manual cluster-review file is `outputs/clustering/run_e1c656105fd6bcd3c088/manual_cluster_review_sample.csv`. It is pending in `report/clustering_metrics.json`, so the current report claims structural validation and coverage, not completed human coherence scoring for this refreshed clustering export. Earlier completed cluster-review figures belong to older measure sets and are treated as historical.
 
-Limitations. The manual cluster review confirms useful coherent clusters, but it also surfaces a large unclustered bucket and several domain-label misses where coherent clusters should map to a more specific controlled domain.
+Limitations. The current clustering covers most measures but still leaves 376 measures unclustered and routes many assignments to `cross-domain or other`. The next quality step is to complete review on the refreshed sample and use that evidence to tune domain labels.
 
 Code reference. Measure clustering, baseline export, domain labeling, and manual-review sampling are implemented in `src/statvocab/cluster_measures.py`. Manual-review metric parsing is implemented in `src/statvocab/clustering_evaluate.py`; tests are in `tests/test_cluster_measures.py`.
 
@@ -190,17 +194,17 @@ Exported relationship types:
 
 | Type | Count |
 |---|---:|
-| `broader_than` | 442 |
-| `related_to` | 1,275 |
-| `variant_of` | 2 |
+| `broader_than` | 16,382 |
+| `related_to` | 13,482 |
+| `variant_of` | 831 |
 
 `narrower_than` is represented by reading a `broader_than` edge in the inverse direction, so it is not duplicated as a separate row in `outputs/measure_relations.csv`.
 
-Quality evaluation. `report/relations_metrics.json` reports 1,719 submitted candidate relationships and successful structural validation. The full 5,628 accepted pre-filter candidates are preserved in `outputs/relations/run_e6e523656ea9857ecac9/accepted_relations_full.csv`, while the submitted `outputs/measure_relations.csv` keeps all hierarchy/variant edges and only `related_to` edges with confidence at least `0.70`. Every submitted relation references known final measures, avoids self-relations, avoids duplicate unordered pairs, has an allowed relation type, and includes evidence and confidence fields. Submitted confidence bands are 1,510 candidates from `0.70` to `0.84` and 209 from `0.85` to `1.00`.
+Quality evaluation. `report/relations_metrics.json` reports 30,695 submitted candidate relationships and successful structural validation. The current generation run is `run_9431e98d07745bcef11d`; it generated 45,351 candidates and exported the 30,695 accepted relations in `outputs/measure_relations.csv`. Every submitted relation references known final measures, avoids self-relations, avoids duplicate unordered pairs, has an allowed relation type, and includes evidence and confidence fields. Submitted confidence bands include 26,832 candidates from `0.70` to `0.84` and 3,749 from `0.85` to `1.00`.
 
 LLM guardrails. Optional LLM relationship adjudication is scaffolded through `prompts/classify_relation.md` and disabled by default. The prompt requires existing endpoint IDs, controlled relation types, evidence-ID membership, self-relation rejection, and strict JSON.
 
-Manual review status. The 100-row manual relation-review file is `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv` and is complete. It reports precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, typed accuracy `0.888`, and a false-positive taxonomy dominated by generic qualifier and denominator-fragment matches.
+Manual review status. The 100-row manual relation-review file is `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv` and is complete. It reports precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, typed accuracy `0.888`, and a false-positive taxonomy dominated by generic qualifier and denominator-fragment matches. The completed sample is used as relation-quality evidence for the broader current relation method; the structural validator covers the refreshed 30,695-row export.
 
 Limitations. The accepted relation graph is structurally valid and manually sampled, but some broad `related_to` edges and lexical-containment false positives remain. Generic qualifier handling and hierarchy rules are the clearest next tightening points.
 
@@ -247,20 +251,25 @@ statvocab classify --config configs/core.yaml --variant local-hybrid
 statvocab cluster-measures --config configs/core.yaml
 statvocab relations --config configs/core.yaml
 statvocab build-search-index --config configs/core.yaml
+statvocab evaluate --config configs/evaluation.yaml --area classification
+statvocab evaluate --config configs/evaluation.yaml --area clustering
+statvocab evaluate --config configs/evaluation.yaml --area relations
+statvocab benchmark-core --config configs/core.yaml
 ```
 
 Validate the submitted artifacts:
 
 ```bash
 pytest tests/test_notebooks.py
-statvocab validate-artifacts --run-id run_75b90575bb9e48ce7918
+statvocab validate-artifacts --config configs/core.yaml --run-id run_75b90575bb9e48ce7918
+statvocab validate-core-release --config configs/core.yaml
 ```
 
-## E. Supplementary Search and Knowledge Graph
+## E. Supplementary Product: Search, API, Graph, and Review
 
-The search and knowledge-graph features are supplementary and not central assignment deliverables. The search engine builds one document per source table, returns ranked Eurostat tables with evidence, and does not answer numeric questions. The knowledge graph materializes bounded table, term, category, cluster, and domain neighborhoods for inspection.
+The search, API, React UI, graph explorer, and review page are supplementary product work and are intentionally presented after the assignment deliverables. The search engine builds one document per source table, returns ranked Eurostat tables with evidence, and does not answer numeric questions. The FastAPI backend exposes grounded search, artifact, relation, graph, and review endpoints; the React frontend provides table search, vocabulary inspection, domain and relation views, a bounded Cytoscape.js graph explorer, and a human-loop review surface.
 
-Retrieval metrics are in `report/retrieval_metrics.json`; the refreshed search-index run is `run_c52b745f8105938306a7`.
+Retrieval metrics are in `report/retrieval_metrics.json`; the current search-index run is `run_391c6ea54050920593d9`. Review events are continuous improvement data: they expand ground truth for future classifier and relation iterations, but they are not treated as a one-time gate for the submitted assignment artifacts.
 
 Local demo command:
 

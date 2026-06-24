@@ -34,7 +34,7 @@
   "config_name": "core",
   "corpus": "core",
   "expected_table_count": 2000,
-  "peak_rss_bytes": 70443008,
+  "peak_rss_bytes": 70475776,
   "selected_config": {
     "classification_embedding_batch_size": 64,
     "extraction_parallel_chunk_size": 25,
