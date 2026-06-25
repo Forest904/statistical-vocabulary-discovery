@@ -4,16 +4,13 @@ from __future__ import annotations
 
 import csv
 import json
-import math
 import sys
 import textwrap
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_DIR = ROOT / "report"
@@ -202,7 +199,10 @@ def assignment_pipeline() -> Path:
     ax.text(
         0.5,
         0.900,
-        "Every figure and metric in the report is derived from the validated core corpus artifacts.",
+        (
+            "Every figure and metric in the report is derived from the "
+            "validated core corpus artifacts."
+        ),
         ha="center",
         va="center",
         fontsize=9,
@@ -219,13 +219,43 @@ def repo_architecture() -> Path:
 
     groups = [
         ((0.05, 0.68), "Inputs", "STAR tables\nTitles\nNUTS/GEO\nGold labels", BLUE),
-        ((0.31, 0.68), "Core Package", "resources/ingest\nextract/vocabulary\nclassify/cluster\nrelations/search", TEAL),
-        ((0.58, 0.68), "Artifacts", "Parquet tables\nRequired CSVs\nMetrics JSON\nSearch indexes", GREEN),
-        ((0.58, 0.37), "Product Layer", "FastAPI routes\nReact pages\nGraph explorer\nReview UI", GOLD),
-        ((0.31, 0.37), "Evaluation", "Extraction audit\nClassification gold\nCluster review\nRelation review", ROSE),
-        ((0.05, 0.37), "Reproducibility", "configs/*.yaml\nrun manifests\ncore release manifest\ntests", DARK),
+        (
+            (0.31, 0.68),
+            "Core Package",
+            "resources/ingest\nextract/vocabulary\nclassify/cluster\nrelations/search",
+            TEAL,
+        ),
+        (
+            (0.58, 0.68),
+            "Artifacts",
+            "Parquet tables\nRequired CSVs\nMetrics JSON\nSearch indexes",
+            GREEN,
+        ),
+        (
+            (0.58, 0.37),
+            "Product Layer",
+            "FastAPI routes\nReact pages\nGraph explorer\nReview UI",
+            GOLD,
+        ),
+        (
+            (0.31, 0.37),
+            "Evaluation",
+            "Extraction audit\nClassification gold\nCluster review\nRelation review",
+            ROSE,
+        ),
+        (
+            (0.05, 0.37),
+            "Reproducibility",
+            "configs/*.yaml\nrun manifests\ncore release manifest\ntests",
+            DARK,
+        ),
         ((0.31, 0.08), "Report", "Final PDF\nFigures\nLimitations\nFuture scale work", BLUE),
-        ((0.58, 0.08), "Engineering Surface", "CLI commands\nDocker compose\nnotebooks\nCI-ready tests", TEAL),
+        (
+            (0.58, 0.08),
+            "Engineering Surface",
+            "CLI commands\nDocker compose\nnotebooks\nlocal tests",
+            TEAL,
+        ),
     ]
     for xy, title, body, color in groups:
         _draw_box(ax, xy, (0.21, 0.18), title, body, color=color, body_size=7)
@@ -253,7 +283,10 @@ def repo_architecture() -> Path:
     ax.text(
         0.5,
         0.928,
-        "The project separates reproducible research artifacts from the supplementary product surface.",
+        (
+            "The project separates reproducible research artifacts from the "
+            "supplementary product surface."
+        ),
         ha="center",
         va="center",
         fontsize=9,
@@ -293,7 +326,10 @@ def category_partition() -> Path:
     ax.text(
         0.0,
         -0.20,
-        "The conservative Other bucket prevents low-confidence terms from polluting required files.",
+        (
+            "The conservative Other bucket prevents low-confidence terms from "
+            "polluting required files."
+        ),
         transform=ax.transAxes,
         ha="left",
         color=GRAY,
@@ -310,8 +346,16 @@ def classification_metrics() -> Path:
         ("Random audit", metrics["source_metrics"]["random_sample"]),
         ("Targeted reclaim", metrics["targeted_reclaim_metrics"]),
     ]
-    metric_names = [("accuracy", "Accuracy"), ("macro_f1", "Macro-F1"), ("weighted_f1", "Weighted-F1")]
-    split_names = [("metrics", "All"), ("validation_metrics", "Validation"), ("final_test_metrics", "Final test")]
+    metric_names = [
+        ("accuracy", "Accuracy"),
+        ("macro_f1", "Macro-F1"),
+        ("weighted_f1", "Weighted-F1"),
+    ]
+    split_names = [
+        ("metrics", "All"),
+        ("validation_metrics", "Validation"),
+        ("final_test_metrics", "Final test"),
+    ]
     fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.8), sharey=True)
     colors = [BLUE, TEAL, GOLD]
     x = range(len(metric_names))
@@ -331,11 +375,18 @@ def classification_metrics() -> Path:
     axes[1].legend(loc="upper right", frameon=False)
     for text in axes[1].get_legend().get_texts():
         text.set_fontweight("bold")
-    fig.suptitle("Classification Quality: Headline Audit vs. Stress Test", fontweight="bold", y=1.02)
+    fig.suptitle(
+        "Classification Quality: Headline Audit vs. Stress Test",
+        fontweight="bold",
+        y=1.02,
+    )
     fig.text(
         0.05,
         -0.02,
-        "The random audit is the headline submission metric; targeted reclaim intentionally probes hard Other cases.",
+        (
+            "The random audit is the headline submission metric; targeted "
+            "reclaim intentionally probes hard Other cases."
+        ),
         color=GRAY,
         fontsize=9,
         fontweight="bold",
@@ -467,7 +518,10 @@ def pipeline_runtime() -> Path:
     ax.text(
         0.0,
         -0.20,
-        f"Measured on the local core run; chart excludes interactive review time. Total shown: {total:.1f}s.",
+        (
+            "Measured on the local core run; chart excludes interactive "
+            f"review time. Total shown: {total:.1f}s."
+        ),
         transform=ax.transAxes,
         ha="left",
         color=GRAY,
