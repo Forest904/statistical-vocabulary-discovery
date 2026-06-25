@@ -47,6 +47,8 @@ Required assignment outputs:
 | `outputs/dimension_values.csv` | 607 |
 | `outputs/units.csv` | 261 |
 
+The assignment's space-separated filename wording is also supported through convenience aliases: `outputs/dimension names.csv` mirrors `outputs/dimension_names.csv`, and `outputs/dimension values.csv` mirrors `outputs/dimension_values.csv`. The underscore-named files remain the canonical validated artifacts.
+
 Supplementary outputs:
 
 | Output | Count | Role |
@@ -149,7 +151,7 @@ Artifact mapping:
 {\small\textbf{Figure 2.} Submitted vocabulary partition, including the justified extra \texttt{other\_ambiguous} bucket.}
 \end{center}
 
-Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed random audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows, and the small compiled human-loop label set when present. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The headline submission metrics use the random audit slice from `report/classification_metrics.json`:
+Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed random audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows, and the small compiled human-loop label set when present. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The random audit estimates quality of the submitted conservative partition; targeted reclaim is a stress test over terms the system intentionally abstains on. The headline submission metrics use the random audit slice from `report/classification_metrics.json`:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
 |---|---:|---:|---:|
@@ -248,7 +250,7 @@ Quality evaluation. `report/relations_metrics.json` reports 30,695 submitted can
 
 LLM guardrails. Optional LLM relationship adjudication is scaffolded through `prompts/classify_relation.md` and disabled by default. The prompt requires existing endpoint IDs, controlled relation types, evidence-ID membership, self-relation rejection, and strict JSON.
 
-Manual review status. The 100-row manual relation-review file is `outputs/relations/run_e6e523656ea9857ecac9/manual_relation_review_sample.csv` and is complete. It reports precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, typed accuracy `0.888`, and a false-positive taxonomy dominated by generic qualifier and denominator-fragment matches. The completed sample is used as relation-quality evidence for the broader current relation method; the structural validator covers the refreshed 30,695-row export.
+Manual review status. The 100-row manual relation-review sample in the `run_e6e523656ea9857ecac9` relations directory is complete. It reports precision@10 `1.000`, precision@25 `1.000`, precision@50 `0.960`, precision@100 `0.890`, typed accuracy `0.888`, and a false-positive taxonomy dominated by generic qualifier and denominator-fragment matches. The completed sample is used as relation-quality evidence for the broader current relation method; the structural validator covers the refreshed 30,695-row export.
 
 Limitations. The accepted relation graph is structurally valid and manually sampled, but some broad `related_to` edges and lexical-containment false positives remain. Generic qualifier handling and hierarchy rules are the clearest next tightening points.
 

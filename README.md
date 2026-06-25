@@ -9,6 +9,10 @@ This repository is organized as an academic submission for the STAR statistical-
 - `outputs/dimension_values.csv`
 - `outputs/units.csv`
 
+For graders following the assignment's space-separated wording, convenience aliases
+`outputs/dimension names.csv` and `outputs/dimension values.csv` mirror the canonical
+underscore-named files.
+
 Supplementary outputs include `outputs/other_ambiguous.csv`, `outputs/measure_clusters.csv`, `outputs/measure_relations.csv`, notebooks, and a formal report in `report/final_report.md` / `report/final_report.pdf`.
 
 ## Assignment Reading Order
@@ -96,6 +100,8 @@ statvocab validate-core-release --config configs/core.yaml
 | `outputs/dimension_names.csv` | 359 | Required assignment `N` |
 | `outputs/dimension_values.csv` | 607 | Required assignment `A` |
 | `outputs/units.csv` | 261 | Required assignment `U` |
+| `outputs/dimension names.csv` | 359 | Convenience alias for assignment wording |
+| `outputs/dimension values.csv` | 607 | Convenience alias for assignment wording |
 | `outputs/other_ambiguous.csv` | 9,114 | Justified extra category |
 | `outputs/measure_clusters.csv` | 2,894 | Step 7 domain grouping |
 | `outputs/measure_relations.csv` | 30,695 | Step 8 bonus candidate graph |
