@@ -4,6 +4,13 @@ author: "Luca Foresti"
 date: "2026-06-25"
 header-includes:
   - \usepackage{graphicx}
+  - \usepackage[margin=0.75in]{geometry}
+  - \usepackage{microtype}
+  - \usepackage{xurl}
+  - \usepackage{fvextra}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+  - \emergencystretch=3em
+  - \sloppy
 ---
 
 # Repository Details & Overview
