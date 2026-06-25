@@ -1,2 +1,4 @@
 term_id,canonical_term,matching_key,split,stratum,table_count,occurrence_count,role_summary_json,feature_summary_json,category,annotator_id,notes,audit_source,target_cohort,task_type,task_id
+term_157fd359cb0da660e5a2,Total economy,,train_dev,human_loop,,,{},{},dimension_value,local_user,,human_loop,measure_vs_breakdown,measure_vs_breakdown,review_e700d8a61a2e6e001a3b
+term_33d0049feaa36a771e62,Quarterly,,train_dev,human_loop,,,{},{},dimension_value,local_user,,human_loop,measure_vs_breakdown,measure_vs_breakdown,review_d110d6e68d525deca5d8
 term_b3b729376725e160a6ef,Annual,,train_dev,human_loop,,,{},{},dimension_value,local_user,,human_loop,measure_vs_breakdown,measure_vs_breakdown,review_7afe7847d39a7151d70c_qc

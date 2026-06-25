@@ -108,7 +108,7 @@
   "gold_sample": "data\\gold\\vocabulary_gold_sample.csv",
   "gold_status": "available",
   "metrics": {
-    "accuracy": 0.6790945406125166,
+    "accuracy": 0.6799468791500664,
     "confusion_matrix": {
       "dimension_name": {
         "dimension_name": 84,
@@ -119,7 +119,7 @@
       },
       "dimension_value": {
         "dimension_name": 0,
-        "dimension_value": 59,
+        "dimension_value": 61,
         "measure": 0,
         "other_ambiguous": 72,
         "unit": 0
@@ -146,8 +146,8 @@
         "unit": 19
       }
     },
-    "gold_count": 751,
-    "macro_f1": 0.6409423016190954,
+    "gold_count": 753,
+    "macro_f1": 0.6425865758667317,
     "missing_predictions": [],
     "per_class": {
       "dimension_name": {
@@ -157,10 +157,10 @@
         "support": 86
       },
       "dimension_value": {
-        "f1": 0.5539906103286385,
-        "precision": 0.7195121951219512,
-        "recall": 0.45038167938931295,
-        "support": 131
+        "f1": 0.5622119815668203,
+        "precision": 0.7261904761904762,
+        "recall": 0.45864661654135336,
+        "support": 133
       },
       "measure": {
         "f1": 0.24719101123595508,
@@ -181,8 +181,8 @@
         "support": 37
       }
     },
-    "scored_count": 751,
-    "weighted_f1": 0.6290979290641513
+    "scored_count": 753,
+    "weighted_f1": 0.630350555541186
   },
   "promotion_gate_summary": {
     "random_final_macro_f1": 0.8842242242242243,
@@ -283,7 +283,7 @@
           },
           "dimension_value": {
             "dimension_name": 0,
-            "dimension_value": 1,
+            "dimension_value": 3,
             "measure": 0,
             "other_ambiguous": 0,
             "unit": 0
@@ -310,7 +310,7 @@
             "unit": 0
           }
         },
-        "gold_count": 1,
+        "gold_count": 3,
         "macro_f1": 0.2,
         "missing_predictions": [],
         "per_class": {
@@ -324,7 +324,7 @@
             "f1": 1.0,
             "precision": 1.0,
             "recall": 1.0,
-            "support": 1
+            "support": 3
           },
           "measure": {
             "f1": 0.0,
@@ -345,7 +345,7 @@
             "support": 0
           }
         },
-        "scored_count": 1,
+        "scored_count": 3,
         "weighted_f1": 1.0
       },
       "validation_metrics": {
