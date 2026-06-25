@@ -1,0 +1,81 @@
+{
+  "acceptance_gate": {
+    "accepted": false,
+    "baseline_other_ambiguous": 9114,
+    "baseline_random_final_macro_f1": 0.8842242242242243,
+    "baseline_targeted_final_macro_f1": 0.05128205128205129,
+    "baseline_targeted_measure_recall": 0.0,
+    "candidate_other_ambiguous": 9114,
+    "candidate_random_final_macro_f1": 0.8842242242242243,
+    "candidate_targeted_final_macro_f1": 0.05128205128205129,
+    "candidate_targeted_measure_recall": 0.0,
+    "other_reduction_fraction": 0.0,
+    "reasons": [
+      "targeted final-test non-other precision 0.7142857142857143 below 0.85",
+      "targeted reclaim macro-F1 did not improve baseline=0.051 candidate=0.051",
+      "other_ambiguous reduction 0.000 below 0.200",
+      "targeted measure recall 0.000 below 0.350",
+      "targeted measure recall did not improve baseline=0.000 candidate=0.000"
+    ],
+    "source_metrics_available": true,
+    "targeted_final_non_other_precision": 0.7142857142857143
+  },
+  "accepted_hallucination_count": 0,
+  "category_counts": {
+    "dimension_name": 359,
+    "dimension_value": 607,
+    "measure": 2894,
+    "other_ambiguous": 9114,
+    "unit": 261
+  },
+  "exports_promoted": false,
+  "metrics_status": "available",
+  "model_selection": {
+    "max_negative_dimension_score": 0.35,
+    "measure_acceptance_min_score": 0.7,
+    "measure_context_features_enabled": false,
+    "measure_context_features_path": null,
+    "measure_threshold": 0.45,
+    "measure_vote_min_agreement": 2,
+    "non_other_threshold": 0.45,
+    "reason": "selected on validation macro-F1 with non-other precision floor",
+    "semantic_features_enabled": false,
+    "semantic_override_min_centroid_score": 0.72,
+    "semantic_override_min_margin": 0.015,
+    "semantic_override_min_neighbor_vote": 0.6,
+    "semantic_override_mode": "centroid-and-neighbor",
+    "semantic_promotion_rejection_reasons": {},
+    "threshold": 0.45,
+    "timing": {
+      "calibration_sweep_seconds": 0.024054599984083325,
+      "context_feature_seconds": 2.00001522898674e-07,
+      "embedding_seconds": 55.50993059994653,
+      "full_prediction_seconds": 0.14320009999210015,
+      "model_fit_seconds": 2.5749562999699265,
+      "probability_seconds": 0.08603099995525554,
+      "semantic_feature_seconds": 1.9000144675374031e-06
+    },
+    "validation_macro_f1": 0.7530054644808744,
+    "validation_measure_recall": 0.05172413793103448,
+    "validation_non_other_precision": 1.0,
+    "validation_objective_score": 0.9239824759751273,
+    "validation_promotion_proxy_eligible": false,
+    "weak_supervision_vote_summary": {
+      "average_measure_vote_count": 0.0,
+      "average_negative_vote_count": 0.0,
+      "label_counts": {}
+    }
+  },
+  "prediction_count": 13235,
+  "run_id": "run_d96fee3c3c6166fddbac",
+  "timing": {
+    "calibration_sweep_seconds": 0.024054599984083325,
+    "context_feature_seconds": 2.00001522898674e-07,
+    "embedding_seconds": 55.50993059994653,
+    "full_prediction_seconds": 0.14320009999210015,
+    "model_fit_seconds": 2.5749562999699265,
+    "probability_seconds": 0.08603099995525554,
+    "semantic_feature_seconds": 1.9000144675374031e-06
+  },
+  "variant": "local-hybrid"
+}

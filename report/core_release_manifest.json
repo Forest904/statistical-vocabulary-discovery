@@ -1,4 +1,7 @@
 {
+  "category_export_run_ids": [
+    "run_42d33d7967059d3e8f22"
+  ],
   "config_fingerprint": "cfg_eac3564ddc996f119f0b78c4200748d5",
   "config_summary": {
     "config_name": "core",
@@ -44,13 +47,13 @@
     },
     {
       "exists": true,
-      "md5": "3c3b814f7449cbcc57657d946655ddd5",
+      "md5": "7633f53f399fa80ae3545c69a806e903",
       "path": "outputs\\measure_relations.csv",
       "size_bytes": 17702469
     },
     {
       "exists": true,
-      "md5": "de3e8e2bb6e16121ddf72778baa64de5",
+      "md5": "76f84b9d0ef5790c33ca4a197d6997b7",
       "path": "outputs\\search\\current_index.json",
       "size_bytes": 460
     },
@@ -62,45 +65,45 @@
     },
     {
       "exists": true,
-      "md5": "079db3a1f43ac60ac07d965ef0847a9b",
+      "md5": "0944046c90185931a8ace93e9c3c3498",
       "path": "data\\processed\\table_times.parquet",
       "size_bytes": 702314
     },
     {
       "exists": true,
-      "md5": "acc2bbc4d6dfebc641bd8a45630ec429",
+      "md5": "e68766be1bf40640dbc1f4af4690523e",
       "path": "data\\processed\\table_strings.parquet",
       "size_bytes": 28837977
     },
     {
       "exists": true,
-      "md5": "7cec82101c8f974cf32cea8d80fe7973",
+      "md5": "e0d92a6dad1aa27bbc6c20d1cbb86472",
       "path": "data\\processed\\table_geographies.parquet",
       "size_bytes": 6878518
     },
     {
       "exists": true,
-      "md5": "665149349fccbf41dc36686e9f387ceb",
+      "md5": "a62e20db3c1eef619ba5c81c7d1f250e",
       "path": "data\\processed\\title_terms.parquet",
       "size_bytes": 556783
     },
     {
       "exists": true,
-      "md5": "0494507846396bfd3c9702085806ddba",
+      "md5": "0e5fc867ff72e5fbbcaa3998f3a01249",
       "path": "data\\processed\\term_occurrences.parquet",
       "size_bytes": 21933598
     },
     {
       "exists": true,
-      "md5": "d50ff91596346baf4b0382a818bb17d5",
+      "md5": "ae41b71a3d9d4c7c0bfda4a9f69d887a",
       "path": "data\\processed\\table_vocabulary.parquet",
       "size_bytes": 18749725
     },
     {
       "exists": true,
-      "md5": "528bdc0f316f0d46a769315cc89d3538",
+      "md5": "8a6518488508547c7f6557d8afa2de13",
       "path": "data\\processed\\vocabulary.parquet",
-      "size_bytes": 17925680
+      "size_bytes": 17925650
     },
     {
       "exists": true,
@@ -116,34 +119,34 @@
     },
     {
       "exists": true,
-      "md5": "21a39f9e11a12573c41aed50440fe8f1",
+      "md5": "29d1f60eeff67b2c2a9636756898e3f3",
       "path": "report\\clustering_metrics.json",
-      "size_bytes": 17594
+      "size_bytes": 20311
     },
     {
       "exists": true,
-      "md5": "5a60c336303503e0f026512d2ef6fb8a",
+      "md5": "01615c4115bce1a1f609a81dfeb77082",
       "path": "report\\relations_metrics.json",
-      "size_bytes": 2217
+      "size_bytes": 2210
     },
     {
       "exists": true,
-      "md5": "6fcadca9381a69d3061fe20d5d132fcf",
+      "md5": "d510a43ad23d2c27680ba1378453d1eb",
       "path": "report\\retrieval_metrics.json",
-      "size_bytes": 6577
+      "size_bytes": 6571
     },
     {
       "exists": true,
-      "md5": "813c2ca3afa6c3c76357aa99e9b901d2",
+      "md5": "f4f6eba32e787320d0617466197da0ef",
       "path": "report\\final_report.md",
-      "size_bytes": 24144
+      "size_bytes": 24567
     },
     {
       "exists": true,
-      "md5": "da6a51cb177bf244b0ec16826608c448",
+      "md5": "69a8ac667d0e9a1c85f40212b8d20763",
       "path": "report\\final_report.pdf",
-      "size_bytes": 62191
+      "size_bytes": 63047
     }
   ],
-  "run_id": "run_75b90575bb9e48ce7918"
+  "run_id": "run_42d33d7967059d3e8f22"
 }

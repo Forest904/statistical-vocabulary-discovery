@@ -18,7 +18,7 @@ Supplementary outputs include `outputs/other_ambiguous.csv`, `outputs/measure_cl
 3. Validate the required CSVs with:
 
 ```bash
-statvocab validate-artifacts --config configs/core.yaml --run-id run_75b90575bb9e48ce7918
+statvocab validate-artifacts --config configs/core.yaml --run-id run_42d33d7967059d3e8f22
 ```
 
 The report follows the assignment numbering exactly:
@@ -72,11 +72,11 @@ statvocab cluster-measures --config configs/core.yaml
 statvocab relations --config configs/core.yaml
 statvocab build-knowledge-graph --config configs/core.yaml
 statvocab build-search-index --config configs/core.yaml
-statvocab evaluate --config configs/evaluation.yaml --area extraction
-statvocab evaluate --config configs/evaluation.yaml --area classification
-statvocab evaluate --config configs/evaluation.yaml --area clustering
-statvocab evaluate --config configs/evaluation.yaml --area relations
-statvocab evaluate --config configs/evaluation.yaml --area retrieval
+statvocab evaluate --config configs/core.yaml --area extraction
+statvocab evaluate --config configs/core.yaml --area classification
+statvocab evaluate --config configs/core.yaml --area clustering
+statvocab evaluate --config configs/core.yaml --area relations
+statvocab evaluate --config configs/core.yaml --area retrieval
 ```
 
 Final local validation:
@@ -84,7 +84,7 @@ Final local validation:
 ```bash
 pytest tests/test_notebooks.py
 pytest tests/test_classification_contracts.py tests/test_grounding.py tests/test_relations.py tests/test_notebooks.py
-statvocab validate-artifacts --config configs/core.yaml --run-id run_75b90575bb9e48ce7918
+statvocab validate-artifacts --config configs/core.yaml --run-id run_42d33d7967059d3e8f22
 statvocab validate-core-release --config configs/core.yaml
 ```
 
@@ -102,9 +102,11 @@ statvocab validate-core-release --config configs/core.yaml
 | `data/processed/knowledge_graph_nodes.parquet` | generated | Supplementary semantic graph nodes |
 | `data/processed/knowledge_graph_edges.parquet` | generated | Supplementary semantic graph edges |
 
-Active validated classification/artifact candidate: `run_75b90575bb9e48ce7918`.
-`report/core_release_manifest.json` is a current artifact snapshot, not a final frozen
-release tag.
+Submitted validated category export: `run_42d33d7967059d3e8f22`.
+Latest local-hybrid rerun: `run_d96fee3c3c6166fddbac`; it validated but did not
+replace the conservative submitted CSVs because the targeted reclaim promotion gate
+did not improve. `report/core_release_manifest.json` is the frozen checksum snapshot
+of the current professor-facing artifacts.
 
 ## Pipeline Diagram
 
@@ -174,13 +176,12 @@ The supplementary knowledge graph stage materializes table, term, category, clus
   The 250-row targeted reclaim audit is labeled and is used as future improvement data;
   the latest gated reclaim attempt did not satisfy the promotion gate.
 - The refreshed clustering export is structurally validated against the current
-  2,894-measure artifact set. Its current manual review sample is pending, while older
-  completed cluster-review figures are historical.
+  2,894-measure artifact set. The current 217-row manual review sample is complete:
+  mean coherence is 1.226 on a 0-2 scale, 66.8% of reviewed assignments are at least
+  coherent, and domain-label accuracy is 55.8%.
 - The refreshed relationship export contains 30,695 structurally valid candidates. Its
   100-row manual review sample is completed and reported as a precision sample rather
   than an exhaustive guarantee.
-- The 7,605-table full-corpus scale experiment has been started as an operational
-  hardening exercise, but no full-scale semantic results are claimed. The full archive
-  and extracted CSV cache are present locally, and ingestion has a completed checkpoint;
-  extraction and downstream scale stages remain pending until the hardened resume audit
-  passes.
+- The 7,605-table full-corpus experiment is explicitly future scale work for cloud or
+  larger local hardware. The submitted academic benchmark is the complete, validated
+  2,000-table subset; no full-corpus semantic results are claimed.

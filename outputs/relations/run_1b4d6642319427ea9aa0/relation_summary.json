@@ -1,0 +1,37 @@
+{
+  "accepted_count": 30695,
+  "all_pair_count": 4186171,
+  "candidate_count": 45351,
+  "candidate_generation_seconds": 0.8068685999605805,
+  "candidate_pair_generation_seconds": 15.485115599934943,
+  "confidence_bands": {
+    "0.00-0.69": 114,
+    "0.70-0.84": 26832,
+    "0.85-1.00": 3749
+  },
+  "dedupe_seconds": 0.26324940007179976,
+  "embedding_seconds": 1.6954650999978185,
+  "full_accepted_count": 45351,
+  "generation_method_distribution": {
+    "domains": 13482,
+    "embedding_similarity": 13482,
+    "lexical_containment": 16382,
+    "lexical_variant": 831,
+    "qualifier_patterns": 16382,
+    "title_family": 831
+  },
+  "llm_adjudication_enabled": false,
+  "max_candidates_per_measure": 25,
+  "rejection_distribution": {},
+  "relation_candidates_per_second": 2371.020244655765,
+  "relation_type_distribution": {
+    "broader_than": 16382,
+    "related_to": 13482,
+    "variant_of": 831
+  },
+  "run_id": "run_1b4d6642319427ea9aa0",
+  "semantic_neighbor_k": 50,
+  "submitted_related_confidence_threshold": 0.7,
+  "topk_pair_count": 97733,
+  "wall_clock_seconds": 19.12720910005737
+}

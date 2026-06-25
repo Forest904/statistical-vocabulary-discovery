@@ -75,6 +75,21 @@ def _file_record(path: Path) -> dict[str, Any]:
     }
 
 
+def _current_category_export_run_ids(config: AppConfig) -> list[str]:
+    """Return run IDs recorded in the current top-level category CSV exports."""
+
+    run_ids: set[str] = set()
+    for filename in CSV_BY_CATEGORY.values():
+        path = config.paths.outputs_dir / filename
+        if not path.exists():
+            continue
+        for row in _read_csv(path):
+            run_id = row.get("run_id", "").strip()
+            if run_id:
+                run_ids.add(run_id)
+    return sorted(run_ids)
+
+
 def write_core_release_manifest(
     config: AppConfig,
     *,
@@ -85,10 +100,12 @@ def write_core_release_manifest(
     if config.corpus.name != "core":
         raise ValueError("Core release manifests must be generated with the core config.")
     path = output_path or config.paths.reports_dir / "core_release_manifest.json"
+    category_export_run_ids = _current_category_export_run_ids(config)
     payload = {
+        "category_export_run_ids": category_export_run_ids,
         "config_fingerprint": config.config_fingerprint,
         "config_summary": config.config_summary,
-        "run_id": "run_75b90575bb9e48ce7918",
+        "run_id": category_export_run_ids[0] if len(category_export_run_ids) == 1 else "mixed",
         "files": [_file_record(Path(relative)) for relative in CORE_RELEASE_FILES],
     }
     files = cast(list[dict[str, Any]], payload["files"])

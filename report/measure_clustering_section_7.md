@@ -24,10 +24,10 @@ assignments are exported alongside the HDBSCAN artifacts for comparison.
 The clustering command writes:
 
 - `outputs/measure_clusters.csv`
-- `outputs/clustering/run_e1c656105fd6bcd3c088/agglomerative_baseline.csv`
-- `outputs/clustering/run_e1c656105fd6bcd3c088/domain_taxonomy.json`
-- `outputs/clustering/run_e1c656105fd6bcd3c088/manual_cluster_review_sample.csv`
-- `outputs/clustering/run_e1c656105fd6bcd3c088/clustering_summary.json`
+- `outputs/clustering/run_af85e9400741e5dc8d39/agglomerative_baseline.csv`
+- `outputs/clustering/run_af85e9400741e5dc8d39/domain_taxonomy.json`
+- `outputs/clustering/run_af85e9400741e5dc8d39/manual_cluster_review_sample.csv`
+- `outputs/clustering/run_af85e9400741e5dc8d39/clustering_summary.json`
 
 ## Evaluation
 
@@ -39,21 +39,28 @@ Current refreshed run:
 
 | Metric | Value |
 |---|---:|
-| Run ID | `run_e1c656105fd6bcd3c088` |
+| Run ID | `run_af85e9400741e5dc8d39` |
 | Measures | 2,894 |
 | HDBSCAN clusters | 216 |
 | Agglomerative baseline clusters | 48 |
 | Non-noise coverage | 0.870 |
 | Unclustered measures | 376 |
 | HDBSCAN stability proxy | 0.828 |
+| Manual review rows completed | 217 |
+| Mean manual coherence | 1.226 / 2 |
+| Coherent or strongly coherent | 0.668 |
+| Domain-label accuracy | 0.558 |
+| Representative good fraction | 0.839 |
 
 Manual review records coherence, domain-label quality, representative quality, and error examples.
-The current refreshed review sample is pending in `report/clustering_metrics.json`; older completed
-review figures are historical and should not be mixed with the 2,894-measure clustering export.
+The current refreshed review sample is complete in `report/clustering_metrics.json`: 121 domain
+labels were marked correct, 24 partial, and 72 wrong; 182 representatives were marked good and
+35 poor.
 
 ## Current Limitations
 
 The first implementation prioritizes reproducible artifacts and explicit review data over tuned
 cluster quality. The refreshed export has high structural coverage but still leaves 376 measures
-unclustered and places many rows in `cross-domain or other`. The next improvement is to complete
-the refreshed manual review sample and tune domain-label thresholds from that evidence.
+unclustered and places many rows in `cross-domain or other`. The manual review suggests that the
+clearest next improvement is tuning domain-label thresholds and cross-domain fallbacks from this
+evidence.

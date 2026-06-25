@@ -227,8 +227,8 @@
     "cluster_febb40b31763": 9,
     "unclustered": 376
   },
-  "config_name": "evaluation",
-  "corpus": "fixture",
+  "config_name": "core",
+  "corpus": "core",
   "coverage": 0.8700760193503801,
   "cross_domain_or_other_count": 1333,
   "domain_distribution": {
@@ -504,23 +504,61 @@
       "similarity_threshold": 0.35
     },
     "measure_count": 2894,
-    "run_id": "run_e1c656105fd6bcd3c088",
+    "run_id": "run_af85e9400741e5dc8d39",
     "silhouette": null,
     "timing": {
-      "agglomerative_baseline_seconds": 0.8729492999991635,
-      "contextual_cluster_seconds": 5.190693800002919,
-      "domain_labeling_seconds": 0.3851351000012073,
-      "raw_embedding_cluster_seconds": 4.5769536000007065
+      "agglomerative_baseline_seconds": 0.49880689999554306,
+      "contextual_cluster_seconds": 3.140045200008899,
+      "domain_labeling_seconds": 0.23973390000173822,
+      "raw_embedding_cluster_seconds": 2.7644435999682173
     },
     "unclustered_count": 376,
     "unclustered_count_delta": -117,
-    "wall_clock_seconds": 16.982830300003116
+    "wall_clock_seconds": 10.728684699977748
   },
   "manual_review": {
-    "completed_count": 0,
-    "review_sample": "outputs\\clustering\\run_e1c656105fd6bcd3c088\\manual_cluster_review_sample.csv",
+    "coherent_fraction": 0.6682027649769585,
+    "completed_count": 217,
+    "domain_label_accuracy": 0.5576036866359447,
+    "domain_label_quality_distribution": {
+      "correct": 121,
+      "partial": 24,
+      "wrong": 72
+    },
+    "mean_coherence": 1.2258064516129032,
+    "note_distribution": {
+      "incomplete phrase ending in adjective.": 1,
+      "incomplete phrase ending in adjective. fits cross-domain or lacks specific domain keywords.": 1,
+      "should be economy and finance.": 1,
+      "should be health.": 1,
+      "term has numbers at the start or unbalanced parentheses/incomplete sentence.": 14,
+      "term has numbers at the start or unbalanced parentheses/incomplete sentence. domain has overlap, but primarily involves 'population and demography'.": 1,
+      "term has numbers at the start or unbalanced parentheses/incomplete sentence. domain should likely be 'economy and finance' instead of cross-domain.": 2,
+      "term has numbers at the start or unbalanced parentheses/incomplete sentence. domain should likely be 'population and demography' instead of cross-domain.": 4,
+      "term is incomplete (ends with a preposition or conjunction).": 10,
+      "term is incomplete (ends with a preposition or conjunction). domain has overlap, but primarily involves 'economy and finance'.": 1,
+      "term is incomplete (ends with a preposition or conjunction). domain should likely be 'economy and finance' instead of cross-domain.": 1,
+      "well-formed term.": 100,
+      "well-formed term. domain has overlap, but primarily involves 'economy and finance'.": 8,
+      "well-formed term. domain has overlap, but primarily involves 'industry, trade, and services'.": 2,
+      "well-formed term. domain has overlap, but primarily involves 'labour market'.": 2,
+      "well-formed term. domain has overlap, but primarily involves 'population and demography'.": 2,
+      "well-formed term. domain should likely be 'agriculture, forestry, and fisheries' instead of cross-domain.": 1,
+      "well-formed term. domain should likely be 'economy and finance' instead of cross-domain.": 44,
+      "well-formed term. domain should likely be 'industry, trade, and services' instead of cross-domain.": 4,
+      "well-formed term. domain should likely be 'labour market' instead of cross-domain.": 5,
+      "well-formed term. domain should likely be 'population and demography' instead of cross-domain.": 9,
+      "well-formed term. fits cross-domain or lacks specific domain keywords.": 3
+    },
+    "representative_good_fraction": 0.8387096774193549,
+    "representative_quality_distribution": {
+      "good": 182,
+      "poor": 35
+    },
+    "review_sample": "outputs\\clustering\\run_af85e9400741e5dc8d39\\manual_cluster_review_sample.csv",
     "sample_count": 217,
-    "status": "pending"
+    "status": "available",
+    "strongly_coherent_fraction": 0.5576036866359447
   },
   "measure_count": 2894,
   "representative_count": 1080,

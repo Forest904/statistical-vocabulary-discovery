@@ -1,5 +1,5 @@
 {
-  "artifact_run_id": "run_b70d8931aa49eefaf26a",
+  "artifact_run_id": "run_ff41748fe08f1d8130fe",
   "completed_table_count": 2000,
   "config_name": "core",
   "corpus": "core",
@@ -16,10 +16,10 @@
   "table_count": 2000,
   "table_string_count": 93116,
   "table_vocabulary_count": 39753,
-  "tables_per_minute": 597.6828380261053,
+  "tables_per_minute": 1035.213028233073,
   "term_occurrence_count": 843516,
   "time_occurrence_count": 26715,
   "title_term_count": 8539,
   "vocabulary_count": 13235,
-  "wall_clock_seconds": 200.77537089999896
+  "wall_clock_seconds": 115.9181650999817
 }

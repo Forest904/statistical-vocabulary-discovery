@@ -1,0 +1,34 @@
+{
+  "edge_count": 90245,
+  "edge_type_counts": {
+    "broader_than": 16382,
+    "cluster_belongs_to_domain": 217,
+    "measure_member_of_cluster": 2894,
+    "related_to": 13482,
+    "table_contains_term": 39753,
+    "table_related_to_table": 3451,
+    "term_classified_as": 13235,
+    "variant_of": 831
+  },
+  "files": {
+    "edges": {
+      "md5": "39ae4e2124323c2560fc5a944074e99d",
+      "path": "data\\processed\\knowledge_graph_edges.parquet",
+      "size_bytes": 41152354
+    },
+    "nodes": {
+      "md5": "41627625a31c983ad56283475236750c",
+      "path": "data\\processed\\knowledge_graph_nodes.parquet",
+      "size_bytes": 771638
+    }
+  },
+  "node_count": 15469,
+  "node_type_counts": {
+    "category": 5,
+    "cluster": 217,
+    "domain": 12,
+    "table": 2000,
+    "term": 13235
+  },
+  "run_id": "run_df6cfbea6e78cb00355d"
+}

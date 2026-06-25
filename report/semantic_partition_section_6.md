@@ -43,8 +43,9 @@ The classification command writes:
 
 `report/classification_metrics.json` records completed audit-label metrics, duplicate relabel
 agreement, validation metrics, final-test metrics, and source-specific metrics for the random,
-targeted reclaim, and compiled human-loop sources. The active validated artifact candidate remains
-`run_75b90575bb9e48ce7918`.
+targeted reclaim, and compiled human-loop sources. The submitted validated category export is
+`run_42d33d7967059d3e8f22`; the latest local-hybrid rerun is
+`run_d96fee3c3c6166fddbac` and validates without replacing the conservative submitted CSVs.
 
 Headline random-audit results:
 
@@ -73,9 +74,10 @@ hallucination count is `0`.
 
 The 500 random primary labels, 50 random duplicate labels, 250 targeted reclaim labels, and 25
 targeted duplicate labels are complete, but they were completed through repository audits rather
-than a fully independent second-human annotation study. A gated reclaim run,
-`run_5f8127cf8e6be829b1ac`, was not promoted because it exceeded the random final-test macro-F1
-drop allowance (`0.036 > 0.020`), missed the targeted non-other precision floor
-(`0.714 < 0.850`), and reduced `other_ambiguous` by only `0.007 < 0.200`. Accepted outputs remain
-conservative, and no automatic `other_ambiguous` reduction is claimed. Human-loop review events are
-treated as continuous ground-truth expansion for future classifier versions, not as a one-time gate.
+than a fully independent second-human annotation study. The latest gated local-hybrid rerun,
+`run_d96fee3c3c6166fddbac`, was not promoted because it missed the targeted non-other precision
+floor (`0.714 < 0.850`), did not improve targeted reclaim macro-F1, did not reduce
+`other_ambiguous`, and left targeted measure recall below the promotion gate. Accepted outputs
+remain conservative, and no automatic `other_ambiguous` reduction is claimed. Human-loop review
+events are treated as continuous ground-truth expansion for future classifier versions, not as a
+one-time gate.

@@ -23,18 +23,18 @@
     "term_embeddings": {
       "exists": true,
       "path": "data\\processed\\term_embeddings.parquet",
-      "size_bytes": 31698429
+      "size_bytes": 31698399
     },
     "vocabulary": {
       "exists": true,
       "path": "data\\processed\\vocabulary.parquet",
-      "size_bytes": 17925680
+      "size_bytes": 17925650
     }
   },
   "config_name": "core",
   "corpus": "core",
   "expected_table_count": 2000,
-  "peak_rss_bytes": 70475776,
+  "peak_rss_bytes": 70017024,
   "selected_config": {
     "classification_embedding_batch_size": 64,
     "extraction_parallel_chunk_size": 25,
@@ -48,42 +48,42 @@
     "classification": {
       "diagnostics": {
         "prediction_count": 13235,
-        "run_id": "run_7d30a4b00ad01fbdb893",
+        "run_id": "run_d96fee3c3c6166fddbac",
         "timing": {
-          "calibration_sweep_seconds": 203.41539390000253,
-          "context_feature_seconds": 17.80344250000053,
-          "embedding_seconds": 3.5625259000007645,
-          "full_prediction_seconds": 0.36788439999872935,
-          "model_fit_seconds": 9.866462399997545,
-          "probability_seconds": 0.7566450000012992,
-          "semantic_feature_seconds": 181.67200980000052
+          "calibration_sweep_seconds": 0.024054599984083325,
+          "context_feature_seconds": 2.00001522898674e-07,
+          "embedding_seconds": 55.50993059994653,
+          "full_prediction_seconds": 0.14320009999210015,
+          "model_fit_seconds": 2.5749562999699265,
+          "probability_seconds": 0.08603099995525554,
+          "semantic_feature_seconds": 1.9000144675374031e-06
         },
-        "variant": "semantic-hybrid"
+        "variant": "local-hybrid"
       },
       "peak_rss_bytes": null,
       "stage": "classification",
       "throughput": {
-        "terms_per_second": 31.70482379101044
+        "terms_per_second": 226.86688550149103
       },
-      "wall_clock_seconds": 417.4443639000019
+      "wall_clock_seconds": 58.338174699863885
     },
     "clustering": {
       "diagnostics": {
         "contextual_features_enabled": true,
         "coverage": 0.8700760193503801,
         "measure_count": 2894,
-        "run_id": "run_e1c656105fd6bcd3c088",
+        "run_id": "run_af85e9400741e5dc8d39",
         "timing": {
-          "agglomerative_baseline_seconds": 0.8729492999991635,
-          "contextual_cluster_seconds": 5.190693800002919,
-          "domain_labeling_seconds": 0.3851351000012073,
-          "raw_embedding_cluster_seconds": 4.5769536000007065
+          "agglomerative_baseline_seconds": 0.49880689999554306,
+          "contextual_cluster_seconds": 3.140045200008899,
+          "domain_labeling_seconds": 0.23973390000173822,
+          "raw_embedding_cluster_seconds": 2.7644435999682173
         }
       },
       "peak_rss_bytes": null,
       "stage": "clustering",
       "throughput": {},
-      "wall_clock_seconds": 16.982830300003116
+      "wall_clock_seconds": 10.728684699977748
     },
     "extraction": {
       "diagnostics": {
@@ -95,10 +95,10 @@
       "peak_rss_bytes": null,
       "stage": "extraction",
       "throughput": {
-        "tables_per_minute": 597.6828380261053,
-        "terms_per_second": 65.91943992269854
+        "tables_per_minute": 1035.213028233073,
+        "terms_per_second": 114.17537526223393
       },
-      "wall_clock_seconds": 200.77537089999896
+      "wall_clock_seconds": 115.9181650999817
     },
     "ingest": {
       "diagnostics": {
@@ -111,9 +111,9 @@
       "peak_rss_bytes": null,
       "stage": "ingest",
       "throughput": {
-        "tables_per_second": 1036.308788308533
+        "tables_per_second": 147.29529854963667
       },
-      "wall_clock_seconds": 1.9299266999987594
+      "wall_clock_seconds": 13.578165900020394
     },
     "relations": {
       "diagnostics": {
@@ -126,14 +126,14 @@
       "peak_rss_bytes": null,
       "stage": "relations",
       "throughput": {
-        "candidates_per_second": 1427.744322074281,
-        "relation_candidates_per_second": 1427.744322074281
+        "candidates_per_second": 2371.020244655765,
+        "relation_candidates_per_second": 2371.020244655765
       },
-      "wall_clock_seconds": 31.76409059999787
+      "wall_clock_seconds": 19.12720910005737
     },
     "retrieval": {
       "diagnostics": {
-        "run_id": "run_25cbe2c81e0142ce2757",
+        "run_id": "run_c80d4312683a74aec48b",
         "selected_preset": "geography_time_heavy",
         "systems": {
           "all_vocabulary_bm25": {
@@ -144,8 +144,8 @@
               "MRR": 0.9225,
               "Relevance@1": 0.75,
               "Relevance@5": 0.975,
-              "p50_latency_ms": 164.47379999999612,
-              "p95_latency_ms": 339.0973999999005,
+              "p50_latency_ms": 114.52990001998842,
+              "p95_latency_ms": 270.4755000304431,
               "question_count": 20
             },
             "reformulated": {
@@ -155,8 +155,8 @@
               "MRR": 0.6876984126984127,
               "Relevance@1": 0.425,
               "Relevance@5": 0.675,
-              "p50_latency_ms": 166.7075999998815,
-              "p95_latency_ms": 334.81250000022555,
+              "p50_latency_ms": 114.44919998757541,
+              "p95_latency_ms": 269.30829999037087,
               "question_count": 20
             }
           },
@@ -168,8 +168,8 @@
               "MRR": 0.9375,
               "Relevance@1": 0.8,
               "Relevance@5": 0.95,
-              "p50_latency_ms": 407.78769999997166,
-              "p95_latency_ms": 555.7078000001638,
+              "p50_latency_ms": 286.18769999593496,
+              "p95_latency_ms": 421.54889996163547,
               "question_count": 20
             },
             "reformulated": {
@@ -179,8 +179,8 @@
               "MRR": 0.9,
               "Relevance@1": 0.7,
               "Relevance@5": 0.85,
-              "p50_latency_ms": 372.35899999996036,
-              "p95_latency_ms": 586.9349999998121,
+              "p50_latency_ms": 313.9450999442488,
+              "p95_latency_ms": 432.0575000019744,
               "question_count": 20
             }
           },
@@ -192,8 +192,8 @@
               "MRR": 0.875,
               "Relevance@1": 0.8,
               "Relevance@5": 0.875,
-              "p50_latency_ms": 235.4045000001861,
-              "p95_latency_ms": 399.00319999969724,
+              "p50_latency_ms": 179.8330000601709,
+              "p95_latency_ms": 322.591400006786,
               "question_count": 20
             },
             "reformulated": {
@@ -203,8 +203,8 @@
               "MRR": 0.8805555555555555,
               "Relevance@1": 0.75,
               "Relevance@5": 0.85,
-              "p50_latency_ms": 236.30659999980708,
-              "p95_latency_ms": 399.7724000000744,
+              "p50_latency_ms": 186.74410006497055,
+              "p95_latency_ms": 325.0134000554681,
               "question_count": 20
             }
           },
@@ -216,8 +216,8 @@
               "MRR": 0.9125,
               "Relevance@1": 0.725,
               "Relevance@5": 0.875,
-              "p50_latency_ms": 160.89169999986552,
-              "p95_latency_ms": 333.02039999989574,
+              "p50_latency_ms": 114.91749994456768,
+              "p95_latency_ms": 269.5807999698445,
               "question_count": 20
             },
             "reformulated": {
@@ -227,8 +227,8 @@
               "MRR": 0.5972222222222222,
               "Relevance@1": 0.375,
               "Relevance@5": 0.5,
-              "p50_latency_ms": 168.83529999995517,
-              "p95_latency_ms": 333.230199999889,
+              "p50_latency_ms": 114.11510000471026,
+              "p95_latency_ms": 266.78579999133945,
               "question_count": 20
             }
           }
@@ -242,15 +242,15 @@
     "search_index": {
       "diagnostics": {
         "document_count": 2000,
-        "run_id": "run_391c6ea54050920593d9",
+        "run_id": "run_4e3c9bfffe2048ae27b2",
         "total_index_size_bytes": 50965966
       },
-      "peak_rss_bytes": 2089689088,
+      "peak_rss_bytes": 2069598208,
       "stage": "search_index",
       "throughput": {
-        "documents_per_second": 48.88036732462018
+        "documents_per_second": 64.25309840315052
       },
-      "wall_clock_seconds": 40.916222800000014
+      "wall_clock_seconds": 31.12690360005945
     }
   }
 }

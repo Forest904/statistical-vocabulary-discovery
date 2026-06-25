@@ -23,9 +23,9 @@ so the core command remains deterministic and reproducible.
 The relation command writes:
 
 - `outputs/measure_relations.csv`
-- `outputs/relations/run_9431e98d07745bcef11d/relation_candidates.csv`
-- `outputs/relations/run_9431e98d07745bcef11d/manual_relation_review_sample.csv`
-- `outputs/relations/run_9431e98d07745bcef11d/relation_summary.json`
+- `outputs/relations/run_1b4d6642319427ea9aa0/relation_candidates.csv`
+- `outputs/relations/run_1b4d6642319427ea9aa0/manual_relation_review_sample.csv`
+- `outputs/relations/run_1b4d6642319427ea9aa0/relation_summary.json`
 
 ## Evaluation
 

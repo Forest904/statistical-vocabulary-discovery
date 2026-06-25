@@ -1,6 +1,6 @@
 {
   "edges": "data\\processed\\knowledge_graph_edges.parquet",
   "nodes": "data\\processed\\knowledge_graph_nodes.parquet",
-  "run_id": "run_232f3b44d3cd485ba4d2",
-  "summary": "outputs\\knowledge_graph\\run_232f3b44d3cd485ba4d2\\knowledge_graph_summary.json"
+  "run_id": "run_df6cfbea6e78cb00355d",
+  "summary": "outputs\\knowledge_graph\\run_df6cfbea6e78cb00355d\\knowledge_graph_summary.json"
 }

@@ -1,0 +1,8 @@
+{
+  "documents": "data\\processed\\search_documents.parquet",
+  "lexical_index": "outputs\\search\\run_4e3c9bfffe2048ae27b2\\lexical.sqlite",
+  "run_id": "run_4e3c9bfffe2048ae27b2",
+  "semantic_index": "outputs\\search\\run_4e3c9bfffe2048ae27b2\\semantic.faiss",
+  "semantic_metadata": "outputs\\search\\run_4e3c9bfffe2048ae27b2\\semantic_metadata.parquet",
+  "summary": "outputs\\search\\run_4e3c9bfffe2048ae27b2\\search_index_summary.json"
+}

@@ -1,0 +1,53 @@
+{
+  "artifacts": [
+    "data\\processed\\search_documents.parquet",
+    "outputs\\search\\run_4e3c9bfffe2048ae27b2\\lexical.sqlite",
+    "outputs\\search\\run_4e3c9bfffe2048ae27b2\\semantic.faiss",
+    "outputs\\search\\run_4e3c9bfffe2048ae27b2\\semantic_metadata.parquet",
+    "outputs\\search\\run_4e3c9bfffe2048ae27b2\\search_index_summary.json",
+    "outputs\\search\\run_4e3c9bfffe2048ae27b2\\index_manifest.json",
+    "outputs\\search\\current_index.json"
+  ],
+  "config_id": "cfg_eac3564ddc996f119f0b78c4200748d5",
+  "config_summary": {
+    "config_name": "core",
+    "corpus": "core",
+    "random_seed": 42
+  },
+  "corpus": "core",
+  "environment": {
+    "config_fingerprint": "cfg_eac3564ddc996f119f0b78c4200748d5",
+    "config_summary": {
+      "config_name": "core",
+      "corpus": "core",
+      "random_seed": 42
+    },
+    "corpus": {
+      "archive_name": "eurostat_2000_tables.tgz",
+      "expected_md5": "97bda36fec3c7c7ed042ee64ab16bf2c",
+      "expected_table_count": 2000,
+      "name": "core"
+    },
+    "git": {
+      "commit": "481f434deb7c7d5cc2ac06220718dcfd65b157ca",
+      "dirty": true,
+      "dirty_warning": "worktree has uncommitted changes"
+    },
+    "package_version": "0.1.0",
+    "python_version": "3.12.2"
+  },
+  "finished_at": "2026-06-25T12:26:15.103431Z",
+  "pipeline_stage": "build-search-index",
+  "resources": [
+    "resource_f12a21534177bde82830",
+    "resource_b03877994a1f28867882",
+    "resource_c65fff502d65521f56a6",
+    "resource_af84c9a7084141a79612",
+    "resource_b523a0b6ac9ec8303221",
+    "resource_da69880f2df1d0ed3343",
+    "resource_fb4c8764e0d837a42723"
+  ],
+  "run_id": "run_4e3c9bfffe2048ae27b2",
+  "started_at": "2026-06-25T12:25:43.857628Z",
+  "state": "succeeded"
+}
