@@ -32,6 +32,7 @@ dev = [
 notebooks = [
   "ipykernel>=6.29,<7",
   "jupyter>=1.1,<2",
+  "matplotlib>=3.10,<4",
   "nbclient>=0.10,<0.11",
   "nbformat>=5.10,<6",
 ]

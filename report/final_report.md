@@ -2,6 +2,8 @@
 title: "STAR Statistic Vocabularies Parsing and Structuring"
 author: "Luca Foresti"
 date: "2026-06-25"
+header-includes:
+  - \usepackage{graphicx}
 ---
 
 # Repository Details & Overview
@@ -52,6 +54,14 @@ Supplementary outputs:
 | `outputs/other_ambiguous.csv` | 9,114 | Justified extra category for unsafe terms |
 | `outputs/measure_clusters.csv` | 2,894 | Step 7 domain grouping |
 | `outputs/measure_relations.csv` | 30,695 | Step 8 bonus candidate graph |
+
+The complete core workflow produces reproducible extraction artifacts, required assignment CSVs, validation metrics, and supplementary search/graph deliverables from the same 2,000-table corpus. Figure 1 summarizes that flow; every figure in this report is generated from existing core artifacts by `scripts/generate_report_assets.py`.
+
+\begin{center}
+\includegraphics[width=0.96\linewidth]{report/assets/assignment_pipeline.png}
+
+{\small\textbf{Figure 1.} Assignment pipeline for the validated 2,000-table core submission.}
+\end{center}
 
 # 1. Extraction of Time Intervals, `D(t)`
 
@@ -133,6 +143,12 @@ Artifact mapping:
 | Units `U` | `outputs/units.csv` | 261 |
 | Other/ambiguous | `outputs/other_ambiguous.csv` | 9,114 |
 
+\begin{center}
+\includegraphics[width=0.78\linewidth]{report/assets/category_partition.png}
+
+{\small\textbf{Figure 2.} Submitted vocabulary partition, including the justified extra \texttt{other\_ambiguous} bucket.}
+\end{center}
+
 Quality evaluation. Evaluation uses `data/gold/vocabulary_gold_labels.csv` with 500 completed random audit labels, `data/gold/vocabulary_gold_relabel.csv` with 50 duplicate labels, `data/gold/vocabulary_reclaim_labels.csv` with 250 targeted reclaim labels, `data/gold/vocabulary_reclaim_relabel.csv` with 25 duplicate targeted rows, and the small compiled human-loop label set when present. Both duplicate audits report raw agreement `1.000` and Cohen's kappa `1.000`. The headline submission metrics use the random audit slice from `report/classification_metrics.json`:
 
 | Split | Accuracy | Macro-F1 | Weighted-F1 |
@@ -148,6 +164,12 @@ The completed targeted reclaim audit is reported separately as a diagnostic stre
 | All targeted rows | 0.204 | 0.121 | 0.196 |
 | Targeted validation | 0.020 | 0.008 | 0.001 |
 | Targeted final test | 0.100 | 0.051 | 0.164 |
+
+\begin{center}
+\includegraphics[width=0.88\linewidth]{report/assets/classification_metrics.png}
+
+{\small\textbf{Figure 3.} Classification quality on the headline random audit versus the targeted reclaim stress test.}
+\end{center}
 
 These diagnostic metrics are low because the accepted classifier still abstains heavily on reclaim candidates. That behavior is intentional: the current artifacts prefer high-precision assignment files over forcing ambiguous terms into `M`, `N`, `A`, or `U`.
 
@@ -182,9 +204,21 @@ Quality evaluation. Current metrics from `report/clustering_metrics.json` are:
 | Domain-label accuracy | 0.558 |
 | Representative good fraction | 0.839 |
 
-Domain distribution is conservative: `cross-domain or other` contains 1,333 measures. Large visible domains include economy and finance, population and demography, labour market, agriculture, health, education, transport, and industry/trade/services.
+Domain distribution is conservative: `cross-domain or other` contains 1,333 measures. Large visible domains include economy and finance, population and demography, labour market, agriculture, health, education, transport, and industry/trade/services. The manual review chart makes the main tuning direction visible: representatives are usually good, but many broad domain labels can be sharpened.
+
+\begin{center}
+\includegraphics[width=0.95\linewidth]{report/assets/cluster_domain_distribution.png}
+
+{\small\textbf{Figure 4.} Measure-domain distribution for \texttt{outputs/measure\_clusters.csv}, with conservative cross-domain assignments highlighted.}
+\end{center}
 
 Manual review status. The current manual cluster-review file is in the `run_af85e9400741e5dc8d39` clustering directory, and all 217 sampled rows are complete. The review records 121 correct, 24 partial, and 72 wrong domain-label judgments. It also records 182 `good` and 35 `poor` representative-quality judgments. This adds human coherence evidence to the structural validation rather than relying only on cluster coverage.
+
+\begin{center}
+\includegraphics[width=0.92\linewidth]{report/assets/cluster_review_quality.png}
+
+{\small\textbf{Figure 5.} Completed Step 7 manual review summary for coherence, domain-label quality, and representative quality.}
+\end{center}
 
 Limitations. The current clustering covers most measures but still leaves 376 measures unclustered and routes many assignments to `cross-domain or other`. The manual review shows that many of those conservative cross-domain labels should be tuned toward more specific domains, especially economy and finance, population and demography, labour market, and industry/trade/services.
 
@@ -201,6 +235,12 @@ Exported relationship types:
 | `broader_than` | 16,382 |
 | `related_to` | 13,482 |
 | `variant_of` | 831 |
+
+\begin{center}
+\includegraphics[width=0.72\linewidth]{report/assets/relation_type_distribution.png}
+
+{\small\textbf{Figure 6.} Submitted Step 8 relation type distribution.}
+\end{center}
 
 `narrower_than` is represented by reading a `broader_than` edge in the inverse direction, so it is not duplicated as a separate row in `outputs/measure_relations.csv`.
 
@@ -264,6 +304,14 @@ statvocab evaluate --config configs/core.yaml --area retrieval
 statvocab benchmark-core --config configs/core.yaml
 ```
 
+The refreshed core run is also summarized with stage-level wall-clock runtime from `report/performance_metrics.json`.
+
+\begin{center}
+\includegraphics[width=0.86\linewidth]{report/assets/pipeline_runtime.png}
+
+{\small\textbf{Figure 7.} Core pipeline wall-clock runtime by stage.}
+\end{center}
+
 Validate the submitted artifacts:
 
 ```bash
@@ -275,6 +323,12 @@ statvocab validate-core-release --config configs/core.yaml
 ## E. Supplementary Product: Search, API, Graph, and Review
 
 The search, API, React UI, graph explorer, and review page are supplementary product work and are intentionally presented after the assignment deliverables. The search engine builds one document per source table, returns ranked Eurostat tables with evidence, and does not answer numeric questions. The FastAPI backend exposes grounded search, artifact, relation, graph, and review endpoints; the React frontend provides table search, vocabulary inspection, domain and relation views, a bounded Cytoscape.js graph explorer, and a human-loop review surface.
+
+\begin{center}
+\includegraphics[width=0.96\linewidth]{report/assets/repo_architecture.png}
+
+{\small\textbf{Figure 8.} High-level repository architecture separating the core research pipeline from supplementary product surfaces.}
+\end{center}
 
 Retrieval metrics are in `report/retrieval_metrics.json`; the current search-index run is `run_4e3c9bfffe2048ae27b2`. Review events are continuous improvement data: they expand ground truth for future classifier and relation iterations, but they are not treated as a one-time gate for the submitted assignment artifacts.
 
